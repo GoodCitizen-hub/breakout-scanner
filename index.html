@@ -371,10 +371,31 @@ const SCOL = {'BREAKOUT NOW':'#00ff88','BROKEN OUT':'#00ccff','NEAR BREAKOUT':'#
 const SORD = {'BREAKOUT NOW':0,'BROKEN OUT':1,'NEAR BREAKOUT':2,'SETTING UP':3};
 const TFCOL= {'5 MIN':'#00ccff','15 MIN':'#00aadd','1 HR':'#00ff88','4 HR':'#00cc66','DAILY':'#ffd700','WEEKLY':'#ffaa00','LIVE':'#ff8c42'};
 
-// ── STATE ────────────────────────────────────────────────────────────────────
+// ── PIPEDREAM ─────────────────────────────────────────────────────────────────
+const PD_URL = 'https://eo4fmdziiqh8w3s.m.pipedream.net';
+let fibSource = 'hardcoded';
+
+async function fetchLiveFibs() {
+  try {
+    const r = await fetch(PD_URL, {method:'GET'});
+    if (!r.ok) return 0;
+    const data = await r.json();
+    let updated = 0;
+    for (const [sym, val] of Object.entries(data)) {
+      if (val && !isNaN(val.f0) && !isNaN(val.f1) && FIBS[sym]) {
+        FIBS[sym] = { f0: val.f0, f1: val.f1 };
+        updated++;
+      }
+    }
+    if (updated > 0) fibSource = 'live';
+    return updated;
+  } catch(e) { return 0; }
+}
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
 let mode='SWING', filter='ALL', stocks=[], checked={}, autoT=null, cdT=null, cdV=0;
 
-// ── HELPERS ──────────────────────────────────────────────────────────────────
+// ── HELPERS ───────────────────────────────────────────────────────────────────
 const f2  = n => (n==null||isNaN(n))?'--':Number(n).toFixed(2);
 const fv  = n => { if(!n)return'--'; if(n>=1e9)return(n/1e9).toFixed(1)+'B'; if(n>=1e6)return(n/1e6).toFixed(1)+'M'; return(n/1e3).toFixed(0)+'K'; };
 const slp = ms => new Promise(r=>setTimeout(r,ms));
@@ -447,6 +468,10 @@ async function doScan(){
   document.getElementById('cd').textContent='';
   document.getElementById('errbox').style.display='none';
 
+  // Fetch latest fibs from Pipedream first
+  document.getElementById('upd').textContent = 'Syncing fib levels from TradingView...';
+  const fibsUpdated = await fetchLiveFibs();
+
   const res=[],errs=[];
   for(let i=0;i<SYMS.length;i++){
     const sym=SYMS[i];
@@ -460,7 +485,7 @@ async function doScan(){
   }
 
   stocks=res.sort((a,b)=>b.fit-a.fit||(SORD[a.status]??3)-(SORD[b.status]??3)||a.pri-b.pri);
-  document.getElementById('upd').textContent=`Updated ${new Date().toLocaleTimeString()} · ${res.length}/${SYMS.length} fetched`;
+  document.getElementById('upd').textContent=`Updated ${new Date().toLocaleTimeString()} · ${res.length}/${SYMS.length} fetched · Fibs: ${fibSource}${fibsUpdated>0?' ('+fibsUpdated+' updated)':''}`;
 
   const open=mktOpen();
   document.getElementById('mkt-dot').className=open?'open':'';
