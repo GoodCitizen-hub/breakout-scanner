@@ -371,13 +371,13 @@ const SCOL = {'BREAKOUT NOW':'#00ff88','BROKEN OUT':'#00ccff','NEAR BREAKOUT':'#
 const SORD = {'BREAKOUT NOW':0,'BROKEN OUT':1,'NEAR BREAKOUT':2,'SETTING UP':3};
 const TFCOL= {'5 MIN':'#00ccff','15 MIN':'#00aadd','1 HR':'#00ff88','4 HR':'#00cc66','DAILY':'#ffd700','WEEKLY':'#ffaa00','LIVE':'#ff8c42'};
 
-// ── PIPEDREAM ─────────────────────────────────────────────────────────────────
-const PD_URL = 'https://eo4fmdziiqh8w3s.m.pipedream.net';
+// ── LIVE FIBS FROM GITHUB ────────────────────────────────────────────────────
+const FIBS_URL = 'https://raw.githubusercontent.com/GoodCitizen-hub/breakout-scanner/main/fibs.json';
 let fibSource = 'hardcoded';
 
 async function fetchLiveFibs() {
   try {
-    const r = await fetch(PD_URL, {method:'GET'});
+    const r = await fetch(FIBS_URL + '?t=' + Date.now());
     if (!r.ok) return 0;
     const data = await r.json();
     let updated = 0;
@@ -387,7 +387,7 @@ async function fetchLiveFibs() {
         updated++;
       }
     }
-    if (updated > 0) fibSource = 'live';
+    if (updated > 0) fibSource = 'live ✓';
     return updated;
   } catch(e) { return 0; }
 }
