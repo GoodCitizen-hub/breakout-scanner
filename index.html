@@ -197,16 +197,16 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:1
   <button id="sbtn" onclick="doScan()">▶&nbsp; SCAN FOR SWING TRADES</button>
   <div id="errbox"></div>
   <div id="summary">
-    <div class="sc" onclick="setFilter('BREAKOUTS')"><div class="sn" id="sn-b" style="color:var(--swing)">0</div><div class="slbl">BREAKOUTS</div></div>
-    <div class="sc" onclick="setFilter('NEAR')"><div class="sn" id="sn-n" style="color:var(--leap)">0</div><div class="slbl">NEAR</div></div>
-    <div class="sc" onclick="setFilter('SETUP')"><div class="sn" id="sn-s" style="color:var(--orange)">0</div><div class="slbl">SETTING UP</div></div>
+    <div class="sc" onclick="setFilter('BREAKOUTS')"><div class="sn" id="sn-b" style="color:var(--swing)">0</div><div class="slbl">ENTRY ZONE+</div></div>
+    <div class="sc" onclick="setFilter('NEAR')"><div class="sn" id="sn-n" style="color:var(--leap)">0</div><div class="slbl">RECOVERING</div></div>
+    <div class="sc" onclick="setFilter('SETUP')"><div class="sn" id="sn-s" style="color:var(--orange)">0</div><div class="slbl">BASING</div></div>
   </div>
   <div id="filters">
     <button class="fb" data-f="ALL"       onclick="setFilter('ALL')">ALL</button>
     <button class="fb" data-f="PORT"      onclick="setFilter('PORT')" style="color:#ffd700;border-color:#ffd70033">MY PORT</button>
-    <button class="fb" data-f="BREAKOUTS" onclick="setFilter('BREAKOUTS')">BREAKOUTS</button>
-    <button class="fb" data-f="NEAR"      onclick="setFilter('NEAR')">NEAR</button>
-    <button class="fb" data-f="SETUP"     onclick="setFilter('SETUP')">SETUP</button>
+    <button class="fb" data-f="BREAKOUTS" onclick="setFilter('BREAKOUTS')">ENTRY ZONE+</button>
+    <button class="fb" data-f="NEAR"      onclick="setFilter('NEAR')">RECOVERING</button>
+    <button class="fb" data-f="SETUP"     onclick="setFilter('SETUP')">BASING</button>
     <button class="fb" data-f="P1"        onclick="setFilter('P1')">P1</button>
     <button class="fb" data-f="P2"        onclick="setFilter('P2')">P2</button>
     <span id="fc"></span>
@@ -225,48 +225,56 @@ const AUTO_MS = 5 * 60 * 1000;
 // ── FIB DATA — from your TradingView Daily Auto-Fib ───────────────────────────
 // fib(value) = fib0 + (fib1 - fib0) * value
 // fib0 = anchor start (recent pivot), fib1 = anchor end (other pivot)
+// ── FIB DATA — low = pivot low, high = pivot high ────────────────────────────
+// Always: low < high regardless of trend direction
+// Levels calculated as: low + (high - low) * fibValue
+// So 0 = low pivot, 1 = high pivot, 0.5 = midpoint, etc.
 const FIBS = {
-  PLTR: { f0:161.45, f1:126.23 },  // downtrend: f0=high, f1=low
-  AVGO: { f0:353.14, f1:295.30 },
-  AMZN: { f0:220.47, f1:196.00 },
-  NVDA: { f0:197.63, f1:169.55 },
-  META: { f0:628.15, f1:744.00 },
-  GOOGL:{ f0:293.93, f1:350.15 },
-  MSFT: { f0:413.05, f1:381.71 },
-  AAPL: { f0:280.90, f1:243.42 },
-  AMD:  { f0:188.22, f1:266.96 },
-  TSLA: { f0:381.40, f1:436.35 },
-  CRM:  { f0:204.86, f1:174.57 },
-  PANW: { f0:139.57, f1:196.19 },
-  NET:  { f0:203.62, f1:160.35 },
-  DDOG: { f0:98.01,  f1:133.44 },
-  CRWD: { f0:452.00, f1:342.72 },
-  MRVL: { f0:95.05,  f1:70.69  },
-  SNOW: { f0:184.74, f1:154.63 },
-  ARM:  { f0:111.26, f1:134.25 },
-  SMCI: { f0:34.94,  f1:27.75  },
-  AMAT: { f0:316.66, f1:395.95 },
-  ORCL: { f0:171.76, f1:135.25 },
-  NOW:  { f0:126.67, f1:98.00  },
-  UBER: { f0:78.25,  f1:69.02  },
-  COIN: { f0:213.50, f1:139.36 },
-  SHOP: { f0:135.96, f1:104.92 },
-  SOFI: { f0:16.80,  f1:29.86  },  // f0=low, f1=high
-  HOOD: { f0:84.75,  f1:69.22  },
-  MSTR: { f0:149.54, f1:104.17 },
-  LYFT: { f0:12.83,  f1:23.33  },
-  IONQ: { f0:41.90,  f1:29.99  },
-  MU:   { f0:357.67, f1:455.50 },
+  PLTR: { low:126.23, high:161.45 },
+  AVGO: { low:295.30, high:353.14 },
+  AMZN: { low:196.00, high:220.47 },
+  NVDA: { low:169.55, high:197.63 },
+  META: { low:628.15, high:744.00 },
+  GOOGL:{ low:293.93, high:350.15 },
+  MSFT: { low:381.71, high:413.05 },
+  AAPL: { low:243.42, high:280.90 },
+  AMD:  { low:188.22, high:266.96 },
+  TSLA: { low:381.40, high:436.35 },
+  CRM:  { low:174.57, high:204.86 },
+  PANW: { low:139.57, high:196.19 },
+  NET:  { low:160.35, high:203.62 },
+  DDOG: { low:98.01,  high:133.44 },
+  CRWD: { low:342.72, high:452.00 },
+  MRVL: { low:70.69,  high:95.05  },
+  SNOW: { low:154.63, high:184.74 },
+  ARM:  { low:111.26, high:134.25 },
+  SMCI: { low:27.75,  high:34.94  },
+  AMAT: { low:316.66, high:395.95 },
+  ORCL: { low:135.25, high:171.76 },
+  NOW:  { low:98.00,  high:126.67 },
+  UBER: { low:69.02,  high:78.25  },
+  COIN: { low:139.36, high:213.50 },
+  SHOP: { low:104.92, high:135.96 },
+  SOFI: { low:16.80,  high:29.86  },
+  HOOD: { low:69.22,  high:84.75  },
+  MSTR: { low:104.17, high:149.54 },
+  LYFT: { low:12.83,  high:23.33  },
+  IONQ: { low:29.99,  high:41.90  },
+  MU:   { low:357.67, high:455.50 },
 };
 
-// Compute fib level price: fib0 + (fib1-fib0)*level
+// Compute fib level price: low + (high-low) * fibValue
+// 0 = low pivot, 1 = high pivot
+// 0.236 = first resistance above low
+// 0.382/0.5/0.618 = entry zone
+// 0.786 = near high
 function fibPrice(sym, level) {
   const f = FIBS[sym];
   if(!f) return null;
-  return f.f0 + (f.f1 - f.f0) * level;
+  return f.low + (f.high - f.low) * level;
 }
 
-// Key fib levels used for resistance/support
+// Key fib levels — always low to high
 const FIB_LEVELS = [0, 0.236, 0.382, 0.5, 0.618, 0.786, 1];
 const FIB_COLORS = {
   0:    '#787b86',
@@ -279,6 +287,7 @@ const FIB_COLORS = {
 };
 
 // Find nearest fib levels above/below current price
+// Since low < high always, levels are sorted low to high naturally
 function nearestFibs(sym, price) {
   const levels = FIB_LEVELS.map(l => ({ level:l, price:fibPrice(sym,l) }))
     .filter(x => x.price !== null)
@@ -358,7 +367,7 @@ const MODES = {
   DAY:{
     color:'#00ccff',hold:'Minutes–Hours',rmin:1.5,rr:'3:1',
     em:0.998,en:1.001,co:1.003,st:0.995,tg:1.015,
-    best:['BREAKOUT NOW','BROKEN OUT','NEAR 0 FIB'],
+    best:['BREAKOUT NOW','BROKEN OUT','NEAR HIGH'],
     checks:[
       {id:'d1',label:'5-min: Price above 20 EMA',tf:'5 MIN'},
       {id:'d2',label:'5-min: Candle CLOSED above 20 EMA',tf:'5 MIN'},
@@ -371,7 +380,7 @@ const MODES = {
   SWING:{
     color:'#00ff88',hold:'2–10 Days',rmin:1.0,rr:'2:1',
     em:0.995,en:1.001,co:1.005,st:0.980,tg:1.040,
-    best:['ENTRY ZONE','BREAKOUT NOW','NEAR 0 FIB'],
+    best:['ENTRY ZONE','BREAKOUT NOW','NEAR HIGH'],
     checks:[
       {id:'s1',label:'1-hour: Price above 20 EMA',tf:'1 HR'},
       {id:'s2',label:'4-hour: Price above 20 EMA',tf:'4 HR'},
@@ -384,7 +393,7 @@ const MODES = {
   LEAP:{
     color:'#ffd700',hold:'6–12 Months',rmin:0.7,rr:'4:1',
     em:0.990,en:1.001,co:1.010,st:0.950,tg:1.200,
-    best:['ENTRY ZONE','BASING','RECOVERING'],
+    best:['ENTRY ZONE','RECOVERING','BASING'],
     checks:[
       {id:'l1',label:'Daily: Price above 20 EMA',tf:'DAILY'},
       {id:'l2',label:'Daily: Candle CLOSED above 20 EMA',tf:'DAILY'},
@@ -397,20 +406,23 @@ const MODES = {
 };
 
 const SCOL = {
-  'BROKEN OUT':   '#00ccff',
-  'NEAR 0 FIB':   '#00ff88',
-  'BREAKOUT NOW': '#00ff88',
-  'ENTRY ZONE':   '#00ff88',
-  'RECOVERING':   '#ffd700',
-  'BASING':       '#ff8c42',
-  'DEEP BASE':    '#666',
-  'SETTING UP':   '#ff8c42',
+  'BROKEN OUT':  '#00ccff',
+  'NEAR HIGH':   '#00ccff',
+  'BREAKOUT NOW':'#00ff88',
+  'ENTRY ZONE':  '#00ff88',
+  'RECOVERING':  '#ffd700',
+  'BASING':      '#ff8c42',
+  'DEEP BASE':   '#555',
+  // legacy fallbacks
+  'SETTING UP':  '#ff8c42',
   'NEAR BREAKOUT':'#ffd700',
+  'NEAR 0 FIB':  '#00ff88',
 };
 const SORD = {
-  'BROKEN OUT':0,'NEAR 0 FIB':1,'BREAKOUT NOW':2,
+  'BROKEN OUT':0,'NEAR HIGH':1,'BREAKOUT NOW':2,
   'ENTRY ZONE':3,'RECOVERING':4,'BASING':5,'DEEP BASE':6,
-  'SETTING UP':6,'NEAR BREAKOUT':3,
+  // legacy
+  'SETTING UP':5,'NEAR BREAKOUT':3,'NEAR 0 FIB':2,
 };
 const TFCOL= {'5 MIN':'#00ccff','15 MIN':'#00aadd','1 HR':'#00ff88','4 HR':'#00cc66','DAILY':'#ffd700','WEEKLY':'#ffaa00','LIVE':'#ff8c42'};
 
@@ -454,64 +466,63 @@ async function getQuote(sym){
 }
 
 // ── FIB ZONE STATUS ──────────────────────────────────────────────────────────
-// Determines where price sits in the full fib progression
-// Returns status, entry zone flag, and progression level
+// low/high structure means levels always go low→high
+// 0 = low pivot (base), 1 = high pivot (target/breakout)
+// Price progression: 0 → 0.236 → 0.382 → 0.5 → 0.618 → 0.786 → 1
+//
+// Status roadmap (price working UP from low to high):
+//   Below 0          = DEEP BASE    (below the pivot low — capitulation)
+//   0 to 0.236       = BASING       (holding the low, building a floor)
+//   0.236 to 0.382   = RECOVERING   (reclaimed first resistance — watching)
+//   0.382 to 0.618   = ENTRY ZONE   ← PRIMARY SWING & LEAP ENTRY
+//   0.618 to 0.786   = BREAKOUT NOW (strong momentum, confirming)
+//   0.786 to 1       = NEAR HIGH    (approaching full reclaim)
+//   Above 1          = BROKEN OUT   (above the high pivot — full breakout)
 function getFibZone(sym, price) {
   const f = FIBS[sym];
-  if (!f) return { status:'SETTING UP', isEntry:false, level:0, pct:0 };
+  if (!f) return { status:'BASING', isEntry:false, pct:0, below:null, above:null };
 
-  // All key fib levels sorted low to high
+  const low  = f.low;
+  const high = f.high;
+  const range = high - low;
+  if (range <= 0) return { status:'BASING', isEntry:false, pct:0, below:null, above:null };
+
+  // Position as 0-1 fraction from low to high
+  const pct = (price - low) / range;
+
+  // All levels sorted low→high
   const pts = FIB_LEVELS
     .map(l => ({ l, p: fibPrice(sym, l) }))
     .sort((a,b) => a.p - b.p);
 
-  const minP = pts[0].p;
-  const maxP = pts[pts.length-1].p;
-  const range = maxP - minP;
-  const pct = range > 0 ? (price - minP) / range : 0; // 0=at low pivot, 1=at high pivot
-
-  // Find which two fib levels price is between
+  // Find surrounding levels
   let below = null, above = null;
   for (const pt of pts) {
     if (pt.p <= price) below = pt;
     else if (!above)   above = pt;
   }
 
-  const bl = below ? below.l : null;
-  const al = above ? above.l : null;
+  const bl = below ? below.l : -1;
+  const al = above ? above.l : 2;
 
-  // Determine status based on fib position
-  // For downtrend fibs (f0 < f1): 0=low, 1=high — price recovering upward
-  // For uptrend fibs (f0 > f1): 0=high, 1=low — price retracing downward
-  const trending_up = f.f1 > f.f0; // price needs to go UP to reach f1
+  let status, isEntry = false;
 
-  let status, isEntry=false;
-
-  if (price >= fibPrice(sym, 0) && !trending_up) {
-    status = 'BROKEN OUT'; // above the 0 fib high
-  } else if (price >= fibPrice(sym, 0) && trending_up) {
-    status = 'BROKEN OUT'; // reclaimed the origin pivot
-  } else if (bl !== null && al !== null) {
-    // Price is between two fib levels — determine zone
-    const midLevel = (bl + al) / 2;
-
-    if (bl <= 0 && al <= 0.236) {
-      status = 'NEAR 0 FIB'; // approaching full breakout
-    } else if (bl <= 0.236 && al <= 0.382) {
-      status = 'BREAKOUT NOW'; // strong momentum zone
-    } else if (bl <= 0.382 && al <= 0.618) {
-      status = 'ENTRY ZONE'; isEntry = true; // your key entry area
-    } else if (bl <= 0.618 && al <= 0.786) {
-      status = 'RECOVERING'; // building strength
-    } else if (bl <= 0.786 && al <= 1) {
-      status = 'BASING'; // near the base pivot
-    } else {
-      status = 'DEEP BASE'; // below all fibs
-    }
-  } else if (!above) {
-    status = 'BROKEN OUT';
+  if (price < low) {
+    status = 'DEEP BASE';                          // below the base pivot
+  } else if (bl >= 0 && al <= 0.236) {
+    status = 'BASING';                             // between 0 and 0.236
+  } else if (bl >= 0.236 && al <= 0.382) {
+    status = 'RECOVERING';                         // between 0.236 and 0.382
+  } else if (bl >= 0.382 && al <= 0.618) {
+    status = 'ENTRY ZONE'; isEntry = true;         // ← YOUR ZONE
+  } else if (bl >= 0.618 && al <= 0.786) {
+    status = 'BREAKOUT NOW';                       // strong momentum
+  } else if (bl >= 0.786 && al <= 1) {
+    status = 'NEAR HIGH';                          // approaching full reclaim
+  } else if (price >= high) {
+    status = 'BROKEN OUT';                         // full breakout
   } else {
-    status = 'DEEP BASE';
+    status = 'BASING';
   }
 
   return { status, isEntry, pct: Math.max(0, Math.min(1, pct)), below, above };
@@ -631,9 +642,9 @@ function render(){
   document.getElementById('cards').style.display='block';
   document.getElementById('empty').style.display='none';
 
-  document.getElementById('sn-b').textContent=stocks.filter(s=>s.status==='BREAKOUT NOW'||s.status==='BROKEN OUT').length;
-  document.getElementById('sn-n').textContent=stocks.filter(s=>s.status==='NEAR BREAKOUT').length;
-  document.getElementById('sn-s').textContent=stocks.filter(s=>s.status==='SETTING UP').length;
+  document.getElementById('sn-b').textContent=stocks.filter(s=>['ENTRY ZONE','BREAKOUT NOW','NEAR HIGH','BROKEN OUT'].includes(s.status)).length;
+  document.getElementById('sn-n').textContent=stocks.filter(s=>s.status==='RECOVERING').length;
+  document.getElementById('sn-s').textContent=stocks.filter(s=>s.status==='BASING'||s.status==='DEEP BASE').length;
 
   document.querySelectorAll('.fb').forEach(b=>{
     const on=b.dataset.f===filter;
@@ -646,9 +657,9 @@ function render(){
   const list=stocks.filter(s=>{
     if(filter==='ALL')       return true;
     if(filter==='PORT')      return !!PORT[s.sym];
-    if(filter==='BREAKOUTS') return s.status==='BREAKOUT NOW'||s.status==='BROKEN OUT';
-    if(filter==='NEAR')      return s.status==='NEAR BREAKOUT';
-    if(filter==='SETUP')     return s.status==='SETTING UP';
+    if(filter==='BREAKOUTS') return ['ENTRY ZONE','BREAKOUT NOW','NEAR HIGH','BROKEN OUT'].includes(s.status);
+    if(filter==='NEAR')      return s.status==='RECOVERING';
+    if(filter==='SETUP')     return s.status==='BASING'||s.status==='DEEP BASE';
     if(filter==='P1')        return s.pri===1;
     if(filter==='P2')        return s.pri<=2;
     return true;
@@ -710,10 +721,13 @@ function fibPanelHTML(s){
     let zone='', zoneCol='', zoneBg='';
     const above=s.fibNear.above, below=s.fibNear.below;
     if(above&&below){
-      const midFib=(above.level+below.level)/2;
-      if(below.level<=0.236) { zone=`Near ${below.level} fib support — watching for bounce`; zoneCol='#ff8c42'; zoneBg='rgba(255,140,0,0.08)'; }
-      else if(below.level>=0.618) { zone=`Deep retracement — potential LEAP accumulation zone`; zoneCol='#00ff88'; zoneBg='rgba(0,255,136,0.06)'; }
-      else { zone=`Between ${below.level} and ${above.level} fibs — consolidating`; zoneCol='#ffd700'; zoneBg='rgba(255,215,0,0.06)'; }
+      const bl=below.level, al=above.level;
+      if(bl>=0.382&&al<=0.618)       { zone='ENTRY ZONE — 0.382 to 0.618 · Primary swing & LEAP entry'; zoneCol='#00ff88'; zoneBg='rgba(0,255,136,0.06)'; }
+      else if(bl>=0.618&&al<=0.786)  { zone='BREAKOUT NOW — 0.618 to 0.786 · Strong momentum confirmed'; zoneCol='#00ff88'; zoneBg='rgba(0,255,136,0.04)'; }
+      else if(bl>=0.786)             { zone='NEAR HIGH — Approaching full reclaim of high pivot'; zoneCol='#00ccff'; zoneBg='rgba(0,204,255,0.05)'; }
+      else if(bl>=0.236&&al<=0.382)  { zone='RECOVERING — 0.236 to 0.382 · Watch for entry zone break'; zoneCol='#ffd700'; zoneBg='rgba(255,215,0,0.06)'; }
+      else if(bl>=0&&al<=0.236)      { zone='BASING — 0 to 0.236 · Building floor above pivot low'; zoneCol='#ff8c42'; zoneBg='rgba(255,140,0,0.06)'; }
+      else                           { zone='DEEP BASE — Below pivot low · Capitulation zone'; zoneCol='#555'; zoneBg='rgba(100,100,100,0.06)'; }
     }
 
     const fibRowsHTML=levels.map(({l,p})=>{
@@ -779,7 +793,7 @@ function cardHTML(s){
   try{
     const m=MODES[mode];
     const sc=SCOL[s.status]||'#888';
-  const isEntryZone = s.status === 'ENTRY ZONE';
+  const isEntryZone = s.isEntry === true;
     const key=s.sym+'_'+mode;
     const ck=checked[key]||{};
     const done=m.checks.filter(c=>ck[c.id]).length;
@@ -812,24 +826,24 @@ function cardHTML(s){
 
     // Fib progression roadmap
     const roadSteps = [
-      {l:1,    short:'1·BASE'},
-      {l:0.786,short:'0.786'},
-      {l:0.618,short:'0.618'},
-      {l:0.382,short:'0.382'},
+      {l:0,    short:'0·LOW'},
       {l:0.236,short:'0.236'},
-      {l:0,    short:'0·BREAK'},
+      {l:0.382,short:'0.382'},
+      {l:0.618,short:'0.618'},
+      {l:0.786,short:'0.786'},
+      {l:1,    short:'1·HIGH'},
     ];
     const roadHTML = roadSteps.map((rs,idx) => {
       const rp = fibPrice(s.sym, rs.l);
       if(!rp) return '';
-      const reached  = s.price >= rp;
+      const reached  = s.price >= rp - 0.01; // slight tolerance
       const isNow    = s.fibZone && s.fibZone.below && Math.abs(s.fibZone.below.l - rs.l) < 0.001;
       const inEntry  = rs.l >= 0.382 && rs.l <= 0.618;
       const dc2      = reached?'#00ff88': isNow?'#ffd700': inEntry?'rgba(0,255,136,0.4)':'#1e1e2e';
       const db2      = reached?'#00ff88': isNow?'#ffd700': inEntry?'#00ff88':'#333';
       const pc2      = reached?'#00ff88': isNow?'#ffd700':'#444';
       const lc       = idx<roadSteps.length-1?(reached?'#00ff8855':'#1e1e2e'):'transparent';
-      const entryTag = inEntry&&rs.l===0.618?'<div style="font-size:0.34rem;color:#00ff88;margin-top:1px">ENTRY</div>':'';
+      const entryTag = (rs.l===0.382||rs.l===0.618)?'<div style="font-size:0.34rem;color:#00ff88;margin-top:1px">'+(rs.l===0.382?'ENTRY▶':'◀ENTRY')+'</div>':'';
       return '<div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:46px">'
         + '<div style="width:10px;height:10px;border-radius:50%;background:'+dc2+';border:2px solid '+db2+(isNow?';box-shadow:0 0 6px '+db2:'')+'">'+'</div>'
         + '<div style="font-size:0.46rem;font-weight:700;color:'+pc2+';margin-top:2px">$'+f2(rp)+'</div>'
@@ -860,7 +874,7 @@ function cardHTML(s){
   <div style="margin-bottom:10px;padding:8px 10px;background:rgba(0,0,0,0.3);border-radius:6px;border:1px solid ${isEntryZone?'rgba(0,255,136,0.2)':'rgba(255,215,0,0.1)'}">
     <div style="font-size:0.47rem;letter-spacing:2px;color:#ffd700;font-weight:700;margin-bottom:7px">FIB PROGRESSION ROADMAP</div>
     <div style="display:flex;align-items:flex-start;overflow-x:auto;padding-bottom:2px">${roadHTML}</div>
-    ${isEntryZone?'<div style="font-size:0.54rem;color:#00ff88;margin-top:8px;padding:5px 8px;background:rgba(0,255,136,0.08);border:1px solid rgba(0,255,136,0.25);border-radius:4px;font-weight:700">✓ ENTRY ZONE — Price between 0.618 and 0.382 fib · Consider position sizing</div>':''}
+    ${isEntryZone?'<div style="font-size:0.54rem;color:#00ff88;margin-top:8px;padding:5px 8px;background:rgba(0,255,136,0.08);border:1px solid rgba(0,255,136,0.25);border-radius:4px;font-weight:700">✓ ENTRY ZONE — Price between 0.382 and 0.618 fib · Primary swing &amp; LEAP entry · Consider position sizing</div>':''}
   </div>
 
   <div class="sgrid">
