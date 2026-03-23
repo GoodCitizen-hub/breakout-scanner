@@ -836,7 +836,7 @@ function cardHTML(s){
     const roadHTML = roadSteps.map((rs,idx) => {
       const rp = fibPrice(s.sym, rs.l);
       if(!rp) return '';
-      const reached  = s.price >= rp - 0.01; // slight tolerance
+      const reached  = s.price >= rp + 0.05; // must clearly clear the level
       const isNow    = s.fibZone && s.fibZone.below && Math.abs(s.fibZone.below.l - rs.l) < 0.001;
       const inEntry  = rs.l >= 0.382 && rs.l <= 0.618;
       const dc2      = reached?'#00ff88': isNow?'#ffd700': inEntry?'rgba(0,255,136,0.4)':'#1e1e2e';
