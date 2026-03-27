@@ -50,8 +50,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:1
 #filters{display:none;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:14px;}
 .fb{background:var(--bg2);border:1px solid var(--dimmer);color:#444;font-family:var(--mono);font-size:0.59rem;font-weight:700;padding:4px 10px;border-radius:4px;cursor:pointer;}
 #fc{font-size:0.54rem;color:var(--dimmer);margin-left:auto;}
-
-/* BUILD 1: PUT pulse */
 @keyframes entrypulse{0%,100%{box-shadow:0 0 0px rgba(0,255,136,0.3)}50%{box-shadow:0 0 18px rgba(0,255,136,0.7)}}
 @keyframes putpulse{0%,100%{box-shadow:0 0 0px rgba(255,68,68,0.3)}50%{box-shadow:0 0 18px rgba(255,68,68,0.7)}}
 .entry-zone-card{animation:entrypulse 2.5s infinite;border-color:rgba(0,255,136,0.5)!important;background:rgba(0,255,136,0.04)!important;}
@@ -59,13 +57,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:1
 .put-zone-card{animation:putpulse 2.5s infinite;border-color:rgba(255,68,68,0.5)!important;background:rgba(255,68,68,0.03)!important;}
 .put-zone-badge{background:#ff4444!important;color:#fff!important;border-color:#ff4444!important;font-weight:900;}
 .deep-base-card{border-color:rgba(255,68,68,0.25)!important;background:rgba(255,68,68,0.02)!important;}
-
-/* BUILD 3: Bias badge */
 .bias-badge{font-size:0.5rem;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:1px;}
 .bias-badge.bullish{background:rgba(0,255,136,0.1);color:#00ff88;border:1px solid rgba(0,255,136,0.25);}
 .bias-badge.bearish{background:rgba(255,68,68,0.1);color:#ff4444;border:1px solid rgba(255,68,68,0.25);}
 .bias-badge.neutral{background:rgba(255,215,0,0.06);color:#ffd700;border:1px solid rgba(255,215,0,0.18);}
-
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:13px;margin-bottom:10px;}
 .ctop{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
 .cleft{flex:1;}
@@ -89,8 +84,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:1
 .fibfill{height:100%;border-radius:3px;transition:width 0.5s;}
 .fibdot{position:absolute;top:-4px;width:3px;height:13px;border-radius:2px;transform:translateX(-50%);}
 .fibzone{font-size:0.52rem;margin-top:6px;padding:5px 7px;border-radius:4px;border:1px solid transparent;}
-
-/* BUILD 2: Put panel */
 .putpanel{background:rgba(255,68,68,0.04);border:1px solid rgba(255,68,68,0.2);border-radius:6px;padding:9px 11px;margin-bottom:10px;}
 .puttitle{font-size:0.48rem;letter-spacing:2px;color:#ff4444;font-weight:700;margin-bottom:8px;}
 .putgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px 10px;margin-bottom:8px;}
@@ -98,7 +91,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:1
 .put-val{font-size:0.69rem;font-weight:700;}
 .put-rec{font-size:0.52rem;padding:5px 7px;border-radius:4px;border:1px solid rgba(255,68,68,0.2);background:rgba(255,68,68,0.06);color:#ff8888;margin-top:4px;line-height:1.5;}
 .put-warn{font-size:0.49rem;padding:4px 7px;border-radius:4px;border:1px solid rgba(255,140,0,0.18);background:rgba(255,140,0,0.05);color:#ff8c42;margin-top:5px;line-height:1.5;}
-
 .sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px 10px;margin-bottom:10px;}
 .sl{font-size:0.48rem;letter-spacing:1px;color:#444;margin-bottom:1px;}
 .sv{font-size:0.75rem;font-weight:600;}
@@ -196,18 +188,55 @@ const FKEY='d6q0co1r01qhcrmidjkgd6q0co1r01qhcrmidjl0';
 const DELAY=80;
 const AUTO_MS=5*60*1000;
 
+// Hardcoded fibs — updated Mar 27 2026 with Friday closes for broken stocks
 const FIBS={
-  PLTR:{low:126.23,high:161.45},AVGO:{low:295.30,high:353.14},AMZN:{low:196.00,high:220.47},
-  NVDA:{low:169.55,high:197.63},META:{low:547.54,high:737.00},GOOGL:{low:293.93,high:350.15},
-  MSFT:{low:365.97,high:398.00},AAPL:{low:243.42,high:280.90},AMD:{low:188.22,high:266.96},
+  PLTR:{low:126.23,high:161.45},AVGO:{low:300.68,high:353.14},AMZN:{low:196.00,high:220.47},
+  NVDA:{low:167.52,high:197.63},META:{low:525.72,high:737.00},GOOGL:{low:293.93,high:350.15},
+  MSFT:{low:356.77,high:398.00},AAPL:{low:243.42,high:280.90},AMD:{low:188.22,high:266.96},
   TSLA:{low:381.40,high:436.35},CRM:{low:174.57,high:204.86},PANW:{low:139.57,high:196.19},
   NET:{low:160.35,high:203.62},DDOG:{low:98.01,high:133.44},CRWD:{low:342.72,high:452.00},
-  MRVL:{low:70.69,high:95.05},SNOW:{low:154.63,high:184.74},ARM:{low:111.26,high:134.25},
+  MRVL:{low:70.69,high:95.05},SNOW:{low:152.80,high:184.74},ARM:{low:111.26,high:134.25},
   SMCI:{low:27.75,high:34.94},AMAT:{low:316.66,high:395.95},ORCL:{low:135.25,high:171.76},
   NOW:{low:98.00,high:126.67},UBER:{low:69.02,high:78.25},COIN:{low:139.36,high:213.50},
-  SHOP:{low:104.92,high:135.96},SOFI:{low:15.87,high:29.86},HOOD:{low:69.22,high:84.75},
-  MSTR:{low:104.17,high:149.54},LYFT:{low:12.83,high:23.33},IONQ:{low:29.84,high:41.90},
+  SHOP:{low:104.92,high:135.96},SOFI:{low:15.23,high:29.86},HOOD:{low:66.02,high:84.75},
+  MSTR:{low:104.17,high:149.54},LYFT:{low:12.83,high:23.33},IONQ:{low:27.51,high:41.90},
   MU:{low:355.46,high:455.50},
+};
+
+// Known next major support levels below fib low for PUT targets
+// Used when stock is BROKEN DOWN — gives real downside target not just fib low
+const PUT_TARGETS={
+  META:{support:479.80,label:'52wk low'},
+  NVDA:{support:155.00,label:'weekly S1'},
+  AVGO:{support:270.00,label:'monthly S1'},
+  MSFT:{support:340.00,label:'weekly S1'},
+  SNOW:{support:130.00,label:'monthly floor'},
+  SOFI:{support:12.00,label:'monthly floor'},
+  HOOD:{support:55.00,label:'monthly floor'},
+  IONQ:{support:22.00,label:'monthly floor'},
+  CRWD:{support:342.72,label:'fib low'},
+  AMD:{support:175.00,label:'monthly S1'},
+  PLTR:{support:100.00,label:'monthly floor'},
+  MU:{support:320.00,label:'monthly S1'},
+  MSTR:{support:90.00,label:'monthly floor'},
+  AAPL:{support:220.00,label:'weekly S1'},
+  AMZN:{support:180.00,label:'monthly S1'},
+  GOOGL:{support:260.00,label:'monthly S1'},
+  TSLA:{support:340.00,label:'weekly S1'},
+  CRM:{support:155.00,label:'monthly S1'},
+  PANW:{support:125.00,label:'monthly S1'},
+  NET:{support:145.00,label:'monthly S1'},
+  DDOG:{support:85.00,label:'monthly S1'},
+  MRVL:{support:60.00,label:'monthly S1'},
+  ARM:{support:95.00,label:'monthly S1'},
+  SMCI:{support:22.00,label:'monthly floor'},
+  AMAT:{support:280.00,label:'monthly S1'},
+  ORCL:{support:115.00,label:'monthly S1'},
+  NOW:{support:85.00,label:'monthly S1'},
+  UBER:{support:60.00,label:'monthly S1'},
+  COIN:{support:115.00,label:'monthly S1'},
+  SHOP:{support:88.00,label:'monthly S1'},
+  LYFT:{support:10.00,label:'monthly floor'},
 };
 
 function fibPrice(sym,level){const f=FIBS[sym];if(!f)return null;return f.low+(f.high-f.low)*level;}
@@ -221,18 +250,19 @@ function nearestFibs(sym,price){
   return{below,above,levels};
 }
 
+// ── PORT — updated with correct re-entry levels Mar 27 ───────────────────────
 const PORT={
-  SNOW:{exit:160.00,reentry:178.16,trail:null,acct:'Port A · Brokerage',opt:'$200C Jan 2027',note:'Below exit — decision needed Monday'},
-  SOFI:{exit:16.80,reentry:19.88,trail:null,acct:'Port A+B · Both',opt:'$15C Jun/Jan 2027',note:'LEAPs held through recovery'},
-  META:{exit:null,reentry:628.15,trail:null,acct:'Port A · Re-entry',opt:'$580-600C Jan 2027',note:'Wait 2 consecutive daily closes above trigger'},
+  SNOW:{exit:160.00,reentry:null,trail:null,acct:'Port A · Brokerage',opt:'Shares',note:'Below exit — exit or set new thesis Monday'},
+  SOFI:{exit:null,reentry:null,trail:null,acct:'Port A+B · Both',opt:'$15C Jun/Jan 2027',note:'LEAPs held through recovery — no exit level'},
+  META:{exit:null,reentry:null,trail:null,acct:'Port A · Watching',opt:'$580-600C Jan 2027',note:'Re-entry needs new base to form — old $628 level obsolete'},
   MSTR:{exit:121.50,reentry:null,trail:null,acct:'Port A · Brokerage',opt:'$125C Jan 2027',note:'Trail stop on Fidelity · BTC correlated'},
   AVGO:{exit:307.00,reentry:null,trail:352.00,acct:'Port B · IRA',opt:'$300C Jan 2027',note:'Below exit — decision needed Monday'},
-  HOOD:{exit:69.22,reentry:null,trail:null,acct:'Port B · IRA',opt:'Re-entry watch',note:'Below exit — watching for base'},
-  AMD:{exit:190.00,reentry:null,trail:218.00,acct:'Port B · IRA',opt:'$195C Jun 2027',note:'Holding — trail trigger = 0.382 fib'},
-  MSFT:{exit:381.71,reentry:394.11,trail:413.00,acct:'Port B · IRA',opt:'$390-400C Jan 2027',note:'Re-entry: 2 closes above $394.11'},
-  MU:{exit:null,reentry:455.00,trail:null,acct:'Watchlist',opt:'Watch only',note:'RSI oversold entry zone'},
+  HOOD:{exit:69.22,reentry:null,trail:null,acct:'Port B · IRA',opt:'Re-entry watch',note:'Below exit — watching for base to form'},
+  AMD:{exit:190.00,reentry:null,trail:218.00,acct:'Port B · IRA',opt:'$195C Jun 2027',note:'Holding above exit — trail trigger = 0.382 fib'},
+  MSFT:{exit:null,reentry:394.11,trail:null,acct:'Port B · IRA',opt:'$390-400C Jan 2027',note:'Re-entry: 2 consecutive closes above $394.11 (0.382 fib)'},
+  MU:{exit:null,reentry:400.00,trail:null,acct:'Watchlist',opt:'Watch only',note:'Watching for RSI oversold base'},
   LYFT:{exit:null,reentry:15.31,trail:null,acct:'Watchlist',opt:'$15C Mar 2027',note:'Suspended — macro not supportive'},
-  IONQ:{exit:32.00,reentry:40.00,trail:null,acct:'Port B · IRA',opt:'Re-entry watch',note:'50 MA confirmation needed'},
+  IONQ:{exit:null,reentry:34.69,trail:null,acct:'Watchlist',opt:'Re-entry watch',note:'Re-entry at 0.382 fib — not in yet'},
 };
 
 const BASE={
@@ -269,7 +299,6 @@ const SCOL={'BROKEN OUT':'#00ccff','NEAR HIGH':'#00ccff','BREAKOUT NOW':'#00ff88
 const SORD={'BROKEN OUT':0,'NEAR HIGH':1,'BREAKOUT NOW':2,'ENTRY ZONE':3,'RECOVERING':4,'BASING':5,'DEEP BASE':6,'BROKEN DOWN':7};
 const TFCOL={'5 MIN':'#00ccff','15 MIN':'#00aadd','1 HR':'#00ff88','4 HR':'#00cc66','DAILY':'#ffd700','WEEKLY':'#ffaa00','LIVE':'#ff8c42'};
 
-// LIVE FIBS
 const FIBS_URL='https://raw.githubusercontent.com/GoodCitizen-hub/breakout-scanner/main/fibs.json';
 let fibSource='hardcoded';
 async function fetchLiveFibs(){
@@ -301,7 +330,6 @@ async function getQuote(sym){
   return{price:d.c,vol:d.v||0,chg:d.dp||0};
 }
 
-// BUILD 5: getFibZone — CALL + PUT status logic
 function getFibZone(sym,price){
   const f=FIBS[sym];
   if(!f)return{status:'BASING',isEntry:false,isPut:false,isDeepBase:false,pct:0,below:null,above:null};
@@ -325,7 +353,6 @@ function getFibZone(sym,price){
   return{status,isEntry,isPut,isDeepBase,pct:Math.max(0,Math.min(1,pct)),below,above};
 }
 
-// BUILD 3: Directional bias
 function getBias(s){
   if(s.isPut||s.isDeepBase)return'bearish';
   if(['ENTRY ZONE','BREAKOUT NOW','BROKEN OUT'].includes(s.status))return'bullish';
@@ -334,21 +361,27 @@ function getBias(s){
   return'neutral';
 }
 
-// BUILD 4: 0DTE vs weekly put recommendation
+// FIXED: PUT target now uses PUT_TARGETS table for real next support
 function getPutRec(s){
   if(!s.isPut&&!s.isDeepBase)return null;
   const f=FIBS[s.sym];if(!f)return null;
   const price=s.price;
   const otm0dte=Math.floor(price*0.985/5)*5;
   const otmWeekly=Math.floor(price*0.96/5)*5;
-  const target=(price<f.low?(f.low*0.95):(f.low*0.97)).toFixed(2);
+
+  // Use known support level if available, else calculate from fib low
+  const pt=PUT_TARGETS[s.sym];
+  const target=pt?pt.support.toFixed(2):(f.low*0.95).toFixed(2);
+  const targetLabel=pt?pt.label:'estimated';
   const downPct=((target-price)/price*100).toFixed(1);
   const stop=(f.low*1.01).toFixed(2);
+
   let expiry,strikeRec,expiryReason;
-  if(s.rv>=2.0){expiry='0DTE';strikeRec=`$${otm0dte}P`;expiryReason=`RVOL ${f2(s.rv)}x — strong momentum, 0DTE viable`;}
-  else if(s.rv>=1.0){expiry='Apr 4 (weekly)';strikeRec=`$${otmWeekly}P`;expiryReason=`RVOL ${f2(s.rv)}x — weekly expiry gives structure to develop`;}
-  else{expiry='SKIP';strikeRec='LOW RVOL — skip';expiryReason=`RVOL ${f2(s.rv)}x — below 1x, insufficient momentum for puts`;}
-  return{expiry,strikeRec,target,downPct,stop,expiryReason};
+  if(s.rv>=2.0){expiry='0DTE';strikeRec=`$${otm0dte}P`;expiryReason=`RVOL ${f2(s.rv)}x — momentum strong, 0DTE viable`;}
+  else if(s.rv>=1.0){expiry='Apr 4 (weekly)';strikeRec=`$${otmWeekly}P`;expiryReason=`RVOL ${f2(s.rv)}x — weekly gives structure to develop`;}
+  else{expiry='SKIP';strikeRec='LOW RVOL — skip';expiryReason=`RVOL ${f2(s.rv)}x — below 1x, insufficient momentum`;}
+
+  return{expiry,strikeRec,target,targetLabel,downPct,stop,expiryReason};
 }
 
 function build(sym,price,vol,chg){
@@ -384,8 +417,7 @@ function build(sym,price,vol,chg){
 async function doScan(){
   const rb=document.getElementById('rbtn'),sb=document.getElementById('sbtn');
   rb.textContent='↻';rb.style.color='#ffd700';rb.style.borderColor='#ffd70033';
-  sb.disabled=true;
-  clearInterval(autoT);clearInterval(cdT);
+  sb.disabled=true;clearInterval(autoT);clearInterval(cdT);
   document.getElementById('cd').textContent='';
   document.getElementById('errbox').style.display='none';
   document.getElementById('upd').textContent='Syncing fib levels from GitHub...';
@@ -477,7 +509,7 @@ function fibPanelHTML(s){
     const pct=range>0?Math.max(0,Math.min(100,(price-minP)/range*100)):50;
     let zone='',zoneCol='',zoneBg='';
     const above=s.fibNear.above,below2=s.fibNear.below;
-    if(s.isPut||s.isDeepBase){zone='BELOW PIVOT LOW — PUT territory · Next fib support mapped below';zoneCol='#ff4444';zoneBg='rgba(255,68,68,0.06)';}
+    if(s.isPut||s.isDeepBase){zone='BELOW PIVOT LOW — PUT territory · Next support mapped in Put Opportunity panel';zoneCol='#ff4444';zoneBg='rgba(255,68,68,0.06)';}
     else if(above&&below2){
       const bl=below2.level,al=above.level;
       if(bl>=0.382&&al<=0.618){zone='ENTRY ZONE — 0.382 to 0.618 · Primary swing & LEAP entry';zoneCol='#00ff88';zoneBg='rgba(0,255,136,0.06)';}
@@ -502,7 +534,6 @@ function fibPanelHTML(s){
   }catch(e){return'';}
 }
 
-// BUILD 2: Put opportunity panel
 function putPanelHTML(s){
   try{
     if(!s.putRec)return'';
@@ -512,7 +543,7 @@ function putPanelHTML(s){
       <div class="putgrid">
         <div><div class="put-lbl">STRIKE</div><div class="put-val" style="color:#ff4444">${pr.strikeRec}</div></div>
         <div><div class="put-lbl">EXPIRY</div><div class="put-val" style="color:${pr.expiry==='SKIP'?'#555':'#ff8888'}">${pr.expiry}</div></div>
-        <div><div class="put-lbl">TARGET</div><div class="put-val" style="color:#ff6666">$${pr.target}</div></div>
+        <div><div class="put-lbl">TARGET (${pr.targetLabel})</div><div class="put-val" style="color:#ff6666">$${pr.target}</div></div>
         <div><div class="put-lbl">DOWNSIDE</div><div class="put-val" style="color:#ff4444">${pr.downPct}%</div></div>
         <div><div class="put-lbl">STOP (reclaim)</div><div class="put-val" style="color:#ff8c42">$${pr.stop}</div></div>
         <div><div class="put-lbl">FIB LOW</div><div class="put-val" style="color:#555">$${f2(f.low)}</div></div>
@@ -552,11 +583,8 @@ function cardHTML(s){
     const passH=Object.entries(s.pass).map(([k,v])=>`<span class="pc ${v?'y':'n'}">${v?'✓':'✗'} ${k}</span>`).join('');
     const checkH=m.checks.map(c=>{const on=!!ck[c.id],tc=TFCOL[c.tf]||'#888';return`<div class="emaitem${on?' on':''}" data-k="${key}" data-id="${c.id}"><div class="emacheck" style="${on?`background:${m.color};border-color:${m.color};color:#000`:''}">${on?'✓':''}</div><div class="emalabel">${c.label}</div><span class="tfchip" style="color:${tc};border-color:${tc}33">${c.tf}</span></div>`;}).join('');
     const resLabel=s.fibNear.above?`${s.fibNear.above.level} FIB`:'FIB RES';
-
-    // BUILD 3: Bias badge
     const biasLabel=s.bias==='bullish'?'▲ BULLISH':s.bias==='bearish'?'▼ BEARISH':'● NEUTRAL';
     const biasBadge=`<span class="bias-badge ${s.bias}">${biasLabel}</span>`;
-
     const roadSteps=[{l:0,short:'0·LOW'},{l:0.236,short:'0.236'},{l:0.382,short:'0.382'},{l:0.618,short:'0.618'},{l:0.786,short:'0.786'},{l:1,short:'1·HIGH'}];
     const roadHTML=roadSteps.map((rs,idx)=>{
       const rp=fibPrice(s.sym,rs.l);if(!rp)return'';
@@ -576,10 +604,8 @@ function cardHTML(s){
         +tag+'</div>'
         +(idx<roadSteps.length-1?'<div style="flex:1;height:2px;background:'+lc+';margin-top:4px;min-width:6px"></div>':'');
     }).join('');
-
     const cardClass=isEntryZone?'card entry-zone-card':isPutCard&&s.status==='BROKEN DOWN'?'card put-zone-card':isPutCard?'card deep-base-card':'card';
     const cardBorder=isEntryZone?'rgba(0,255,136,0.5)':isPutCard?'rgba(255,68,68,0.3)':m.best.includes(s.status)?m.color+'28':'';
-
     return`<div class="${cardClass}"${cardBorder?` style="border-color:${cardBorder}"`:''}">
   <div class="ctop">
     <div class="cleft">
@@ -598,7 +624,7 @@ function cardHTML(s){
     <div style="font-size:0.47rem;letter-spacing:2px;color:${isPutCard?'#ff4444':'#ffd700'};font-weight:700;margin-bottom:7px">FIB PROGRESSION ROADMAP</div>
     <div style="display:flex;align-items:flex-start;overflow-x:auto;padding-bottom:2px">${roadHTML}</div>
     ${isEntryZone?'<div style="font-size:0.54rem;color:#00ff88;margin-top:8px;padding:5px 8px;background:rgba(0,255,136,0.08);border:1px solid rgba(0,255,136,0.25);border-radius:4px;font-weight:700">✓ ENTRY ZONE — Price between 0.382 and 0.618 fib · Primary swing &amp; LEAP entry</div>':''}
-    ${isPutCard?'<div style="font-size:0.54rem;color:#ff4444;margin-top:8px;padding:5px 8px;background:rgba(255,68,68,0.08);border:1px solid rgba(255,68,68,0.25);border-radius:4px;font-weight:700">📉 BELOW FIB LOW — PUT territory · See Put Opportunity panel below</div>':''}
+    ${isPutCard?'<div style="font-size:0.54rem;color:#ff4444;margin-top:8px;padding:5px 8px;background:rgba(255,68,68,0.08);border:1px solid rgba(255,68,68,0.25);border-radius:4px;font-weight:700">📉 BELOW FIB LOW — PUT territory · Real support target in Put Opportunity panel</div>':''}
   </div>
   <div class="sgrid">
     <div><div class="sl">VOL</div><div class="sv">${fv(s.vol)}</div></div>
