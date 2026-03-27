@@ -222,21 +222,19 @@ const FKEY    = 'd6q0co1r01qhcrmidjkgd6q0co1r01qhcrmidjl0';
 const DELAY   = 80;
 const AUTO_MS = 5 * 60 * 1000;
 
-// ── FIB DATA — from your TradingView Daily Auto-Fib ───────────────────────────
-// fib(value) = fib0 + (fib1 - fib0) * value
-// fib0 = anchor start (recent pivot), fib1 = anchor end (other pivot)
 // ── FIB DATA — low = pivot low, high = pivot high ────────────────────────────
 // Always: low < high regardless of trend direction
 // Levels calculated as: low + (high - low) * fibValue
 // So 0 = low pivot, 1 = high pivot, 0.5 = midpoint, etc.
+// Updated: 2026-03-26
 const FIBS = {
   PLTR: { low:126.23, high:161.45 },
   AVGO: { low:295.30, high:353.14 },
   AMZN: { low:196.00, high:220.47 },
   NVDA: { low:169.55, high:197.63 },
-  META: { low:628.15, high:744.00 },
+  META: { low:547.54, high:737.00 },
   GOOGL:{ low:293.93, high:350.15 },
-  MSFT: { low:381.71, high:413.05 },
+  MSFT: { low:365.97, high:398.00 },
   AAPL: { low:243.42, high:280.90 },
   AMD:  { low:188.22, high:266.96 },
   TSLA: { low:381.40, high:436.35 },
@@ -255,26 +253,20 @@ const FIBS = {
   UBER: { low:69.02,  high:78.25  },
   COIN: { low:139.36, high:213.50 },
   SHOP: { low:104.92, high:135.96 },
-  SOFI: { low:16.80,  high:29.86  },
+  SOFI: { low:15.87,  high:29.86  },
   HOOD: { low:69.22,  high:84.75  },
   MSTR: { low:104.17, high:149.54 },
   LYFT: { low:12.83,  high:23.33  },
-  IONQ: { low:29.99,  high:41.90  },
-  MU:   { low:357.67, high:455.50 },
+  IONQ: { low:29.84,  high:41.90  },
+  MU:   { low:355.46, high:455.50 },
 };
 
-// Compute fib level price: low + (high-low) * fibValue
-// 0 = low pivot, 1 = high pivot
-// 0.236 = first resistance above low
-// 0.382/0.5/0.618 = entry zone
-// 0.786 = near high
 function fibPrice(sym, level) {
   const f = FIBS[sym];
   if(!f) return null;
   return f.low + (f.high - f.low) * level;
 }
 
-// Key fib levels — always low to high
 const FIB_LEVELS = [0, 0.236, 0.382, 0.5, 0.618, 0.786, 1];
 const FIB_COLORS = {
   0:    '#787b86',
@@ -286,8 +278,6 @@ const FIB_COLORS = {
   1:    '#787b86',
 };
 
-// Find nearest fib levels above/below current price
-// Since low < high always, levels are sorted low to high naturally
 function nearestFibs(sym, price) {
   const levels = FIB_LEVELS.map(l => ({ level:l, price:fibPrice(sym,l) }))
     .filter(x => x.price !== null)
@@ -314,16 +304,6 @@ const PORT = {
   MU:   { exit:null,   reentry:455.00, trail:null,   acct:'Watchlist',          opt:'Watch only',        note:'Alt: RSI oversold entry at $406–418 zone' },
   LYFT: { exit:null,   reentry:15.31,  trail:null,   acct:'Watchlist',          opt:'$15C Mar 2027',     note:'Suspended — macro not supportive yet' },
   IONQ: { exit:32.00,  reentry:40.00,  trail:null,   acct:'Port B · IRA',       opt:'Re-entry watch',    note:'50 MA confirmation needed on re-entry' },
-};
-
-// ── ADDITIONAL WATCHLIST (SPY, QQQ etc for context) ───────────────────────────
-// These show fib panel only, no scanner cards
-const CONTEXT = {
-  SPY:  { f0:697.84, f1:650.85 },
-  QQQ:  { f0:591.33, f1:636.60 },
-  TSM:  { f0:331.92, f1:390.21 },
-  UNH:  { f0:295.31, f1:266.29 },
-  AXP:  { f0:292.43, f1:387.49 },
 };
 
 // ── BASE DATA ────────────────────────────────────────────────────────────────
@@ -413,7 +393,6 @@ const SCOL = {
   'RECOVERING':  '#ffd700',
   'BASING':      '#ff8c42',
   'DEEP BASE':   '#555',
-  // legacy fallbacks
   'SETTING UP':  '#ff8c42',
   'NEAR BREAKOUT':'#ffd700',
   'NEAR 0 FIB':  '#00ff88',
@@ -421,12 +400,13 @@ const SCOL = {
 const SORD = {
   'BROKEN OUT':0,'NEAR HIGH':1,'BREAKOUT NOW':2,
   'ENTRY ZONE':3,'RECOVERING':4,'BASING':5,'DEEP BASE':6,
-  // legacy
   'SETTING UP':5,'NEAR BREAKOUT':3,'NEAR 0 FIB':2,
 };
 const TFCOL= {'5 MIN':'#00ccff','15 MIN':'#00aadd','1 HR':'#00ff88','4 HR':'#00cc66','DAILY':'#ffd700','WEEKLY':'#ffaa00','LIVE':'#ff8c42'};
 
-// ── LIVE FIBS FROM GITHUB ────────────────────────────────────────────────────
+// ── LIVE FIBS FROM GITHUB ─────────────────────────────────────────────────────
+// Fetches fibs.json from repo root and merges into FIBS object
+// fibs.json format: { "updated": "YYYY-MM-DD", "stocks": { "TICKER": { "low": x, "high": y } } }
 const FIBS_URL = 'https://raw.githubusercontent.com/GoodCitizen-hub/breakout-scanner/main/fibs.json';
 let fibSource = 'hardcoded';
 
@@ -436,15 +416,20 @@ async function fetchLiveFibs() {
     if (!r.ok) return 0;
     const data = await r.json();
     let updated = 0;
-    for (const [sym, val] of Object.entries(data)) {
-      if (val && !isNaN(val.f0) && !isNaN(val.f1) && FIBS[sym]) {
-        FIBS[sym] = { f0: val.f0, f1: val.f1 };
+    // Handle both { stocks: {} } wrapper and flat { TICKER: {} } formats
+    const src = data.stocks || data;
+    for (const [sym, val] of Object.entries(src)) {
+      if (val && !isNaN(val.low) && !isNaN(val.high) && FIBS[sym]) {
+        FIBS[sym] = { low: val.low, high: val.high };
         updated++;
       }
     }
     if (updated > 0) fibSource = 'live ✓';
     return updated;
-  } catch(e) { return 0; }
+  } catch(e) {
+    console.warn('fetchLiveFibs failed:', e.message);
+    return 0;
+  }
 }
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
@@ -466,18 +451,6 @@ async function getQuote(sym){
 }
 
 // ── FIB ZONE STATUS ──────────────────────────────────────────────────────────
-// low/high structure means levels always go low→high
-// 0 = low pivot (base), 1 = high pivot (target/breakout)
-// Price progression: 0 → 0.236 → 0.382 → 0.5 → 0.618 → 0.786 → 1
-//
-// Status roadmap (price working UP from low to high):
-//   Below 0          = DEEP BASE    (below the pivot low — capitulation)
-//   0 to 0.236       = BASING       (holding the low, building a floor)
-//   0.236 to 0.382   = RECOVERING   (reclaimed first resistance — watching)
-//   0.382 to 0.618   = ENTRY ZONE   ← PRIMARY SWING & LEAP ENTRY
-//   0.618 to 0.786   = BREAKOUT NOW (strong momentum, confirming)
-//   0.786 to 1       = NEAR HIGH    (approaching full reclaim)
-//   Above 1          = BROKEN OUT   (above the high pivot — full breakout)
 function getFibZone(sym, price) {
   const f = FIBS[sym];
   if (!f) return { status:'BASING', isEntry:false, pct:0, below:null, above:null };
@@ -487,15 +460,12 @@ function getFibZone(sym, price) {
   const range = high - low;
   if (range <= 0) return { status:'BASING', isEntry:false, pct:0, below:null, above:null };
 
-  // Position as 0-1 fraction from low to high
   const pct = (price - low) / range;
 
-  // All levels sorted low→high
   const pts = FIB_LEVELS
     .map(l => ({ l, p: fibPrice(sym, l) }))
     .sort((a,b) => a.p - b.p);
 
-  // Find surrounding levels
   let below = null, above = null;
   for (const pt of pts) {
     if (pt.p <= price) below = pt;
@@ -508,19 +478,19 @@ function getFibZone(sym, price) {
   let status, isEntry = false;
 
   if (price < low) {
-    status = 'DEEP BASE';                          // below the base pivot
+    status = 'DEEP BASE';
   } else if (bl >= 0 && al <= 0.236) {
-    status = 'BASING';                             // between 0 and 0.236
+    status = 'BASING';
   } else if (bl >= 0.236 && al <= 0.382) {
-    status = 'RECOVERING';                         // between 0.236 and 0.382
+    status = 'RECOVERING';
   } else if (bl >= 0.382 && al <= 0.618) {
-    status = 'ENTRY ZONE'; isEntry = true;         // ← YOUR ZONE
+    status = 'ENTRY ZONE'; isEntry = true;
   } else if (bl >= 0.618 && al <= 0.786) {
-    status = 'BREAKOUT NOW';                       // strong momentum
+    status = 'BREAKOUT NOW';
   } else if (bl >= 0.786 && al <= 1) {
-    status = 'NEAR HIGH';                          // approaching full reclaim
+    status = 'NEAR HIGH';
   } else if (price >= high) {
-    status = 'BROKEN OUT';                         // full breakout
+    status = 'BROKEN OUT';
   } else {
     status = 'BASING';
   }
@@ -537,11 +507,9 @@ function build(sym, price, vol, chg){
     const nf  = nearestFibs(sym, price);
     const fz  = getFibZone(sym, price);
 
-    // Use nearest fib above as resistance, nearest fib below as support
     const res = nf.above ? nf.above.price : price * 1.05;
     const sup = nf.below ? nf.below.price : price * 0.95;
 
-    // Entry levels based on nearest fib resistance
     const ee  = res * m.em;
     const en  = res * m.en;
     const co  = res * m.co;
@@ -550,14 +518,11 @@ function build(sym, price, vol, chg){
     const sp  = (st-en)/en*100;
     const tp  = (tg-en)/en*100;
 
-    // Distance from nearest fib resistance
     const distPct = (price - res) / res * 100;
-
-    // Distance from 0 fib
     const f0price = fibPrice(sym, 0);
     const f0dist  = f0price ? (price - f0price) / f0price * 100 : 0;
 
-    const status = fz.status;
+    const status  = fz.status;
     const isEntry = fz.isEntry;
 
     const pass={RVOL:rv>=m.rmin,'FIB RES':distPct>=-5,'TREND':f0dist>-30};
@@ -585,8 +550,7 @@ async function doScan(){
   document.getElementById('cd').textContent='';
   document.getElementById('errbox').style.display='none';
 
-  // Fetch latest fibs from Pipedream first
-  document.getElementById('upd').textContent = 'Syncing fib levels from TradingView...';
+  document.getElementById('upd').textContent = 'Syncing fib levels from GitHub...';
   const fibsUpdated = await fetchLiveFibs();
 
   const res=[],errs=[];
@@ -668,7 +632,6 @@ function render(){
   document.getElementById('fc').textContent=`${list.length}/${stocks.length}`;
   document.getElementById('cards').innerHTML=list.map(cardHTML).join('');
 
-  // Critical banner
   const crits=stocks
     .filter(s=>PORT[s.sym]&&PORT[s.sym].exit!=null)
     .map(s=>{
@@ -683,7 +646,6 @@ function render(){
   if(crits.length){cb.style.display='block';document.getElementById('crit-body').innerHTML=crits.join('<br>');}
   else cb.style.display='none';
 
-  // bind events
   document.querySelectorAll('.emahead').forEach(h=>{
     h.onclick=()=>{
       const b=h.nextElementSibling,a=h.querySelector('.emaarrow');
@@ -717,7 +679,6 @@ function fibPanelHTML(s){
     const minP=levels[0].p, maxP=levels[levels.length-1].p, range=maxP-minP;
     const pct=range>0?Math.max(0,Math.min(100,(price-minP)/range*100)):50;
 
-    // Identify which zone price is in
     let zone='', zoneCol='', zoneBg='';
     const above=s.fibNear.above, below=s.fibNear.below;
     if(above&&below){
@@ -793,7 +754,7 @@ function cardHTML(s){
   try{
     const m=MODES[mode];
     const sc=SCOL[s.status]||'#888';
-  const isEntryZone = s.isEntry === true;
+    const isEntryZone = s.isEntry === true;
     const key=s.sym+'_'+mode;
     const ck=checked[key]||{};
     const done=m.checks.filter(c=>ck[c.id]).length;
@@ -821,10 +782,8 @@ function cardHTML(s){
       </div>`;
     }).join('');
 
-    // Nearest fib above = resistance level for entry
     const resLabel = s.fibNear.above ? `${s.fibNear.above.level} FIB` : 'FIB RES';
 
-    // Fib progression roadmap
     const roadSteps = [
       {l:0,    short:'0·LOW'},
       {l:0.236,short:'0.236'},
@@ -836,7 +795,7 @@ function cardHTML(s){
     const roadHTML = roadSteps.map((rs,idx) => {
       const rp = fibPrice(s.sym, rs.l);
       if(!rp) return '';
-      const reached  = s.price >= rp + 0.05; // must clearly clear the level
+      const reached  = s.price >= rp + 0.05;
       const isNow    = s.fibZone && s.fibZone.below && Math.abs(s.fibZone.below.l - rs.l) < 0.001;
       const inEntry  = rs.l >= 0.382 && rs.l <= 0.618;
       const dc2      = reached?'#00ff88': isNow?'#ffd700': inEntry?'rgba(0,255,136,0.4)':'#1e1e2e';
