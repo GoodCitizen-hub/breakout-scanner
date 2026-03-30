@@ -23,8 +23,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:1
 #mkt-dot{width:7px;height:7px;border-radius:50%;background:var(--red);box-shadow:0 0 6px var(--red);}
 #mkt-dot.open{background:var(--swing);box-shadow:0 0 8px var(--swing);animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
-#mkt-txt{color:var(--orange);}
-#mkt-txt.open{color:var(--swing);}
+#mkt-txt{color:var(--orange);}#mkt-txt.open{color:var(--swing);}
 #upd{font-size:0.49rem;color:var(--dim);margin-top:2px;}
 #rbtn{background:var(--bg3);border:1px solid var(--dim);color:var(--dim);font-family:var(--mono);font-size:0.54rem;padding:6px 11px;border-radius:4px;cursor:pointer;letter-spacing:1px;}
 #rbtn:hover{border-color:var(--text);color:var(--text);}
@@ -63,8 +62,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:1
 .bias-badge.neutral{background:rgba(255,215,0,0.06);color:#ffd700;border:1px solid rgba(255,215,0,0.18);}
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:13px;margin-bottom:10px;}
 .ctop{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
-.cleft{flex:1;}
-.symrow{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:4px;}
+.cleft{flex:1;}.symrow{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:4px;}
 .sym{font-family:var(--sans);font-size:1.1rem;font-weight:700;color:#fff;letter-spacing:1px;}
 .sec{font-size:0.5rem;color:#444;}
 .sbadge{font-size:0.54rem;font-weight:700;padding:2px 7px;border-radius:3px;border:1px solid transparent;}
@@ -84,7 +82,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:1
 .fibfill{height:100%;border-radius:3px;transition:width 0.5s;}
 .fibdot{position:absolute;top:-4px;width:3px;height:13px;border-radius:2px;transform:translateX(-50%);}
 .fibzone{font-size:0.52rem;margin-top:6px;padding:5px 7px;border-radius:4px;border:1px solid transparent;}
-/* CALL OPPORTUNITY PANEL — green mirror of put panel */
 .callpanel{background:rgba(0,255,136,0.03);border:1px solid rgba(0,255,136,0.18);border-radius:6px;padding:9px 11px;margin-bottom:10px;}
 .calltitle{font-size:0.48rem;letter-spacing:2px;color:#00ff88;font-weight:700;margin-bottom:8px;}
 .callgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px 10px;margin-bottom:8px;}
@@ -92,7 +89,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:1
 .call-val{font-size:0.69rem;font-weight:700;}
 .call-rec{font-size:0.52rem;padding:5px 7px;border-radius:4px;border:1px solid rgba(0,255,136,0.2);background:rgba(0,255,136,0.06);color:#00cc66;margin-top:4px;line-height:1.5;}
 .call-warn{font-size:0.49rem;padding:4px 7px;border-radius:4px;border:1px solid rgba(255,140,0,0.18);background:rgba(255,140,0,0.05);color:#ff8c42;margin-top:5px;line-height:1.5;}
-/* PUT PANEL */
 .putpanel{background:rgba(255,68,68,0.04);border:1px solid rgba(255,68,68,0.2);border-radius:6px;padding:9px 11px;margin-bottom:10px;}
 .puttitle{font-size:0.48rem;letter-spacing:2px;color:#ff4444;font-weight:700;margin-bottom:8px;}
 .putgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px 10px;margin-bottom:8px;}
@@ -140,8 +136,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:1
 #empty{text-align:center;color:var(--dimmer);padding:60px 0;font-size:0.75rem;line-height:2.2;}
 #empty .sub{font-size:0.54rem;color:#1a1a2a;}
 #footer{text-align:center;color:#1a1a2a;font-size:0.5rem;margin-top:24px;padding-top:14px;border-top:1px solid #111;line-height:2.2;}
-::-webkit-scrollbar{width:4px;}
-::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:var(--bg);}
 ::-webkit-scrollbar-thumb{background:#1a1a2a;border-radius:2px;}
 </style>
 </head>
@@ -194,26 +189,39 @@ const FKEY='d6q0co1r01qhcrmidjkgd6q0co1r01qhcrmidjl0';
 const DELAY=80;
 const AUTO_MS=5*60*1000;
 
+// ── FIBS — updated Mar 29 2026 · APP added with TradingView pivot levels ──────
 const FIBS={
-  PLTR:{low:126.23,high:161.45},AVGO:{low:300.68,high:353.14},AMZN:{low:196.00,high:220.47},
-  NVDA:{low:167.52,high:197.63},META:{low:525.72,high:737.00},GOOGL:{low:293.93,high:350.15},
-  MSFT:{low:356.77,high:398.00},AAPL:{low:243.42,high:280.90},AMD:{low:188.22,high:266.96},
-  TSLA:{low:381.40,high:436.35},CRM:{low:174.57,high:204.86},PANW:{low:139.57,high:196.19},
-  NET:{low:160.35,high:203.62},DDOG:{low:98.01,high:133.44},CRWD:{low:342.72,high:452.00},
-  MRVL:{low:70.69,high:95.05},SNOW:{low:152.80,high:184.74},ARM:{low:111.26,high:134.25},
-  SMCI:{low:27.75,high:34.94},AMAT:{low:316.66,high:395.95},ORCL:{low:135.25,high:171.76},
-  NOW:{low:98.00,high:126.67},UBER:{low:69.02,high:78.25},COIN:{low:139.36,high:213.50},
-  SHOP:{low:104.92,high:135.96},SOFI:{low:15.23,high:29.86},HOOD:{low:66.02,high:84.75},
-  MSTR:{low:104.17,high:149.54},LYFT:{low:12.83,high:23.33},IONQ:{low:27.51,high:41.90},
+  PLTR:{low:126.23,high:161.45},AVGO:{low:300.68,high:353.14},
+  AMZN:{low:196.00,high:220.47},NVDA:{low:167.52,high:197.63},
+  META:{low:525.72,high:737.00},GOOGL:{low:293.93,high:350.15},
+  MSFT:{low:356.77,high:398.00},AAPL:{low:243.42,high:280.90},
+  AMD:{low:188.22,high:266.96},TSLA:{low:381.40,high:436.35},
+  CRM:{low:174.57,high:204.86},PANW:{low:139.57,high:196.19},
+  NET:{low:160.35,high:203.62},DDOG:{low:98.01,high:133.44},
+  CRWD:{low:342.72,high:452.00},MRVL:{low:70.69,high:95.05},
+  SNOW:{low:152.80,high:184.74},ARM:{low:111.26,high:134.25},
+  SMCI:{low:27.75,high:34.94},AMAT:{low:316.66,high:395.95},
+  ORCL:{low:135.25,high:171.76},NOW:{low:98.00,high:126.67},
+  UBER:{low:69.02,high:78.25},COIN:{low:139.36,high:213.50},
+  SHOP:{low:104.92,high:135.96},SOFI:{low:15.23,high:29.86},
+  HOOD:{low:66.02,high:84.75},MSTR:{low:104.17,high:149.54},
+  LYFT:{low:12.83,high:23.33},IONQ:{low:27.51,high:41.90},
   MU:{low:355.46,high:455.50},
+  // APP: TradingView pivot low=359.00 high=520.36 (from daily chart Mar 29)
+  APP:{low:359.00,high:520.36},
 };
 
-// CALL upside targets — next fib resistance above current price
-// Used to give realistic call target, not just generic 4% tg
+// APP fib levels calculated:
+// 0=359.00  0.236=397.07  0.382=420.64  0.5=439.68
+// 0.618=458.72  0.786=485.85  1=520.36
+// Friday close $381.20 = DEEP BASE (below 0.236 at $397.07)
+// PUT stop = reclaims $397.07 (0.236 fib) — the real fib-anchored level
+
+// ── CALL TARGETS — next fib resistance above current price ────────────────────
 const CALL_TARGETS={
-  CRWD:{target:420.00,label:'0.236 fib'},COIN:{target:185.18,label:'0.5 fib'},
+  CRWD:{target:397.07,label:'0.236 fib'},COIN:{target:185.18,label:'0.5 fib'},
   HOOD:{target:74.13,label:'0.5 fib'},UBER:{target:74.13,label:'0.5 fib'},
-  PLTR:{target:144.58,label:'0.382 fib'},AVGO:{target:320.00,label:'0.236 fib'},
+  PLTR:{target:140.92,label:'0.382 fib'},AVGO:{target:320.00,label:'0.236 fib'},
   AMD:{target:204.00,label:'0.236 fib'},NVDA:{target:176.00,label:'0.236 fib'},
   AAPL:{target:257.00,label:'0.618 fib'},AMZN:{target:202.00,label:'0.236 fib'},
   GOOGL:{target:307.00,label:'0.236 fib'},MSFT:{target:372.00,label:'0.236 fib'},
@@ -226,9 +234,11 @@ const CALL_TARGETS={
   NOW:{target:105.00,label:'0.236 fib'},MSTR:{target:115.00,label:'0.236 fib'},
   LYFT:{target:14.20,label:'0.236 fib'},IONQ:{target:31.00,label:'0.236 fib'},
   MU:{target:374.00,label:'0.236 fib'},SOFI:{target:17.50,label:'0.236 fib'},
+  // APP call target: reclaim 0.236 fib at $397.07
+  APP:{target:397.07,label:'0.236 fib'},
 };
 
-// PUT downside targets — real next support below fib low
+// ── PUT TARGETS — next real support below fib low ─────────────────────────────
 const PUT_TARGETS={
   META:{support:479.80,label:'52wk low'},NVDA:{support:155.00,label:'weekly S1'},
   AVGO:{support:270.00,label:'monthly S1'},MSFT:{support:340.00,label:'weekly S1'},
@@ -246,6 +256,8 @@ const PUT_TARGETS={
   NOW:{support:85.00,label:'monthly S1'},UBER:{support:60.00,label:'monthly S1'},
   COIN:{support:115.00,label:'monthly S1'},SHOP:{support:88.00,label:'monthly S1'},
   LYFT:{support:10.00,label:'monthly floor'},
+  // APP put target: 1.618 extension at $259.28 is too far — use monthly S1
+  APP:{support:340.00,label:'monthly S1 / prev base'},
 };
 
 function fibPrice(sym,level){const f=FIBS[sym];if(!f)return null;return f.low+(f.high-f.low)*level;}
@@ -259,20 +271,24 @@ function nearestFibs(sym,price){
   return{below,above,levels};
 }
 
+// ── PORTFOLIO ─────────────────────────────────────────────────────────────────
 const PORT={
-  SNOW:{exit:160.00,reentry:null,trail:null,acct:'Port A · Brokerage',opt:'Shares',note:'Below exit — decision needed Monday'},
+  SNOW:{exit:160.00,reentry:null,trail:null,acct:'Port A · Brokerage',opt:'Shares',note:'Below exit — exit or hold decision Monday'},
   SOFI:{exit:null,reentry:null,trail:null,acct:'Port A+B · Both',opt:'$15C Jun/Jan 2027',note:'LEAPs held through recovery'},
-  META:{exit:null,reentry:null,trail:null,acct:'Port A · Watching',opt:'PUT candidate',note:'Below fib low — re-entry thesis needs new base'},
-  MSTR:{exit:121.50,reentry:null,trail:null,acct:'Port A · Brokerage',opt:'$125C Jan 2027',note:'Trail stop on Fidelity · BTC correlated'},
+  META:{exit:null,reentry:null,trail:null,acct:'Port A · Watching',opt:'PUT candidate',note:'Below fib low — watching for base'},
+  MSTR:{exit:121.50,reentry:null,trail:null,acct:'Port A · Brokerage',opt:'$125C Jan 2027',note:'Trail stop on Fidelity · BTC linked'},
   AVGO:{exit:307.00,reentry:null,trail:352.00,acct:'Port B · IRA',opt:'$300C Jan 2027',note:'Below exit — decision needed Monday'},
   HOOD:{exit:69.22,reentry:null,trail:null,acct:'Port B · IRA',opt:'Re-entry watch',note:'Below exit — watching for base'},
   AMD:{exit:190.00,reentry:null,trail:218.00,acct:'Port B · IRA',opt:'$195C Jun 2027',note:'Holding above exit — trail trigger = 0.382 fib'},
-  MSFT:{exit:null,reentry:394.11,trail:null,acct:'Port B · IRA',opt:'$390-400C Jan 2027',note:'Re-entry: 2 closes above $394.11 (0.382 fib)'},
+  MSFT:{exit:null,reentry:394.11,trail:null,acct:'Port B · IRA',opt:'$390-400C Jan 2027',note:'Re-entry: 2 closes above $394.11'},
   MU:{exit:null,reentry:400.00,trail:null,acct:'Watchlist',opt:'Watch only',note:'Watching for RSI oversold base'},
   LYFT:{exit:null,reentry:15.31,trail:null,acct:'Watchlist',opt:'$15C Mar 2027',note:'Suspended — macro not supportive'},
   IONQ:{exit:null,reentry:34.69,trail:null,acct:'Watchlist',opt:'Re-entry watch',note:'Re-entry at 0.382 fib'},
+  // APP: watching for put setup — fib low $359, stop at 0.236 ($397.07)
+  APP:{exit:null,reentry:null,trail:null,acct:'Watchlist · Put candidate',opt:'$370P or $360P Apr 4',note:'⚠️ SEC investigation active · DEEP BASE · PUT stop = reclaims $397.07 (0.236 fib)'},
 };
 
+// ── BASE DATA — APP added ────────────────────────────────────────────────────
 const BASE={
   PLTR:{vol:62e6,sec:'AI'},AVGO:{vol:22e6,sec:'AI/Semi'},AMZN:{vol:53e6,sec:'AI'},
   NVDA:{vol:310e6,sec:'AI/Semi'},META:{vol:20e6,sec:'AI/Tech'},GOOGL:{vol:28e6,sec:'AI/Tech'},
@@ -285,6 +301,7 @@ const BASE={
   SHOP:{vol:9.5e6,sec:'eComm'},SOFI:{vol:77e6,sec:'Fintech'},HOOD:{vol:18e6,sec:'Fintech'},
   MSTR:{vol:22e6,sec:'Crypto'},LYFT:{vol:15e6,sec:'Tech'},IONQ:{vol:19e6,sec:'Quantum'},
   MU:{vol:18e6,sec:'Semi'},
+  APP:{vol:5.2e6,sec:'AdTech/AI'},
 };
 const SYMS=Object.keys(BASE);
 
@@ -343,7 +360,6 @@ function getFibZone(sym,price){
   if(!f)return{status:'BASING',isEntry:false,isPut:false,isDeepBase:false,pct:0,below:null,above:null};
   const low=f.low,high=f.high,range=high-low;
   if(range<=0)return{status:'BASING',isEntry:false,isPut:false,isDeepBase:false,pct:0,below:null,above:null};
-  const pct=(price-low)/range;
   const pts=FIB_LEVELS.map(l=>({l,p:fibPrice(sym,l)})).sort((a,b)=>a.p-b.p);
   let below=null,above=null;
   for(const pt of pts){if(pt.p<=price)below=pt;else if(!above)above=pt;}
@@ -358,6 +374,7 @@ function getFibZone(sym,price){
   else if(bl>=0.786&&al<=1){status='NEAR HIGH';}
   else if(price>=high){status='BROKEN OUT';}
   else{status='BASING';}
+  const pct=(price-low)/(range);
   return{status,isEntry,isPut,isDeepBase,pct:Math.max(0,Math.min(1,pct)),below,above};
 }
 
@@ -369,43 +386,26 @@ function getBias(s){
   return'neutral';
 }
 
-// CALL OPPORTUNITY — mirrors PUT logic but green/upside
 function getCallRec(s){
   if(s.isPut||s.isDeepBase)return null;
-  // Only show call panel for actionable statuses
   if(!['ENTRY ZONE','BREAKOUT NOW','NEAR HIGH','BROKEN OUT','RECOVERING'].includes(s.status))return null;
   const f=FIBS[s.sym];if(!f)return null;
   const price=s.price;
-  // Strike: slightly OTM above current price
   const otm0dte=Math.ceil(price*1.005/5)*5;
   const otmWeekly=Math.ceil(price*1.02/5)*5;
-  // Target: use CALL_TARGETS table for real fib resistance
   const ct=CALL_TARGETS[s.sym];
   const target=ct?ct.target.toFixed(2):(fibPrice(s.sym,0.382)||price*1.04).toFixed(2);
   const targetLabel=ct?ct.label:'next fib';
   const upPct=((target-price)/price*100).toFixed(1);
-  // Stop: fib support below current price
   const stopLevel=s.fibNear.below?s.fibNear.below.price:f.low;
   const stop=(stopLevel*0.99).toFixed(2);
   const stopPct=((stop-price)/price*100).toFixed(1);
-  // RR calculation
   const rr=Math.abs(upPct/stopPct).toFixed(1);
-
   let expiry,strikeRec,expiryReason;
-  if(s.rv>=2.0){
-    expiry='0DTE';strikeRec=`$${otm0dte}C`;
-    expiryReason=`RVOL ${f2(s.rv)}x — strong momentum, 0DTE viable`;
-  } else if(s.rv>=1.5){
-    expiry='Apr 4 (weekly)';strikeRec=`$${otmWeekly}C`;
-    expiryReason=`RVOL ${f2(s.rv)}x — weekly preferred for structure`;
-  } else if(s.rv>=1.0){
-    expiry='Apr 11 (2 week)';strikeRec=`$${otmWeekly}C`;
-    expiryReason=`RVOL ${f2(s.rv)}x — 2-week gives room to develop`;
-  } else {
-    expiry='WAIT';strikeRec='LOW RVOL — wait';
-    expiryReason=`RVOL ${f2(s.rv)}x — below 1x, wait for volume confirmation`;
-  }
-
+  if(s.rv>=2.0){expiry='0DTE';strikeRec=`$${otm0dte}C`;expiryReason=`RVOL ${f2(s.rv)}x — strong momentum, 0DTE viable`;}
+  else if(s.rv>=1.5){expiry='Apr 4 (weekly)';strikeRec=`$${otmWeekly}C`;expiryReason=`RVOL ${f2(s.rv)}x — weekly preferred for structure`;}
+  else if(s.rv>=1.0){expiry='Apr 11 (2 week)';strikeRec=`$${otmWeekly}C`;expiryReason=`RVOL ${f2(s.rv)}x — 2-week gives room to develop`;}
+  else{expiry='WAIT';strikeRec='LOW RVOL — wait';expiryReason=`RVOL ${f2(s.rv)}x — below 1x, wait for volume confirmation`;}
   return{expiry,strikeRec,target,targetLabel,upPct,stop,stopPct,rr,expiryReason};
 }
 
@@ -419,12 +419,15 @@ function getPutRec(s){
   const target=pt?pt.support.toFixed(2):(f.low*0.95).toFixed(2);
   const targetLabel=pt?pt.label:'estimated';
   const downPct=((target-price)/price*100).toFixed(1);
-  const stop=(f.low*1.01).toFixed(2);
+  // Stop = nearest fib ABOVE current price (first fib to reclaim)
+  const stopFib=s.fibNear.above?s.fibNear.above.price:f.low*1.01;
+  const stop=stopFib.toFixed(2);
+  const stopLabel=s.fibNear.above?`${s.fibNear.above.level} fib`:'fib low';
   let expiry,strikeRec,expiryReason;
   if(s.rv>=2.0){expiry='0DTE';strikeRec=`$${otm0dte}P`;expiryReason=`RVOL ${f2(s.rv)}x — strong momentum, 0DTE viable`;}
   else if(s.rv>=1.0){expiry='Apr 4 (weekly)';strikeRec=`$${otmWeekly}P`;expiryReason=`RVOL ${f2(s.rv)}x — weekly gives structure to develop`;}
   else{expiry='SKIP';strikeRec='LOW RVOL — skip';expiryReason=`RVOL ${f2(s.rv)}x — below 1x, insufficient momentum`;}
-  return{expiry,strikeRec,target,targetLabel,downPct,stop,expiryReason};
+  return{expiry,strikeRec,target,targetLabel,downPct,stop,stopLabel,expiryReason};
 }
 
 function build(sym,price,vol,chg){
@@ -451,9 +454,7 @@ function build(sym,price,vol,chg){
     let putFit=0;
     if(isPut||isDeepBase){putFit+=isDeepBase?3:1;putFit+=status==='BROKEN DOWN'?2:0;putFit+=rv>=1.5?2:rv>=1.0?1:0;putFit+=chg<-3?2:chg<-1?1:0;}
     const s={sym,sec:b.sec,price,vol,avg:b.vol,rv,chg:chg||0,res,sup,distPct,f0dist,status,isEntry,isPut,isDeepBase,ee,en,co,st,tg,sp,tp,pass,pri,fit:Math.min(fit,5),putFit,fibNear:nf,fibZone:fz};
-    s.bias=getBias(s);
-    s.putRec=getPutRec(s);
-    s.callRec=getCallRec(s);
+    s.bias=getBias(s);s.putRec=getPutRec(s);s.callRec=getCallRec(s);
     return s;
   }catch(e){return null;}
 }
@@ -482,8 +483,7 @@ async function doScan(){
   document.getElementById('mkt-txt').className=open?'open':'';
   if(errs.length){const eb=document.getElementById('errbox');eb.style.display='block';eb.innerHTML=errs.join('<br>');}
   render();
-  rb.textContent='↻ REFRESH';rb.style.color='';rb.style.borderColor='';
-  sb.disabled=false;
+  rb.textContent='↻ REFRESH';rb.style.color='';rb.style.borderColor='';sb.disabled=false;
   cdV=AUTO_MS/1000;
   cdT=setInterval(()=>{cdV=Math.max(0,cdV-1);document.getElementById('cd').textContent=`Next refresh in ${Math.floor(cdV/60)}:${String(cdV%60).padStart(2,'0')}`;},1000);
   autoT=setInterval(()=>doScan(),AUTO_MS);
@@ -507,8 +507,7 @@ function render(){
   document.getElementById('sn-p').textContent=stocks.filter(s=>s.isPut||s.isDeepBase).length;
   document.querySelectorAll('.fb').forEach(b=>{
     const on=b.dataset.f===filter;
-    const isPutBtn=b.dataset.f==='PUTS';
-    const isCallBtn=b.dataset.f==='BREAKOUTS';
+    const isPutBtn=b.dataset.f==='PUTS',isCallBtn=b.dataset.f==='BREAKOUTS';
     const col=isPutBtn?'#ff4444':isCallBtn?'#00ff88':b.dataset.f==='PORT'?'#ffd700':m.color;
     b.style.background=on?col:'';
     b.style.color=on?'#000':(isPutBtn?'#ff4444':isCallBtn?'#00ff88':b.dataset.f==='PORT'?'#ffd700':'#444');
@@ -579,17 +578,15 @@ function fibPanelHTML(s){
   }catch(e){return'';}
 }
 
-// CALL OPPORTUNITY PANEL — green mirror of put panel
 function callPanelHTML(s){
   try{
     if(!s.callRec)return'';
     const cr=s.callRec;
-    const skipCall=cr.expiry==='WAIT';
     return`<div class="callpanel">
       <div class="calltitle">📈 CALL OPPORTUNITY</div>
       <div class="callgrid">
         <div><div class="call-lbl">STRIKE</div><div class="call-val" style="color:#00ff88">${cr.strikeRec}</div></div>
-        <div><div class="call-lbl">EXPIRY</div><div class="call-val" style="color:${skipCall?'#555':'#00cc66'}">${cr.expiry}</div></div>
+        <div><div class="call-lbl">EXPIRY</div><div class="call-val" style="color:${cr.expiry==='WAIT'?'#555':'#00cc66'}">${cr.expiry}</div></div>
         <div><div class="call-lbl">TARGET (${cr.targetLabel})</div><div class="call-val" style="color:#00ff88">$${cr.target}</div></div>
         <div><div class="call-lbl">UPSIDE</div><div class="call-val" style="color:#00ff88">+${cr.upPct}%</div></div>
         <div><div class="call-lbl">STOP LOSS</div><div class="call-val" style="color:#ff8c42">$${cr.stop} (${cr.stopPct}%)</div></div>
@@ -612,7 +609,7 @@ function putPanelHTML(s){
         <div><div class="put-lbl">EXPIRY</div><div class="put-val" style="color:${pr.expiry==='SKIP'?'#555':'#ff8888'}">${pr.expiry}</div></div>
         <div><div class="put-lbl">TARGET (${pr.targetLabel})</div><div class="put-val" style="color:#ff6666">$${pr.target}</div></div>
         <div><div class="put-lbl">DOWNSIDE</div><div class="put-val" style="color:#ff4444">${pr.downPct}%</div></div>
-        <div><div class="put-lbl">STOP (reclaim)</div><div class="put-val" style="color:#ff8c42">$${pr.stop}</div></div>
+        <div><div class="put-lbl">STOP (reclaims ${pr.stopLabel})</div><div class="put-val" style="color:#ff8c42">$${pr.stop}</div></div>
         <div><div class="put-lbl">FIB LOW</div><div class="put-val" style="color:#555">$${f2(f.low)}</div></div>
       </div>
       <div class="put-rec">${pr.expiryReason}</div>
@@ -641,7 +638,6 @@ function cardHTML(s){
   try{
     const m=MODES[mode],sc=SCOL[s.status]||'#888';
     const isEntryZone=s.isEntry===true,isPutCard=s.isPut||s.isDeepBase;
-    const hasCallPanel=!!s.callRec&&!isPutCard;
     const key=s.sym+'_'+mode,ck=checked[key]||{};
     const done=m.checks.filter(c=>ck[c.id]).length,all=done===m.checks.length;
     const rc=all?'#00ff88':done>=3?'#ffd700':'#ff4444';
@@ -703,7 +699,7 @@ function cardHTML(s){
     <div><div class="sl">FIB SUP</div><div class="sv" style="color:#888">$${f2(s.sup)}</div></div>
   </div>
   ${fibPanelHTML(s)}
-  ${isPutCard ? putPanelHTML(s) : callPanelHTML(s)}
+  ${isPutCard?putPanelHTML(s):callPanelHTML(s)}
   <div class="passes">${passH}</div>
   ${portHTML(s)}
   <div class="emawrap${all?' done':''}">
