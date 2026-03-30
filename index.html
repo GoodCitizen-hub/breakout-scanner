@@ -6,13 +6,7 @@
 <title>GoodCitizen Breakout Scanner</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@500;600;700&display=swap');
-:root {
-  --bg:#06060f;--bg2:#0b0b18;--bg3:#10101f;
-  --border:rgba(255,255,255,0.06);
-  --day:#00ccff;--swing:#00ff88;--leap:#ffd700;
-  --red:#ff4444;--orange:#ff8c42;--dim:#333;--dimmer:#1e1e2e;
-  --text:#ccc;--mono:'Share Tech Mono',monospace;--sans:'Rajdhani',sans-serif;
-}
+:root{--bg:#06060f;--bg2:#0b0b18;--bg3:#10101f;--border:rgba(255,255,255,0.06);--day:#00ccff;--swing:#00ff88;--leap:#ffd700;--red:#ff4444;--orange:#ff8c42;--dim:#333;--dimmer:#1e1e2e;--text:#ccc;--mono:'Share Tech Mono',monospace;--sans:'Rajdhani',sans-serif;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:100vh;padding-bottom:60px;}
 #header{position:sticky;top:0;z-index:100;background:rgba(6,6,15,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:12px 16px 10px;max-width:700px;margin:0 auto;}
@@ -28,6 +22,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:1
 #rbtn{background:var(--bg3);border:1px solid var(--dim);color:var(--dim);font-family:var(--mono);font-size:0.54rem;padding:6px 11px;border-radius:4px;cursor:pointer;letter-spacing:1px;}
 #rbtn:hover{border-color:var(--text);color:var(--text);}
 #cd{font-size:0.46rem;color:var(--dimmer);margin-top:4px;text-align:right;}
+#tdstatus{font-size:0.44rem;margin-top:3px;text-align:right;color:#333;}
 #tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:700px;margin:0 auto;padding:10px 16px 0;}
 .tab{background:var(--bg2);border:1px solid var(--dimmer);color:#444;font-family:var(--sans);font-weight:700;font-size:0.9rem;letter-spacing:2px;padding:10px 6px;border-radius:6px;cursor:pointer;transition:all 0.2s;text-align:center;}
 .tab .sub{font-size:0.49rem;font-weight:500;opacity:0.6;margin-top:2px;}
@@ -49,17 +44,19 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:1
 #filters{display:none;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:14px;}
 .fb{background:var(--bg2);border:1px solid var(--dimmer);color:#444;font-family:var(--mono);font-size:0.59rem;font-weight:700;padding:4px 10px;border-radius:4px;cursor:pointer;}
 #fc{font-size:0.54rem;color:var(--dimmer);margin-left:auto;}
-@keyframes entrypulse{0%,100%{box-shadow:0 0 0px rgba(0,255,136,0.3)}50%{box-shadow:0 0 18px rgba(0,255,136,0.7)}}
-@keyframes putpulse{0%,100%{box-shadow:0 0 0px rgba(255,68,68,0.3)}50%{box-shadow:0 0 18px rgba(255,68,68,0.7)}}
+@keyframes entrypulse{0%,100%{box-shadow:0 0 0 rgba(0,255,136,0.3)}50%{box-shadow:0 0 18px rgba(0,255,136,0.7)}}
+@keyframes putpulse{0%,100%{box-shadow:0 0 0 rgba(255,68,68,0.3)}50%{box-shadow:0 0 18px rgba(255,68,68,0.7)}}
 .entry-zone-card{animation:entrypulse 2.5s infinite;border-color:rgba(0,255,136,0.5)!important;background:rgba(0,255,136,0.04)!important;}
-.entry-zone-badge{background:#00ff88!important;color:#000!important;border-color:#00ff88!important;font-weight:900;animation:entrypulse 2.5s infinite;}
 .put-zone-card{animation:putpulse 2.5s infinite;border-color:rgba(255,68,68,0.5)!important;background:rgba(255,68,68,0.03)!important;}
-.put-zone-badge{background:#ff4444!important;color:#fff!important;border-color:#ff4444!important;font-weight:900;}
 .deep-base-card{border-color:rgba(255,68,68,0.25)!important;background:rgba(255,68,68,0.02)!important;}
+.knife-card{border-color:rgba(255,140,0,0.35)!important;background:rgba(255,140,0,0.02)!important;}
+.entry-zone-badge{background:#00ff88!important;color:#000!important;border-color:#00ff88!important;font-weight:900;}
+.put-zone-badge{background:#ff4444!important;color:#fff!important;border-color:#ff4444!important;font-weight:900;}
 .bias-badge{font-size:0.5rem;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:1px;}
 .bias-badge.bullish{background:rgba(0,255,136,0.1);color:#00ff88;border:1px solid rgba(0,255,136,0.25);}
 .bias-badge.bearish{background:rgba(255,68,68,0.1);color:#ff4444;border:1px solid rgba(255,68,68,0.25);}
 .bias-badge.neutral{background:rgba(255,215,0,0.06);color:#ffd700;border:1px solid rgba(255,215,0,0.18);}
+.knife-badge{font-size:0.5rem;font-weight:700;padding:2px 8px;border-radius:3px;background:rgba(255,140,0,0.15);color:#ff8c42;border:1px solid rgba(255,140,0,0.35);letter-spacing:1px;}
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:13px;margin-bottom:10px;}
 .ctop{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
 .cleft{flex:1;}.symrow{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:4px;}
@@ -79,23 +76,37 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:1
 .fll{font-size:0.41rem;color:#444;letter-spacing:1px;margin-bottom:1px;}
 .flv{font-size:0.69rem;font-weight:700;}
 .fibtrack{height:5px;background:#111;border-radius:3px;position:relative;margin-top:4px;}
-.fibfill{height:100%;border-radius:3px;transition:width 0.5s;}
+.fibfill{height:100%;border-radius:3px;}
 .fibdot{position:absolute;top:-4px;width:3px;height:13px;border-radius:2px;transform:translateX(-50%);}
 .fibzone{font-size:0.52rem;margin-top:6px;padding:5px 7px;border-radius:4px;border:1px solid transparent;}
 .callpanel{background:rgba(0,255,136,0.03);border:1px solid rgba(0,255,136,0.18);border-radius:6px;padding:9px 11px;margin-bottom:10px;}
 .calltitle{font-size:0.48rem;letter-spacing:2px;color:#00ff88;font-weight:700;margin-bottom:8px;}
-.callgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px 10px;margin-bottom:8px;}
-.call-lbl{font-size:0.41rem;color:#224433;letter-spacing:1px;margin-bottom:1px;}
-.call-val{font-size:0.69rem;font-weight:700;}
-.call-rec{font-size:0.52rem;padding:5px 7px;border-radius:4px;border:1px solid rgba(0,255,136,0.2);background:rgba(0,255,136,0.06);color:#00cc66;margin-top:4px;line-height:1.5;}
-.call-warn{font-size:0.49rem;padding:4px 7px;border-radius:4px;border:1px solid rgba(255,140,0,0.18);background:rgba(255,140,0,0.05);color:#ff8c42;margin-top:5px;line-height:1.5;}
+.oppgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px 10px;margin-bottom:8px;}
+.opp-lbl{font-size:0.41rem;letter-spacing:1px;margin-bottom:1px;}
+.opp-val{font-size:0.69rem;font-weight:700;}
+.opp-note{font-size:0.52rem;padding:5px 7px;border-radius:4px;margin-top:4px;line-height:1.5;}
+.opp-warn{font-size:0.49rem;padding:4px 7px;border-radius:4px;border:1px solid rgba(255,140,0,0.18);background:rgba(255,140,0,0.05);color:#ff8c42;margin-top:5px;line-height:1.5;}
 .putpanel{background:rgba(255,68,68,0.04);border:1px solid rgba(255,68,68,0.2);border-radius:6px;padding:9px 11px;margin-bottom:10px;}
 .puttitle{font-size:0.48rem;letter-spacing:2px;color:#ff4444;font-weight:700;margin-bottom:8px;}
-.putgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px 10px;margin-bottom:8px;}
-.put-lbl{font-size:0.41rem;color:#664444;letter-spacing:1px;margin-bottom:1px;}
-.put-val{font-size:0.69rem;font-weight:700;}
-.put-rec{font-size:0.52rem;padding:5px 7px;border-radius:4px;border:1px solid rgba(255,68,68,0.2);background:rgba(255,68,68,0.06);color:#ff8888;margin-top:4px;line-height:1.5;}
-.put-warn{font-size:0.49rem;padding:4px 7px;border-radius:4px;border:1px solid rgba(255,140,0,0.18);background:rgba(255,140,0,0.05);color:#ff8c42;margin-top:5px;line-height:1.5;}
+/* AUTO CONFIRM */
+.aconf{border-radius:6px;overflow:hidden;margin-bottom:8px;}
+.aconf-head{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;cursor:pointer;}
+.aconf-title{font-size:0.52rem;letter-spacing:2px;font-weight:700;}
+.aconf-badge{font-size:0.5rem;padding:2px 9px;border-radius:10px;border:1px solid transparent;margin-left:8px;font-weight:700;}
+.aconf-arrow{font-size:0.6rem;color:var(--dim);}
+.aconf-body{display:none;padding:4px 12px 12px;}
+.aconf-row{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.aconf-icon{width:20px;height:20px;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:900;}
+.aconf-icon.p{background:rgba(0,255,136,0.12);color:#00ff88;border:1px solid rgba(0,255,136,0.3);}
+.aconf-icon.f{background:rgba(255,68,68,0.1);color:#ff4444;border:1px solid rgba(255,68,68,0.25);}
+.aconf-icon.cf{background:rgba(255,68,68,0.18);color:#ff4444;border:2px solid #ff4444;}
+.aconf-icon.l{background:rgba(255,255,255,0.03);color:#2a2a3a;border:1px solid #1e1e2e;}
+.aconf-lbl{flex:1;font-size:0.59rem;}
+.aconf-lbl.p{color:#aaa;}.aconf-lbl.f{color:#555;}.aconf-lbl.l{color:#333;}
+.aconf-tf{font-size:0.43rem;padding:1px 5px;border-radius:3px;border:1px solid transparent;flex-shrink:0;}
+.aconf-val{font-size:0.53rem;font-weight:700;text-align:right;min-width:70px;}
+.aconf-result{margin-top:10px;padding:9px 11px;border-radius:6px;font-size:0.59rem;border:1px solid transparent;line-height:1.7;font-weight:700;}
+.aconf-knife{margin-top:6px;padding:8px 10px;border-radius:5px;font-size:0.55rem;background:rgba(255,140,0,0.07);border:1px solid rgba(255,140,0,0.28);color:#ff8c42;line-height:1.6;}
 .sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px 10px;margin-bottom:10px;}
 .sl{font-size:0.48rem;letter-spacing:1px;color:#444;margin-bottom:1px;}
 .sv{font-size:0.75rem;font-weight:600;}
@@ -117,22 +128,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:1
 .palert.warn{background:rgba(255,140,0,0.08);border:1px solid rgba(255,140,0,0.2);color:#ffaa55;}
 .palert.ok{background:rgba(0,255,136,0.06);border:1px solid rgba(0,255,136,0.18);color:#00cc66;}
 .pnote{font-size:0.52rem;color:#555;margin-top:6px;line-height:1.6;}
-.emawrap{border-radius:6px;overflow:hidden;border:1px solid rgba(255,255,255,0.05);}
-.emawrap.done{border-color:rgba(0,255,136,0.25);}
-.emahead{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;cursor:pointer;}
-.ematitle{font-size:0.55rem;letter-spacing:2px;font-weight:700;}
-.emabadge{font-size:0.51rem;padding:1px 7px;border-radius:10px;border:1px solid transparent;margin-left:8px;}
-.emaarrow{font-size:0.6rem;color:var(--dim);}
-.emabody{display:none;padding:4px 12px 12px;}
-.emarule{font-size:0.54rem;color:#555;font-style:italic;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.04);line-height:1.6;}
-.emaitem{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;user-select:none;}
-.emacheck{width:20px;height:20px;border-radius:4px;flex-shrink:0;background:transparent;border:2px solid #2a2a3a;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:900;}
-.emalabel{flex:1;font-size:0.63rem;color:#555;}
-.emaitem.on .emalabel{color:#aaa;}
-.tfchip{font-size:0.47rem;padding:1px 6px;border-radius:3px;border:1px solid transparent;flex-shrink:0;}
-.emares{margin-top:10px;padding:8px 10px;border-radius:5px;font-size:0.57rem;border:1px solid transparent;}
-.emareset{margin-top:7px;font-size:0.5rem;color:#2a2a3a;cursor:pointer;text-align:right;}
-.emareset:hover{color:#444;}
 #empty{text-align:center;color:var(--dimmer);padding:60px 0;font-size:0.75rem;line-height:2.2;}
 #empty .sub{font-size:0.54rem;color:#1a1a2a;}
 #footer{text-align:center;color:#1a1a2a;font-size:0.5rem;margin-top:24px;padding-top:14px;border-top:1px solid #111;line-height:2.2;}
@@ -152,6 +147,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:1
     <div style="text-align:right">
       <button id="rbtn" onclick="doScan()">↻ REFRESH</button>
       <div id="cd"></div>
+      <div id="tdstatus">Twelve Data: standby</div>
     </div>
   </div>
 </div>
@@ -181,44 +177,37 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:1
     <span id="fc"></span>
   </div>
   <div id="cards"></div>
-  <div id="empty">Press SCAN to fetch live prices &amp; analyze all stocks<br/><span class="sub">📈 Calls &amp; 📉 Puts · Fib levels from TradingView · Powered by Finnhub</span></div>
-  <div id="footer">Live data via Finnhub · Fib levels from TradingView Auto-Fib · Portfolio A &amp; B alerts · Not financial advice</div>
+  <div id="empty">Press SCAN · Prices load first · Auto-confirmation follows in seconds<br/><span class="sub">Finnhub prices + Twelve Data EMA/RSI/Candles · All 32 stocks</span></div>
+  <div id="footer">Prices: Finnhub · EMA/RSI/Candles: Twelve Data (batch) · Fibs: TradingView · Not financial advice</div>
 </div>
 <script>
-const FKEY='d6q0co1r01qhcrmidjkgd6q0co1r01qhcrmidjl0';
-const DELAY=80;
-const AUTO_MS=5*60*1000;
+// ═══════════════════════════════════════════════════════════════
+// API KEYS
+// ═══════════════════════════════════════════════════════════════
+const FKEY = 'd6q0co1r01qhcrmidjkgd6q0co1r01qhcrmidjl0';
+const TDKEY = '19b2362f45584beaaf3d55a271fe0e07'; // ← PASTE YOUR TWELVE DATA KEY HERE
 
-// ── FIBS — updated Mar 29 2026 · APP added with TradingView pivot levels ──────
-const FIBS={
-  PLTR:{low:126.23,high:161.45},AVGO:{low:300.68,high:353.14},
-  AMZN:{low:196.00,high:220.47},NVDA:{low:167.52,high:197.63},
-  META:{low:525.72,high:737.00},GOOGL:{low:293.93,high:350.15},
-  MSFT:{low:356.77,high:398.00},AAPL:{low:243.42,high:280.90},
-  AMD:{low:188.22,high:266.96},TSLA:{low:381.40,high:436.35},
-  CRM:{low:174.57,high:204.86},PANW:{low:139.57,high:196.19},
-  NET:{low:160.35,high:203.62},DDOG:{low:98.01,high:133.44},
-  CRWD:{low:342.72,high:452.00},MRVL:{low:70.69,high:95.05},
-  SNOW:{low:152.80,high:184.74},ARM:{low:111.26,high:134.25},
-  SMCI:{low:27.75,high:34.94},AMAT:{low:316.66,high:395.95},
-  ORCL:{low:135.25,high:171.76},NOW:{low:98.00,high:126.67},
-  UBER:{low:69.02,high:78.25},COIN:{low:139.36,high:213.50},
-  SHOP:{low:104.92,high:135.96},SOFI:{low:15.23,high:29.86},
-  HOOD:{low:66.02,high:84.75},MSTR:{low:104.17,high:149.54},
-  LYFT:{low:12.83,high:23.33},IONQ:{low:27.51,high:41.90},
-  MU:{low:355.46,high:455.50},
-  // APP: TradingView pivot low=359.00 high=520.36 (from daily chart Mar 29)
-  APP:{low:359.00,high:520.36},
+const AUTO_MS = 5 * 60 * 1000;
+const DELAY = 80; // Finnhub delay ms
+
+// ═══════════════════════════════════════════════════════════════
+// FIB DATA
+// ═══════════════════════════════════════════════════════════════
+const FIBS = {
+  PLTR:{low:126.23,high:161.45},AVGO:{low:300.68,high:353.14},AMZN:{low:196.00,high:220.47},
+  NVDA:{low:167.52,high:197.63},META:{low:525.72,high:737.00},GOOGL:{low:293.93,high:350.15},
+  MSFT:{low:356.77,high:398.00},AAPL:{low:243.42,high:280.90},AMD:{low:188.22,high:266.96},
+  TSLA:{low:381.40,high:436.35},CRM:{low:174.57,high:204.86},PANW:{low:139.57,high:196.19},
+  NET:{low:160.35,high:203.62},DDOG:{low:98.01,high:133.44},CRWD:{low:342.72,high:452.00},
+  MRVL:{low:70.69,high:95.05},SNOW:{low:152.80,high:184.74},ARM:{low:111.26,high:134.25},
+  SMCI:{low:27.75,high:34.94},AMAT:{low:316.66,high:395.95},ORCL:{low:135.25,high:171.76},
+  NOW:{low:98.00,high:126.67},UBER:{low:69.02,high:78.25},COIN:{low:139.36,high:213.50},
+  SHOP:{low:104.92,high:135.96},SOFI:{low:15.23,high:29.86},HOOD:{low:66.02,high:84.75},
+  MSTR:{low:104.17,high:149.54},LYFT:{low:12.83,high:23.33},IONQ:{low:27.51,high:41.90},
+  MU:{low:355.46,high:455.50},APP:{low:359.00,high:520.36},
 };
 
-// APP fib levels calculated:
-// 0=359.00  0.236=397.07  0.382=420.64  0.5=439.68
-// 0.618=458.72  0.786=485.85  1=520.36
-// Friday close $381.20 = DEEP BASE (below 0.236 at $397.07)
-// PUT stop = reclaims $397.07 (0.236 fib) — the real fib-anchored level
-
-// ── CALL TARGETS — next fib resistance above current price ────────────────────
-const CALL_TARGETS={
+const CALL_TARGETS = {
   CRWD:{target:397.07,label:'0.236 fib'},COIN:{target:185.18,label:'0.5 fib'},
   HOOD:{target:74.13,label:'0.5 fib'},UBER:{target:74.13,label:'0.5 fib'},
   PLTR:{target:140.92,label:'0.382 fib'},AVGO:{target:320.00,label:'0.236 fib'},
@@ -234,12 +223,10 @@ const CALL_TARGETS={
   NOW:{target:105.00,label:'0.236 fib'},MSTR:{target:115.00,label:'0.236 fib'},
   LYFT:{target:14.20,label:'0.236 fib'},IONQ:{target:31.00,label:'0.236 fib'},
   MU:{target:374.00,label:'0.236 fib'},SOFI:{target:17.50,label:'0.236 fib'},
-  // APP call target: reclaim 0.236 fib at $397.07
   APP:{target:397.07,label:'0.236 fib'},
 };
 
-// ── PUT TARGETS — next real support below fib low ─────────────────────────────
-const PUT_TARGETS={
+const PUT_TARGETS = {
   META:{support:479.80,label:'52wk low'},NVDA:{support:155.00,label:'weekly S1'},
   AVGO:{support:270.00,label:'monthly S1'},MSFT:{support:340.00,label:'weekly S1'},
   SNOW:{support:130.00,label:'monthly floor'},SOFI:{support:12.00,label:'monthly floor'},
@@ -255,25 +242,169 @@ const PUT_TARGETS={
   AMAT:{support:280.00,label:'monthly S1'},ORCL:{support:115.00,label:'monthly S1'},
   NOW:{support:85.00,label:'monthly S1'},UBER:{support:60.00,label:'monthly S1'},
   COIN:{support:115.00,label:'monthly S1'},SHOP:{support:88.00,label:'monthly S1'},
-  LYFT:{support:10.00,label:'monthly floor'},
-  // APP put target: 1.618 extension at $259.28 is too far — use monthly S1
-  APP:{support:340.00,label:'monthly S1 / prev base'},
+  LYFT:{support:10.00,label:'monthly floor'},APP:{support:340.00,label:'monthly S1'},
 };
 
-function fibPrice(sym,level){const f=FIBS[sym];if(!f)return null;return f.low+(f.high-f.low)*level;}
-const FIB_LEVELS=[0,0.236,0.382,0.5,0.618,0.786,1];
-const FIB_COLORS={0:'#787b86',0.236:'#f44336',0.382:'#81c784',0.5:'#4caf50',0.618:'#009688',0.786:'#64b5f6',1:'#787b86'};
+// ═══════════════════════════════════════════════════════════════
+// TWELVE DATA — BATCH FETCHER
+// Fetches all 32 symbols in ONE API call per indicator
+// Total calls per scan: 6 batch calls (~2-3 seconds)
+// ═══════════════════════════════════════════════════════════════
+let tdData = {}; // {SYM: {dEMA, h4EMA, m5EMA, wEMA, rsi, recentGreen, recentRed, dCloseGreen, dAboveEMA}}
+let tdReady = false;
 
-function nearestFibs(sym,price){
-  const levels=FIB_LEVELS.map(l=>({level:l,price:fibPrice(sym,l)})).filter(x=>x.price!==null).sort((a,b)=>a.price-b.price);
-  let below=null,above=null;
-  for(const l of levels){if(l.price<=price)below=l;else if(!above)above=l;}
-  return{below,above,levels};
+async function fetchAllTwelveData(syms) {
+  if (TDKEY === 'YOUR_TWELVE_DATA_KEY') return;
+  const base = 'https://api.twelvedata.com';
+  const k = `&apikey=${TDKEY}`;
+  const symStr = syms.join(',');
+
+  document.getElementById('tdstatus').textContent = 'Loading price action data...';
+  document.getElementById('tdstatus').style.color = '#ffd700';
+
+  try {
+    // 6 batch calls — each returns data for ALL 32 symbols at once
+    const [dEMAres, h4EMAres, m5EMAres, wEMAres, rsiRes, candleRes] = await Promise.all([
+      fetch(`${base}/ema?symbol=${symStr}&interval=1day&time_period=20&outputsize=3${k}`).then(r=>r.json()),
+      fetch(`${base}/ema?symbol=${symStr}&interval=4h&time_period=20&outputsize=3${k}`).then(r=>r.json()),
+      fetch(`${base}/ema?symbol=${symStr}&interval=5min&time_period=20&outputsize=2${k}`).then(r=>r.json()),
+      fetch(`${base}/ema?symbol=${symStr}&interval=1week&time_period=20&outputsize=2${k}`).then(r=>r.json()),
+      fetch(`${base}/rsi?symbol=${symStr}&interval=1day&time_period=14&outputsize=1${k}`).then(r=>r.json()),
+      fetch(`${base}/time_series?symbol=${symStr}&interval=1day&outputsize=5${k}`).then(r=>r.json()),
+    ]);
+
+    // Parse each symbol from batch response
+    // Twelve Data returns object keyed by symbol when multiple symbols requested
+    for (const sym of syms) {
+      try {
+        const dEMAdata = dEMAres[sym] || dEMAres;
+        const h4EMAdata = h4EMAres[sym] || h4EMAres;
+        const m5EMAdata = m5EMAres[sym] || m5EMAres;
+        const wEMAdata = wEMAres[sym] || wEMAres;
+        const rsiData = rsiRes[sym] || rsiRes;
+        const candleData = candleRes[sym] || candleRes;
+
+        const dEMAval = dEMAdata.values?.[0]?.value ? parseFloat(dEMAdata.values[0].value) : null;
+        const dEMAslope = dEMAdata.values?.[1]?.value ? parseFloat(dEMAdata.values[0].value) - parseFloat(dEMAdata.values[1].value) : null;
+        const h4EMAval = h4EMAdata.values?.[0]?.value ? parseFloat(h4EMAdata.values[0].value) : null;
+        const h4EMAslope = h4EMAdata.values?.[1]?.value ? parseFloat(h4EMAdata.values[0].value) - parseFloat(h4EMAdata.values[1].value) : null;
+        const m5EMAval = m5EMAdata.values?.[0]?.value ? parseFloat(m5EMAdata.values[0].value) : null;
+        const wEMAval = wEMAdata.values?.[0]?.value ? parseFloat(wEMAdata.values[0].value) : null;
+        const rsiVal = rsiData.values?.[0]?.value ? parseFloat(rsiData.values[0].value) : null;
+
+        // Parse candles
+        let candles = [];
+        if (candleData.values && Array.isArray(candleData.values)) {
+          candles = candleData.values.slice(0, 5).map(c => ({
+            open: parseFloat(c.open),
+            close: parseFloat(c.close),
+            green: parseFloat(c.close) >= parseFloat(c.open),
+          }));
+        }
+
+        const lastClose = candles[0]?.close || null;
+        const lastGreen = candles[0]?.green ?? null;
+        const recentGreen = candles.filter((c,i) => i < 3 && c.green).length;
+        const recentRed = candles.filter((c,i) => i < 3 && !c.green).length;
+
+        tdData[sym] = {
+          dEMA: dEMAval,
+          dEMAslope,
+          h4EMA: h4EMAval,
+          h4EMAslope,
+          m5EMA: m5EMAval,
+          wEMA: wEMAval,
+          rsi: rsiVal,
+          dCloseGreen: lastGreen,
+          dAboveEMA: lastClose && dEMAval ? lastClose > dEMAval : null,
+          recentGreen,
+          recentRed,
+          candles,
+          loaded: true,
+          error: false,
+        };
+      } catch(e) {
+        tdData[sym] = { loaded:false, error:true };
+      }
+    }
+
+    tdReady = true;
+    document.getElementById('tdstatus').textContent = `✓ Price action loaded · ${syms.length} stocks`;
+    document.getElementById('tdstatus').style.color = '#00ff88';
+
+  } catch(e) {
+    document.getElementById('tdstatus').textContent = `⚠️ TD error: ${e.message}`;
+    document.getElementById('tdstatus').style.color = '#ff4444';
+  }
 }
 
-// ── PORTFOLIO ─────────────────────────────────────────────────────────────────
-const PORT={
-  SNOW:{exit:160.00,reentry:null,trail:null,acct:'Port A · Brokerage',opt:'Shares',note:'Below exit — exit or hold decision Monday'},
+// ═══════════════════════════════════════════════════════════════
+// AUTO CONFIRMATION CHECKS
+// ═══════════════════════════════════════════════════════════════
+const TFCOL = {'5 MIN':'#00ccff','4 HR':'#00cc66','DAILY':'#ffd700','WEEKLY':'#ffaa00','LIVE':'#ff8c42'};
+
+function getChecks(s, td, mode, isPut) {
+  if (!td?.loaded) return null;
+  const p = s.price;
+  if (mode==='DAY' && !isPut) return [
+    {label:'5-min: Price above 20 EMA', tf:'5 MIN', crit:true, pass:td.m5EMA?p>td.m5EMA:null, val:td.m5EMA?`$${td.m5EMA.toFixed(2)}`:'—'},
+    {label:'Daily: Closed GREEN today', tf:'DAILY', crit:true, pass:td.dCloseGreen, val:td.dCloseGreen===null?'—':td.dCloseGreen?'GREEN ✓':'RED ✗'},
+    {label:'Daily: Above 20 EMA', tf:'DAILY', crit:true, pass:td.dAboveEMA, val:td.dEMA?`EMA $${td.dEMA.toFixed(2)}`:'—'},
+    {label:'RVOL 2x+', tf:'LIVE', crit:true, pass:s.rv>=2.0, val:`${s.rv.toFixed(2)}x`},
+  ];
+  if (mode==='DAY' && isPut) return [
+    {label:'5-min: Price below 20 EMA', tf:'5 MIN', crit:true, pass:td.m5EMA?p<td.m5EMA:null, val:td.m5EMA?`$${td.m5EMA.toFixed(2)}`:'—'},
+    {label:'Daily: Closed RED today', tf:'DAILY', crit:true, pass:td.dCloseGreen===null?null:!td.dCloseGreen, val:td.dCloseGreen===null?'—':!td.dCloseGreen?'RED ✓':'GREEN ✗'},
+    {label:'Daily: Below 20 EMA', tf:'DAILY', crit:true, pass:td.dAboveEMA===null?null:!td.dAboveEMA, val:td.dEMA?`EMA $${td.dEMA.toFixed(2)}`:'—'},
+    {label:'RVOL 2x+', tf:'LIVE', crit:true, pass:s.rv>=2.0, val:`${s.rv.toFixed(2)}x`},
+  ];
+  if (mode==='SWING' && !isPut) return [
+    {label:'⚡ Daily: Closed GREEN above 20 EMA', tf:'DAILY', crit:true, pass:td.dCloseGreen&&td.dAboveEMA, val:td.dEMA?`EMA $${td.dEMA.toFixed(2)}`:'—'},
+    {label:'⚡ 4H: Price above 20 EMA', tf:'4 HR', crit:true, pass:td.h4EMA?p>td.h4EMA:null, val:td.h4EMA?`EMA $${td.h4EMA.toFixed(2)}`:'—'},
+    {label:'⚡ 3-day: 2+ of 3 closes GREEN', tf:'DAILY', crit:true, pass:td.recentGreen>=2, val:`${td.recentGreen}/3 green`},
+    {label:'4H: 20 EMA slope UP', tf:'4 HR', crit:false, pass:td.h4EMAslope!==null?td.h4EMAslope>0:null, val:td.h4EMAslope!==null?(td.h4EMAslope>0?'▲ UP':'▼ DOWN'):'—'},
+    {label:'RVOL 1.5x+', tf:'LIVE', crit:false, pass:s.rv>=1.5, val:`${s.rv.toFixed(2)}x`},
+  ];
+  if (mode==='SWING' && isPut) return [
+    {label:'⚡ Daily: Closed RED below 20 EMA', tf:'DAILY', crit:true, pass:td.dCloseGreen===false&&td.dAboveEMA===false, val:td.dEMA?`EMA $${td.dEMA.toFixed(2)}`:'—'},
+    {label:'⚡ 4H: Price below 20 EMA', tf:'4 HR', crit:true, pass:td.h4EMA?p<td.h4EMA:null, val:td.h4EMA?`EMA $${td.h4EMA.toFixed(2)}`:'—'},
+    {label:'⚡ 3-day: 2+ of 3 closes RED', tf:'DAILY', crit:true, pass:td.recentRed>=2, val:`${td.recentRed}/3 red`},
+    {label:'4H: 20 EMA slope DOWN', tf:'4 HR', crit:false, pass:td.h4EMAslope!==null?td.h4EMAslope<0:null, val:td.h4EMAslope!==null?(td.h4EMAslope<0?'▼ DOWN':'▲ UP'):'—'},
+    {label:'RVOL 1.5x+', tf:'LIVE', crit:false, pass:s.rv>=1.5, val:`${s.rv.toFixed(2)}x`},
+  ];
+  if (mode==='LEAP' && !isPut) return [
+    {label:'⚡ Weekly: Above 20 EMA', tf:'WEEKLY', crit:true, pass:td.wEMA?p>td.wEMA:null, val:td.wEMA?`EMA $${td.wEMA.toFixed(2)}`:'—'},
+    {label:'⚡ Daily: 2+ consecutive green closes', tf:'DAILY', crit:true, pass:td.recentGreen>=2, val:`${td.recentGreen}/3 green`},
+    {label:'Daily: 20 EMA turning upward', tf:'DAILY', crit:false, pass:td.dEMAslope!==null?td.dEMAslope>0:null, val:td.dEMAslope!==null?(td.dEMAslope>0?'▲ rising':'▼ falling'):'—'},
+    {label:'⚡ Base forming — not knife catching', tf:'DAILY', crit:true, pass:td.recentGreen>=1&&s.chg>-3, val:s.chg>-3?'Stable ✓':`${s.chg.toFixed(1)}% falling`},
+    {label:'RSI recovering (25–50)', tf:'DAILY', crit:false, pass:td.rsi?td.rsi<50&&td.rsi>25:null, val:td.rsi?`RSI ${td.rsi.toFixed(1)}`:'—'},
+  ];
+  if (mode==='LEAP' && isPut) return [
+    {label:'⚡ Weekly: Below 20 EMA', tf:'WEEKLY', crit:true, pass:td.wEMA?p<td.wEMA:null, val:td.wEMA?`EMA $${td.wEMA.toFixed(2)}`:'—'},
+    {label:'⚡ Daily: 2+ consecutive red closes', tf:'DAILY', crit:true, pass:td.recentRed>=2, val:`${td.recentRed}/3 red`},
+    {label:'Daily: 20 EMA pointing down', tf:'DAILY', crit:false, pass:td.dEMAslope!==null?td.dEMAslope<0:null, val:td.dEMAslope!==null?(td.dEMAslope<0?'▼ falling':'▲ rising'):'—'},
+    {label:'⚡ No base — structure broken', tf:'DAILY', crit:true, pass:td.recentRed>=2&&s.chg<0, val:s.chg<0?'Broken ✓':'Basing — wait'},
+    {label:'RSI room to fall (>35)', tf:'DAILY', crit:false, pass:td.rsi?td.rsi>35:null, val:td.rsi?`RSI ${td.rsi.toFixed(1)}`:'—'},
+  ];
+  return null;
+}
+
+function verdict(checks, minPass) {
+  if (!checks) return {v:'LOADING',c:'#333',ready:false};
+  const critFail = checks.filter(c=>c.crit&&c.pass===false);
+  const passed = checks.filter(c=>c.pass===true).length;
+  if (critFail.length) return {v:'✗ BLOCKED',c:'#ff4444',ready:false,why:critFail[0].label};
+  if (passed>=minPass) return {v:'✓ CLEAR TO ENTER',c:'#00ff88',ready:true};
+  const pending = checks.filter(c=>c.pass===null).length;
+  if (pending>0) return {v:'PENDING',c:'#ffd700',ready:false};
+  return {v:`${passed}/${checks.length} — WAIT`,c:'#ffd700',ready:false};
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PORTFOLIO
+// ═══════════════════════════════════════════════════════════════
+const PORT = {
+  SNOW:{exit:160.00,reentry:null,trail:null,acct:'Port A · Brokerage',opt:'Shares',note:'Below exit — decision needed Monday'},
   SOFI:{exit:null,reentry:null,trail:null,acct:'Port A+B · Both',opt:'$15C Jun/Jan 2027',note:'LEAPs held through recovery'},
   META:{exit:null,reentry:null,trail:null,acct:'Port A · Watching',opt:'PUT candidate',note:'Below fib low — watching for base'},
   MSTR:{exit:121.50,reentry:null,trail:null,acct:'Port A · Brokerage',opt:'$125C Jan 2027',note:'Trail stop on Fidelity · BTC linked'},
@@ -284,12 +415,10 @@ const PORT={
   MU:{exit:null,reentry:400.00,trail:null,acct:'Watchlist',opt:'Watch only',note:'Watching for RSI oversold base'},
   LYFT:{exit:null,reentry:15.31,trail:null,acct:'Watchlist',opt:'$15C Mar 2027',note:'Suspended — macro not supportive'},
   IONQ:{exit:null,reentry:34.69,trail:null,acct:'Watchlist',opt:'Re-entry watch',note:'Re-entry at 0.382 fib'},
-  // APP: watching for put setup — fib low $359, stop at 0.236 ($397.07)
-  APP:{exit:null,reentry:null,trail:null,acct:'Watchlist · Put candidate',opt:'$370P or $360P Apr 4',note:'⚠️ SEC investigation active · DEEP BASE · PUT stop = reclaims $397.07 (0.236 fib)'},
+  APP:{exit:null,reentry:null,trail:null,acct:'Watchlist · Put candidate',opt:'$370P Apr 4',note:'⚠️ SEC investigation active · PUT stop = reclaims $397.07 (0.236 fib)'},
 };
 
-// ── BASE DATA — APP added ────────────────────────────────────────────────────
-const BASE={
+const BASE = {
   PLTR:{vol:62e6,sec:'AI'},AVGO:{vol:22e6,sec:'AI/Semi'},AMZN:{vol:53e6,sec:'AI'},
   NVDA:{vol:310e6,sec:'AI/Semi'},META:{vol:20e6,sec:'AI/Tech'},GOOGL:{vol:28e6,sec:'AI/Tech'},
   MSFT:{vol:22e6,sec:'AI/Tech'},AAPL:{vol:65e6,sec:'Tech'},AMD:{vol:60e6,sec:'Semi'},
@@ -300,134 +429,86 @@ const BASE={
   NOW:{vol:1.4e6,sec:'SaaS'},UBER:{vol:20e6,sec:'Tech'},COIN:{vol:11e6,sec:'Crypto'},
   SHOP:{vol:9.5e6,sec:'eComm'},SOFI:{vol:77e6,sec:'Fintech'},HOOD:{vol:18e6,sec:'Fintech'},
   MSTR:{vol:22e6,sec:'Crypto'},LYFT:{vol:15e6,sec:'Tech'},IONQ:{vol:19e6,sec:'Quantum'},
-  MU:{vol:18e6,sec:'Semi'},
-  APP:{vol:5.2e6,sec:'AdTech/AI'},
+  MU:{vol:18e6,sec:'Semi'},APP:{vol:5.2e6,sec:'AdTech/AI'},
 };
-const SYMS=Object.keys(BASE);
+const SYMS = Object.keys(BASE);
+
+function fibPrice(sym,l){const f=FIBS[sym];if(!f)return null;return f.low+(f.high-f.low)*l;}
+const FIB_LEVELS=[0,0.236,0.382,0.5,0.618,0.786,1];
+const FIB_COLORS={0:'#787b86',0.236:'#f44336',0.382:'#81c784',0.5:'#4caf50',0.618:'#009688',0.786:'#64b5f6',1:'#787b86'};
+function nearestFibs(sym,price){
+  const lv=FIB_LEVELS.map(l=>({level:l,price:fibPrice(sym,l)})).filter(x=>x.price!==null).sort((a,b)=>a.price-b.price);
+  let below=null,above=null;
+  for(const l of lv){if(l.price<=price)below=l;else if(!above)above=l;}
+  return{below,above};
+}
 
 const MODES={
-  DAY:{color:'#00ccff',hold:'Minutes–Hours',rmin:1.5,rr:'3:1',em:0.998,en:1.001,co:1.003,st:0.995,tg:1.015,
-    best:['BREAKOUT NOW','BROKEN OUT','NEAR HIGH'],
-    checks:[{id:'d1',label:'5-min: Price above 20 EMA',tf:'5 MIN'},{id:'d2',label:'5-min: Candle CLOSED above 20 EMA',tf:'5 MIN'},{id:'d3',label:'5-min: 20 EMA sloping upward',tf:'5 MIN'},{id:'d4',label:'15-min: 20 EMA also pointing up',tf:'15 MIN'},{id:'d5',label:'RVOL 1.5x+ confirming move',tf:'LIVE'}],
-    rule:'Enter on first 5-min candle close above 20 EMA AND above Breakout Entry'},
-  SWING:{color:'#00ff88',hold:'2–10 Days',rmin:1.0,rr:'2:1',em:0.995,en:1.001,co:1.005,st:0.980,tg:1.040,
-    best:['ENTRY ZONE','BREAKOUT NOW','NEAR HIGH'],
-    checks:[{id:'s1',label:'1-hour: Price above 20 EMA',tf:'1 HR'},{id:'s2',label:'4-hour: Price above 20 EMA',tf:'4 HR'},{id:'s3',label:'4-hour: Candle CLOSED above 20 EMA',tf:'4 HR'},{id:'s4',label:'4-hour: 20 EMA sloping upward',tf:'4 HR'},{id:'s5',label:'Daily: Price above 20 EMA',tf:'DAILY'}],
-    rule:'Enter when 4-hour candle closes above 20 EMA AND price above nearest fib resistance'},
-  LEAP:{color:'#ffd700',hold:'6–12 Months',rmin:0.7,rr:'4:1',em:0.990,en:1.001,co:1.010,st:0.950,tg:1.200,
-    best:['ENTRY ZONE','RECOVERING','BASING'],
-    checks:[{id:'l1',label:'Daily: Price above 20 EMA',tf:'DAILY'},{id:'l2',label:'Daily: Candle CLOSED above 20 EMA',tf:'DAILY'},{id:'l3',label:'Daily: 20 EMA turning upward',tf:'DAILY'},{id:'l4',label:'Weekly: Price above 20 EMA',tf:'WEEKLY'},{id:'l5',label:'Weekly: 20 EMA slope is positive',tf:'WEEKLY'}],
-    rule:'Enter after daily close above 20 EMA. Weekly confirmation = highest conviction'},
+  DAY:{color:'#00ccff',hold:'Minutes–Hours',rmin:1.5,minPass:4,best:['BREAKOUT NOW','BROKEN OUT','NEAR HIGH']},
+  SWING:{color:'#00ff88',hold:'2–10 Days',rmin:1.0,minPass:4,best:['ENTRY ZONE','BREAKOUT NOW','NEAR HIGH']},
+  LEAP:{color:'#ffd700',hold:'6–12 Months',rmin:0.7,minPass:4,best:['ENTRY ZONE','RECOVERING','BASING']},
 };
-
 const SCOL={'BROKEN OUT':'#00ccff','NEAR HIGH':'#00ccff','BREAKOUT NOW':'#00ff88','ENTRY ZONE':'#00ff88','RECOVERING':'#ffd700','BASING':'#ff8c42','DEEP BASE':'#ff4444','BROKEN DOWN':'#ff4444'};
 const SORD={'BROKEN OUT':0,'NEAR HIGH':1,'BREAKOUT NOW':2,'ENTRY ZONE':3,'RECOVERING':4,'BASING':5,'DEEP BASE':6,'BROKEN DOWN':7};
-const TFCOL={'5 MIN':'#00ccff','15 MIN':'#00aadd','1 HR':'#00ff88','4 HR':'#00cc66','DAILY':'#ffd700','WEEKLY':'#ffaa00','LIVE':'#ff8c42'};
 
 const FIBS_URL='https://raw.githubusercontent.com/GoodCitizen-hub/breakout-scanner/main/fibs.json';
 let fibSource='hardcoded';
 async function fetchLiveFibs(){
-  try{
-    const r=await fetch(FIBS_URL+'?t='+Date.now());
-    if(!r.ok)return 0;
-    const data=await r.json();
-    let updated=0;
-    const src=data.stocks||data;
-    for(const[sym,val]of Object.entries(src)){
-      if(val&&!isNaN(val.low)&&!isNaN(val.high)&&FIBS[sym]){FIBS[sym]={low:val.low,high:val.high};updated++;}
-    }
-    if(updated>0)fibSource='live ✓';
-    return updated;
-  }catch(e){return 0;}
+  try{const r=await fetch(FIBS_URL+'?t='+Date.now());if(!r.ok)return 0;const d=await r.json();let n=0;const s=d.stocks||d;for(const[sym,v]of Object.entries(s)){if(v&&!isNaN(v.low)&&!isNaN(v.high)&&FIBS[sym]){FIBS[sym]={low:v.low,high:v.high};n++;}}if(n>0)fibSource='live ✓';return n;}catch(e){return 0;}
 }
 
-let mode='SWING',filter='ALL',stocks=[],checked={},autoT=null,cdT=null,cdV=0;
+let mode='SWING',filter='ALL',stocks=[],autoT=null,cdT=null,cdV=0;
 const f2=n=>(n==null||isNaN(n))?'--':Number(n).toFixed(2);
 const fv=n=>{if(!n)return'--';if(n>=1e9)return(n/1e9).toFixed(1)+'B';if(n>=1e6)return(n/1e6).toFixed(1)+'M';return(n/1e3).toFixed(0)+'K';};
 const slp=ms=>new Promise(r=>setTimeout(r,ms));
-function mktOpen(){const et=new Date(new Date().toLocaleString('en-US',{timeZone:'America/New_York'}));return et.getDay()>0&&et.getDay()<6&&et.getHours()*60+et.getMinutes()>=570&&et.getHours()*60+et.getMinutes()<960;}
+function mktOpen(){const e=new Date(new Date().toLocaleString('en-US',{timeZone:'America/New_York'}));return e.getDay()>0&&e.getDay()<6&&e.getHours()*60+e.getMinutes()>=570&&e.getHours()*60+e.getMinutes()<960;}
 
 async function getQuote(sym){
   const r=await fetch(`https://finnhub.io/api/v1/quote?symbol=${sym}&token=${FKEY}`);
   if(!r.ok)throw new Error('HTTP '+r.status);
-  const d=await r.json();
-  if(!d.c||d.c<=0)throw new Error('no price');
+  const d=await r.json();if(!d.c||d.c<=0)throw new Error('no price');
   return{price:d.c,vol:d.v||0,chg:d.dp||0};
 }
 
 function getFibZone(sym,price){
-  const f=FIBS[sym];
-  if(!f)return{status:'BASING',isEntry:false,isPut:false,isDeepBase:false,pct:0,below:null,above:null};
-  const low=f.low,high=f.high,range=high-low;
-  if(range<=0)return{status:'BASING',isEntry:false,isPut:false,isDeepBase:false,pct:0,below:null,above:null};
+  const f=FIBS[sym];if(!f)return{status:'BASING',isEntry:false,isPut:false,isDeepBase:false,pct:0,below:null,above:null};
+  const low=f.low,high=f.high,range=high-low;if(range<=0)return{status:'BASING',isEntry:false,isPut:false,isDeepBase:false,pct:0,below:null,above:null};
   const pts=FIB_LEVELS.map(l=>({l,p:fibPrice(sym,l)})).sort((a,b)=>a.p-b.p);
-  let below=null,above=null;
-  for(const pt of pts){if(pt.p<=price)below=pt;else if(!above)above=pt;}
+  let below=null,above=null;for(const pt of pts){if(pt.p<=price)below=pt;else if(!above)above=pt;}
   const bl=below?below.l:-1,al=above?above.l:2;
   let status,isEntry=false,isPut=false,isDeepBase=false;
   if(price<low*0.97){status='BROKEN DOWN';isPut=true;isDeepBase=true;}
   else if(price<low){status='DEEP BASE';isPut=true;isDeepBase=true;}
-  else if(bl>=0&&al<=0.236){status='BASING';}
-  else if(bl>=0.236&&al<=0.382){status='RECOVERING';}
+  else if(bl>=0&&al<=0.236)status='BASING';
+  else if(bl>=0.236&&al<=0.382)status='RECOVERING';
   else if(bl>=0.382&&al<=0.618){status='ENTRY ZONE';isEntry=true;}
-  else if(bl>=0.618&&al<=0.786){status='BREAKOUT NOW';}
-  else if(bl>=0.786&&al<=1){status='NEAR HIGH';}
-  else if(price>=high){status='BROKEN OUT';}
-  else{status='BASING';}
-  const pct=(price-low)/(range);
-  return{status,isEntry,isPut,isDeepBase,pct:Math.max(0,Math.min(1,pct)),below,above};
+  else if(bl>=0.618&&al<=0.786)status='BREAKOUT NOW';
+  else if(bl>=0.786&&al<=1)status='NEAR HIGH';
+  else if(price>=high)status='BROKEN OUT';
+  else status='BASING';
+  return{status,isEntry,isPut,isDeepBase,pct:Math.max(0,Math.min(1,(price-low)/range)),below,above};
+}
+
+function isFallingKnife(s){
+  const td=tdData[s.sym];
+  if(td?.loaded&&s.isEntry&&td.recentRed>=2)return true;
+  if(s.isEntry&&s.chg<-2)return true;
+  if(s.status==='RECOVERING'&&s.chg<-3)return true;
+  return false;
 }
 
 function getBias(s){
+  const td=tdData[s.sym];
   if(s.isPut||s.isDeepBase)return'bearish';
-  if(['ENTRY ZONE','BREAKOUT NOW','BROKEN OUT'].includes(s.status))return'bullish';
-  if(s.chg<-2&&s.status==='BASING')return'bearish';
-  if(s.chg>1&&['RECOVERING','NEAR HIGH'].includes(s.status))return'bullish';
+  if(td?.loaded){
+    if(s.isEntry&&td.recentRed>=2)return'bearish';
+    if(s.isEntry&&td.dCloseGreen&&td.dAboveEMA)return'bullish';
+    if(s.isEntry&&td.dCloseGreen===false)return'bearish';
+  }
+  if(s.isEntry&&s.chg>0)return'bullish';
+  if(s.isEntry&&s.chg<-2)return'bearish';
+  if(['BREAKOUT NOW','BROKEN OUT'].includes(s.status))return'bullish';
   return'neutral';
-}
-
-function getCallRec(s){
-  if(s.isPut||s.isDeepBase)return null;
-  if(!['ENTRY ZONE','BREAKOUT NOW','NEAR HIGH','BROKEN OUT','RECOVERING'].includes(s.status))return null;
-  const f=FIBS[s.sym];if(!f)return null;
-  const price=s.price;
-  const otm0dte=Math.ceil(price*1.005/5)*5;
-  const otmWeekly=Math.ceil(price*1.02/5)*5;
-  const ct=CALL_TARGETS[s.sym];
-  const target=ct?ct.target.toFixed(2):(fibPrice(s.sym,0.382)||price*1.04).toFixed(2);
-  const targetLabel=ct?ct.label:'next fib';
-  const upPct=((target-price)/price*100).toFixed(1);
-  const stopLevel=s.fibNear.below?s.fibNear.below.price:f.low;
-  const stop=(stopLevel*0.99).toFixed(2);
-  const stopPct=((stop-price)/price*100).toFixed(1);
-  const rr=Math.abs(upPct/stopPct).toFixed(1);
-  let expiry,strikeRec,expiryReason;
-  if(s.rv>=2.0){expiry='0DTE';strikeRec=`$${otm0dte}C`;expiryReason=`RVOL ${f2(s.rv)}x — strong momentum, 0DTE viable`;}
-  else if(s.rv>=1.5){expiry='Apr 4 (weekly)';strikeRec=`$${otmWeekly}C`;expiryReason=`RVOL ${f2(s.rv)}x — weekly preferred for structure`;}
-  else if(s.rv>=1.0){expiry='Apr 11 (2 week)';strikeRec=`$${otmWeekly}C`;expiryReason=`RVOL ${f2(s.rv)}x — 2-week gives room to develop`;}
-  else{expiry='WAIT';strikeRec='LOW RVOL — wait';expiryReason=`RVOL ${f2(s.rv)}x — below 1x, wait for volume confirmation`;}
-  return{expiry,strikeRec,target,targetLabel,upPct,stop,stopPct,rr,expiryReason};
-}
-
-function getPutRec(s){
-  if(!s.isPut&&!s.isDeepBase)return null;
-  const f=FIBS[s.sym];if(!f)return null;
-  const price=s.price;
-  const otm0dte=Math.floor(price*0.985/5)*5;
-  const otmWeekly=Math.floor(price*0.96/5)*5;
-  const pt=PUT_TARGETS[s.sym];
-  const target=pt?pt.support.toFixed(2):(f.low*0.95).toFixed(2);
-  const targetLabel=pt?pt.label:'estimated';
-  const downPct=((target-price)/price*100).toFixed(1);
-  // Stop = nearest fib ABOVE current price (first fib to reclaim)
-  const stopFib=s.fibNear.above?s.fibNear.above.price:f.low*1.01;
-  const stop=stopFib.toFixed(2);
-  const stopLabel=s.fibNear.above?`${s.fibNear.above.level} fib`:'fib low';
-  let expiry,strikeRec,expiryReason;
-  if(s.rv>=2.0){expiry='0DTE';strikeRec=`$${otm0dte}P`;expiryReason=`RVOL ${f2(s.rv)}x — strong momentum, 0DTE viable`;}
-  else if(s.rv>=1.0){expiry='Apr 4 (weekly)';strikeRec=`$${otmWeekly}P`;expiryReason=`RVOL ${f2(s.rv)}x — weekly gives structure to develop`;}
-  else{expiry='SKIP';strikeRec='LOW RVOL — skip';expiryReason=`RVOL ${f2(s.rv)}x — below 1x, insufficient momentum`;}
-  return{expiry,strikeRec,target,targetLabel,downPct,stop,stopLabel,expiryReason};
 }
 
 function build(sym,price,vol,chg){
@@ -438,52 +519,101 @@ function build(sym,price,vol,chg){
     const fz=getFibZone(sym,price);
     const res=nf.above?nf.above.price:price*1.05;
     const sup=nf.below?nf.below.price:price*0.95;
-    const ee=res*m.em,en=res*m.en,co=res*m.co,st=sup*m.st,tg=en*m.tg;
-    const sp=(st-en)/en*100,tp=(tg-en)/en*100;
     const distPct=(price-res)/res*100;
-    const f0price=fibPrice(sym,0);
-    const f0dist=f0price?(price-f0price)/f0price*100:0;
+    const f0p=fibPrice(sym,0);const f0d=f0p?(price-f0p)/f0p*100:0;
     const status=fz.status,isEntry=fz.isEntry,isPut=fz.isPut,isDeepBase=fz.isDeepBase;
-    const pass={RVOL:rv>=m.rmin,'FIB RES':distPct>=-5,'TREND':f0dist>-30};
+    const pass={RVOL:rv>=m.rmin,'FIB RES':distPct>=-5,'TREND':f0d>-30};
     const pc=Object.values(pass).filter(Boolean).length;
     const pri=pc===3?1:pc===2?2:3;
     let fit=0;
     if(mode==='DAY')fit=(m.best.includes(status)?2:0)+(rv>=1.5?2:0)+(rv>=2?1:0);
     if(mode==='SWING')fit=(isEntry?3:0)+(m.best.includes(status)&&!isEntry?2:0)+(rv>=1?1:0)+(pc>=2?1:0);
-    if(mode==='LEAP')fit=(isEntry?2:0)+(status==='BASING'||status==='RECOVERING'?1:0)+(f0dist<-15?1:0)+(pc>=2?1:0);
+    if(mode==='LEAP')fit=(isEntry?2:0)+(status==='BASING'||status==='RECOVERING'?1:0)+(f0d<-15?1:0)+(pc>=2?1:0);
     let putFit=0;
     if(isPut||isDeepBase){putFit+=isDeepBase?3:1;putFit+=status==='BROKEN DOWN'?2:0;putFit+=rv>=1.5?2:rv>=1.0?1:0;putFit+=chg<-3?2:chg<-1?1:0;}
-    const s={sym,sec:b.sec,price,vol,avg:b.vol,rv,chg:chg||0,res,sup,distPct,f0dist,status,isEntry,isPut,isDeepBase,ee,en,co,st,tg,sp,tp,pass,pri,fit:Math.min(fit,5),putFit,fibNear:nf,fibZone:fz};
-    s.bias=getBias(s);s.putRec=getPutRec(s);s.callRec=getCallRec(s);
+    const s={sym,sec:b.sec,price,vol,avg:b.vol,rv,chg:chg||0,res,sup,distPct,f0d,status,isEntry,isPut,isDeepBase,pass,pri,fit:Math.min(fit,5),putFit,fibNear:nf,fibZone:fz};
+    s.isKnife=isFallingKnife(s);
+    s.bias=getBias(s);
+    if(s.isKnife&&s.pri===1)s.pri=2;
+    // PUT rec
+    if(isPut||isDeepBase){
+      const f=FIBS[sym];const pt=PUT_TARGETS[sym];
+      const target=pt?pt.support.toFixed(2):(f.low*0.95).toFixed(2);
+      const targetLabel=pt?pt.label:'estimated';
+      const downPct=((target-price)/price*100).toFixed(1);
+      const stopFib=nf.above?nf.above.price:f.low*1.01;
+      const stopLabel=nf.above?`${nf.above.level} fib`:'fib low';
+      let expiry,strikeRec,expiryReason;
+      if(rv>=2.0){expiry='0DTE';strikeRec=`$${Math.floor(price*0.985/5)*5}P`;expiryReason=`RVOL ${f2(rv)}x — 0DTE viable`;}
+      else if(rv>=1.0){expiry='Apr 4 (weekly)';strikeRec=`$${Math.floor(price*0.96/5)*5}P`;expiryReason=`RVOL ${f2(rv)}x — weekly`;}
+      else{expiry='SKIP';strikeRec='LOW RVOL — skip';expiryReason=`RVOL ${f2(rv)}x — below 1x`;}
+      s.putRec={expiry,strikeRec,target,targetLabel,downPct,stop:stopFib.toFixed(2),stopLabel,expiryReason};
+    }
+    // CALL rec
+    if(!isPut&&!isDeepBase&&['ENTRY ZONE','BREAKOUT NOW','NEAR HIGH','BROKEN OUT','RECOVERING'].includes(status)){
+      const f=FIBS[sym];const ct=CALL_TARGETS[sym];
+      const target=ct?ct.target.toFixed(2):(fibPrice(sym,0.382)||price*1.04).toFixed(2);
+      const targetLabel=ct?ct.label:'next fib';
+      const upPct=((target-price)/price*100).toFixed(1);
+      const stopLevel=nf.below?nf.below.price:f.low;
+      const stop=(stopLevel*0.99).toFixed(2);
+      const stopPct=((stop-price)/price*100).toFixed(1);
+      const rr=Math.abs(upPct/stopPct).toFixed(1);
+      let expiry,strikeRec,expiryReason;
+      const otm=Math.ceil(price*1.02/5)*5;
+      if(rv>=2.0){expiry='0DTE';strikeRec=`$${Math.ceil(price*1.005/5)*5}C`;expiryReason=`RVOL ${f2(rv)}x — 0DTE viable`;}
+      else if(rv>=1.5){expiry='Apr 4 (weekly)';strikeRec=`$${otm}C`;expiryReason=`RVOL ${f2(rv)}x — weekly preferred`;}
+      else if(rv>=1.0){expiry='Apr 11 (2 week)';strikeRec=`$${otm}C`;expiryReason=`RVOL ${f2(rv)}x — 2-week gives room`;}
+      else{expiry='WAIT';strikeRec='LOW RVOL — wait';expiryReason=`RVOL ${f2(rv)}x — wait for volume`;}
+      s.callRec={expiry,strikeRec,target,targetLabel,upPct,stop,stopPct,rr,expiryReason};
+    }
     return s;
   }catch(e){return null;}
 }
 
 async function doScan(){
   const rb=document.getElementById('rbtn'),sb=document.getElementById('sbtn');
-  rb.textContent='↻';rb.style.color='#ffd700';rb.style.borderColor='#ffd70033';
-  sb.disabled=true;clearInterval(autoT);clearInterval(cdT);
-  document.getElementById('cd').textContent='';
+  rb.textContent='↻';rb.style.color='#ffd700';sb.disabled=true;
+  clearInterval(autoT);clearInterval(cdT);
   document.getElementById('errbox').style.display='none';
-  document.getElementById('upd').textContent='Syncing fib levels from GitHub...';
-  const fibsUpdated=await fetchLiveFibs();
+  document.getElementById('upd').textContent='Syncing fib levels...';
+  const fibsUp=await fetchLiveFibs();
+
+  // Phase 1: Prices (Finnhub) — fast
   const res=[],errs=[];
   for(let i=0;i<SYMS.length;i++){
     const sym=SYMS[i];
-    document.getElementById('upd').textContent=`Fetching ${i+1}/${SYMS.length}: ${sym}...`;
+    document.getElementById('upd').textContent=`Prices ${i+1}/${SYMS.length}: ${sym}...`;
     try{const q=await getQuote(sym);const s=build(sym,q.price,q.vol,q.chg);if(s)res.push(s);}
     catch(e){errs.push(sym+': '+e.message);}
     if(i<SYMS.length-1)await slp(DELAY);
   }
   stocks=res.sort((a,b)=>b.fit-a.fit||(SORD[a.status]??3)-(SORD[b.status]??3)||a.pri-b.pri);
-  document.getElementById('upd').textContent=`Updated ${new Date().toLocaleTimeString()} · ${res.length}/${SYMS.length} fetched · Fibs: ${fibSource}${fibsUpdated>0?' ('+fibsUpdated+' updated)':''}`;
+
+  // Render immediately with prices
   const open=mktOpen();
   document.getElementById('mkt-dot').className=open?'open':'';
   document.getElementById('mkt-txt').textContent=open?'MARKET OPEN — LIVE PRICES':'MARKET CLOSED — LAST CLOSE PRICES';
   document.getElementById('mkt-txt').className=open?'open':'';
+  document.getElementById('upd').textContent=`Prices loaded · Fetching price action (batch)...`;
+  render();
+
+  // Phase 2: Twelve Data — 6 batch calls for all 32 stocks (~3 seconds)
+  await fetchAllTwelveData(SYMS);
+
+  // Rebuild stocks with TD data
+  for(let i=0;i<stocks.length;i++){
+    const s=stocks[i];
+    const rebuilt=build(s.sym,s.price,s.vol,s.chg);
+    if(rebuilt)stocks[i]=rebuilt;
+  }
+  stocks.sort((a,b)=>b.fit-a.fit||(SORD[a.status]??3)-(SORD[b.status]??3)||a.pri-b.pri);
+
+  document.getElementById('upd').textContent=`Updated ${new Date().toLocaleTimeString()} · ${res.length}/${SYMS.length} stocks · Fibs: ${fibSource}${fibsUp>0?' ('+fibsUp+' updated)':''}`;
   if(errs.length){const eb=document.getElementById('errbox');eb.style.display='block';eb.innerHTML=errs.join('<br>');}
   render();
-  rb.textContent='↻ REFRESH';rb.style.color='';rb.style.borderColor='';sb.disabled=false;
+
+  rb.textContent='↻ REFRESH';rb.style.color='';sb.disabled=false;
   cdV=AUTO_MS/1000;
   cdT=setInterval(()=>{cdV=Math.max(0,cdV-1);document.getElementById('cd').textContent=`Next refresh in ${Math.floor(cdV/60)}:${String(cdV%60).padStart(2,'0')}`;},1000);
   autoT=setInterval(()=>doScan(),AUTO_MS);
@@ -494,55 +624,92 @@ function render(){
   document.getElementById('mode-title').textContent=mode+' TRADER';
   document.getElementById('mode-title').style.color=m.color;
   const sb=document.getElementById('sbtn');
-  sb.textContent=`▶  SCAN FOR ${mode} TRADES`;
-  sb.style.background=m.color;sb.style.color='#000';sb.style.border='none';
+  sb.textContent=`▶  SCAN FOR ${mode} TRADES`;sb.style.background=m.color;sb.style.color='#000';sb.style.border='none';
   document.querySelectorAll('.tab').forEach(t=>{t.className='tab'+(t.dataset.m===mode?' a'+mode[0]:'');});
   if(!stocks.length)return;
   document.getElementById('summary').style.display='grid';
   document.getElementById('filters').style.display='flex';
-  document.getElementById('cards').style.display='block';
   document.getElementById('empty').style.display='none';
-  document.getElementById('sn-b').textContent=stocks.filter(s=>['ENTRY ZONE','BREAKOUT NOW','NEAR HIGH','BROKEN OUT'].includes(s.status)).length;
-  document.getElementById('sn-n').textContent=stocks.filter(s=>s.status==='RECOVERING').length;
+  document.getElementById('sn-b').textContent=stocks.filter(s=>['ENTRY ZONE','BREAKOUT NOW','NEAR HIGH','BROKEN OUT'].includes(s.status)&&!s.isKnife).length;
+  document.getElementById('sn-n').textContent=stocks.filter(s=>s.status==='RECOVERING'&&!s.isKnife).length;
   document.getElementById('sn-p').textContent=stocks.filter(s=>s.isPut||s.isDeepBase).length;
   document.querySelectorAll('.fb').forEach(b=>{
     const on=b.dataset.f===filter;
-    const isPutBtn=b.dataset.f==='PUTS',isCallBtn=b.dataset.f==='BREAKOUTS';
-    const col=isPutBtn?'#ff4444':isCallBtn?'#00ff88':b.dataset.f==='PORT'?'#ffd700':m.color;
-    b.style.background=on?col:'';
-    b.style.color=on?'#000':(isPutBtn?'#ff4444':isCallBtn?'#00ff88':b.dataset.f==='PORT'?'#ffd700':'#444');
-    b.style.borderColor=on?col:(isPutBtn?'rgba(255,68,68,0.3)':isCallBtn?'rgba(0,255,136,0.3)':b.dataset.f==='PORT'?'#ffd70033':'');
+    const ip=b.dataset.f==='PUTS',ic=b.dataset.f==='BREAKOUTS';
+    const col=ip?'#ff4444':ic?'#00ff88':b.dataset.f==='PORT'?'#ffd700':m.color;
+    b.style.background=on?col:'';b.style.color=on?'#000':(ip?'#ff4444':ic?'#00ff88':b.dataset.f==='PORT'?'#ffd700':'#444');
+    b.style.borderColor=on?col:(ip?'rgba(255,68,68,0.3)':ic?'rgba(0,255,136,0.3)':b.dataset.f==='PORT'?'#ffd70033':'');
   });
   const list=stocks.filter(s=>{
-    if(filter==='ALL')return true;
-    if(filter==='PORT')return!!PORT[s.sym];
-    if(filter==='BREAKOUTS')return['ENTRY ZONE','BREAKOUT NOW','NEAR HIGH','BROKEN OUT'].includes(s.status);
-    if(filter==='NEAR')return s.status==='RECOVERING';
+    if(filter==='ALL')return true;if(filter==='PORT')return!!PORT[s.sym];
+    if(filter==='BREAKOUTS')return['ENTRY ZONE','BREAKOUT NOW','NEAR HIGH','BROKEN OUT'].includes(s.status)&&!s.isKnife;
+    if(filter==='NEAR')return s.status==='RECOVERING'&&!s.isKnife;
     if(filter==='SETUP')return s.status==='BASING';
     if(filter==='PUTS')return s.isPut||s.isDeepBase;
-    if(filter==='P1')return s.pri===1;
-    if(filter==='P2')return s.pri<=2;
+    if(filter==='P1')return s.pri===1;if(filter==='P2')return s.pri<=2;
     return true;
   });
   const sorted=filter==='PUTS'?[...list].sort((a,b)=>b.putFit-a.putFit):list;
   document.getElementById('fc').textContent=`${sorted.length}/${stocks.length}`;
   document.getElementById('cards').innerHTML=sorted.map(cardHTML).join('');
-  const crits=stocks.filter(s=>PORT[s.sym]&&PORT[s.sym].exit!=null).map(s=>{
+  const crits=stocks.filter(s=>PORT[s.sym]?.exit!=null).map(s=>{
     const p=PORT[s.sym],buf=(s.price-p.exit)/p.exit*100;
     if(buf<0)return`🔴 <b>${s.sym}</b> $${f2(s.price)} — BELOW EXIT $${p.exit} · ${p.acct}`;
-    if(buf<3)return`⚠️ <b>${s.sym}</b> $${f2(s.price)} — only ${buf.toFixed(1)}% above exit $${p.exit} · ${p.acct}`;
+    if(buf<3)return`⚠️ <b>${s.sym}</b> $${f2(s.price)} — only ${buf.toFixed(1)}% above exit · ${p.acct}`;
     return null;
   }).filter(Boolean);
   const cb=document.getElementById('crit');
-  if(crits.length){cb.style.display='block';document.getElementById('crit-body').innerHTML=crits.join('<br>');}
-  else cb.style.display='none';
-  document.querySelectorAll('.emahead').forEach(h=>{h.onclick=()=>{const b=h.nextElementSibling,a=h.querySelector('.emaarrow');const o=b.style.display==='block';b.style.display=o?'none':'block';a.style.transform=o?'':'rotate(180deg)';};});
-  document.querySelectorAll('.emaitem').forEach(i=>{i.onclick=()=>togCheck(i.dataset.k,i.dataset.id);});
-  document.querySelectorAll('.emareset').forEach(r=>{r.onclick=()=>{checked[r.dataset.k]={};render();};});
+  if(crits.length){cb.style.display='block';document.getElementById('crit-body').innerHTML=crits.join('<br>');}else cb.style.display='none';
+  document.querySelectorAll('.aconf-head').forEach(h=>{h.onclick=()=>{const b=h.nextElementSibling,a=h.querySelector('.aconf-arrow');const o=b.style.display==='block';b.style.display=o?'none':'block';a.style.transform=o?'':'rotate(180deg)';};});
   document.querySelectorAll('.phead').forEach(h=>{h.onclick=()=>{const b=h.nextElementSibling,a=h.querySelector('.pa');const o=b.style.display==='block';b.style.display=o?'none':'block';if(a)a.textContent=o?'▼':'▲';};});
 }
 
-function togCheck(key,id){if(!checked[key])checked[key]={};checked[key][id]=!checked[key][id];render();}
+function aconfHTML(s){
+  const isPut=s.isPut||s.isDeepBase;
+  const m=MODES[mode];
+  const col=isPut?'#ff4444':s.isKnife?'#ff8c42':m.color;
+  const title=isPut?'📉 PUT CONFIRMATION':'📈 CALL CONFIRMATION';
+  const border=isPut?'rgba(255,68,68,0.2)':s.isKnife?'rgba(255,140,0,0.28)':'rgba(0,255,136,0.2)';
+
+  if(TDKEY==='YOUR_TWELVE_DATA_KEY'){
+    return`<div class="aconf" style="border:1px solid #1a1a2a"><div class="aconf-head"><div style="display:flex;align-items:center"><span class="aconf-title" style="color:#333">${title}</span><span class="aconf-badge" style="color:#333;border-color:#1a1a2a">KEY NEEDED</span></div><span class="aconf-arrow">▼</span></div><div class="aconf-body"><div style="font-size:0.55rem;color:#444;padding:6px 0;line-height:1.8">Open this file · Find <code style="color:#ffd700">YOUR_TWELVE_DATA_KEY</code> · Replace with your Twelve Data API key</div></div></div>`;
+  }
+
+  const td=tdData[s.sym];
+  if(!td){
+    return`<div class="aconf" style="border:1px solid ${border}"><div class="aconf-head"><div style="display:flex;align-items:center"><span class="aconf-title" style="color:${col}">${title}</span><span class="aconf-badge" style="color:#ffd700;border-color:#ffd70033;background:rgba(255,215,0,0.06)">LOADING</span></div><span class="aconf-arrow">▼</span></div><div class="aconf-body"><div style="font-size:0.52rem;color:#333;padding:8px 0;text-align:center">Fetching EMA · RSI · Candles from Twelve Data...</div></div></div>`;
+  }
+  if(td.error){
+    return`<div class="aconf" style="border:1px solid rgba(255,68,68,0.15)"><div class="aconf-head"><div style="display:flex;align-items:center"><span class="aconf-title" style="color:#555">${title}</span><span class="aconf-badge" style="color:#ff4444;border-color:rgba(255,68,68,0.2)">DATA ERROR</span></div><span class="aconf-arrow">▼</span></div><div class="aconf-body"><div style="font-size:0.5rem;color:#ff4444;padding:6px 0">Failed to load price action data for ${s.sym}</div></div></div>`;
+  }
+
+  const checks=getChecks(s,td,mode,isPut);
+  if(!checks)return'';
+  const vd=verdict(checks,m.minPass);
+  const passed=checks.filter(c=>c.pass===true).length;
+
+  const rows=checks.map(c=>{
+    const ic=c.pass===true?'p':c.pass===false?(c.crit?'cf':'f'):'l';
+    const lc=c.pass===true?'p':c.pass===false?'f':'l';
+    const vc=c.pass===true?'#00ff88':c.pass===false?'#ff4444':'#333';
+    const tc=TFCOL[c.tf]||'#888';
+    return`<div class="aconf-row"><div class="aconf-icon ${ic}">${c.pass===true?'✓':c.pass===false?'✗':'·'}</div><div class="aconf-lbl ${lc}">${c.label}</div><span class="aconf-tf" style="color:${tc};border-color:${tc}33">${c.tf}</span><div class="aconf-val" style="color:${vc}">${c.val}</div></div>`;
+  }).join('');
+
+  const resultHTML=`<div class="aconf-result" style="color:${vd.c};background:${vd.c}0a;border-color:${vd.c}22">${vd.v}${vd.why?`<br/><span style="font-size:0.48rem;opacity:0.7;font-weight:400">${vd.why}</span>`:''}</div>`;
+  const knifeHTML=s.isKnife&&!isPut?`<div class="aconf-knife">⚠️ FALLING KNIFE — ${td.recentRed}/3 recent closes RED · Do NOT enter call · Wait for green close</div>`:'';
+
+  return`<div class="aconf" style="border:1px solid ${border}">
+    <div class="aconf-head">
+      <div style="display:flex;align-items:center">
+        <span class="aconf-title" style="color:${col}">${title}</span>
+        <span class="aconf-badge" style="color:${vd.c};border-color:${vd.c}33;background:${vd.c}0a">${passed}/${checks.length}${vd.ready?' ✓':''}</span>
+      </div>
+      <span class="aconf-arrow">▼</span>
+    </div>
+    <div class="aconf-body">${rows}${resultHTML}${knifeHTML}</div>
+  </div>`;
+}
 
 function fibPanelHTML(s){
   try{
@@ -551,144 +718,122 @@ function fibPanelHTML(s){
     const levels=FIB_LEVELS.map(l=>({l,p:fibPrice(s.sym,l)})).sort((a,b)=>a.p-b.p);
     const minP=levels[0].p,maxP=levels[levels.length-1].p,range=maxP-minP;
     const pct=range>0?Math.max(0,Math.min(100,(price-minP)/range*100)):50;
-    let zone='',zoneCol='',zoneBg='';
-    const above=s.fibNear.above,below2=s.fibNear.below;
-    if(s.isPut||s.isDeepBase){zone='BELOW PIVOT LOW — PUT territory · See Put Opportunity panel';zoneCol='#ff4444';zoneBg='rgba(255,68,68,0.06)';}
-    else if(above&&below2){
-      const bl=below2.level,al=above.level;
-      if(bl>=0.382&&al<=0.618){zone='ENTRY ZONE — 0.382 to 0.618 · Primary call entry zone';zoneCol='#00ff88';zoneBg='rgba(0,255,136,0.06)';}
-      else if(bl>=0.618&&al<=0.786){zone='BREAKOUT NOW — 0.618 to 0.786 · Strong momentum confirmed';zoneCol='#00ff88';zoneBg='rgba(0,255,136,0.04)';}
-      else if(bl>=0.786){zone='NEAR HIGH — Approaching full reclaim · Call target zone';zoneCol='#00ccff';zoneBg='rgba(0,204,255,0.05)';}
-      else if(bl>=0.236&&al<=0.382){zone='RECOVERING — 0.236 to 0.382 · Watch for entry zone break';zoneCol='#ffd700';zoneBg='rgba(255,215,0,0.06)';}
-      else if(bl>=0&&al<=0.236){zone='BASING — 0 to 0.236 · Building floor above pivot low';zoneCol='#ff8c42';zoneBg='rgba(255,140,0,0.06)';}
+    let zone='',zc='',zb='';
+    const ab=s.fibNear.above,bl=s.fibNear.below;
+    if(s.isPut||s.isDeepBase){zone='BELOW PIVOT LOW — PUT territory';zc='#ff4444';zb='rgba(255,68,68,0.06)';}
+    else if(s.isKnife){zone='⚠️ FALLING KNIFE — Entry zone but price action bearish';zc='#ff8c42';zb='rgba(255,140,0,0.06)';}
+    else if(ab&&bl){
+      const bll=bl.level,all=ab.level;
+      if(bll>=0.382&&all<=0.618){zone='ENTRY ZONE — Check auto-confirmation below';zc='#00ff88';zb='rgba(0,255,136,0.06)';}
+      else if(bll>=0.618&&all<=0.786){zone='BREAKOUT NOW — Strong momentum';zc='#00ff88';zb='rgba(0,255,136,0.04)';}
+      else if(bll>=0.786){zone='NEAR HIGH — Call target zone';zc='#00ccff';zb='rgba(0,204,255,0.05)';}
+      else if(bll>=0.236&&all<=0.382){zone='RECOVERING — Watch for entry zone break';zc='#ffd700';zb='rgba(255,215,0,0.06)';}
+      else{zone='BASING — Building floor';zc='#ff8c42';zb='rgba(255,140,0,0.06)';}
     }
-    const fibRowsHTML=levels.map(({l,p})=>{
+    const fibR=levels.map(({l,p})=>{
       const col=FIB_COLORS[l]||'#888';
-      const isCurrent=s.fibNear.above&&s.fibNear.above.level===l;
-      const isBelow=s.fibNear.below&&s.fibNear.below.level===l;
-      return`<div><div class="fll" style="color:${col}">${l===0?'0 (pivot)':l===1?'1 (pivot)':l}</div><div class="flv" style="color:${isCurrent?m.color:isBelow?'#888':'#555'};${isCurrent?'font-weight:900':''}">${isCurrent?'▶ ':''}$${f2(p)}</div></div>`;
+      const isCur=s.fibNear.above?.level===l,isBlw=s.fibNear.below?.level===l;
+      return`<div><div class="fll" style="color:${col}">${l===0?'0 (pivot)':l===1?'1 (pivot)':l}</div><div class="flv" style="color:${isCur?m.color:isBlw?'#888':'#555'};${isCur?'font-weight:900':''}">${isCur?'▶ ':''}$${f2(p)}</div></div>`;
     }).join('');
-    const trackColor=s.isPut?'#ff4444':pct>70?'#00ff88':pct>40?'#ffd700':'#ff8c42';
-    return`<div class="fibpanel" style="${s.isPut?'border-color:rgba(255,68,68,0.2);background:rgba(255,68,68,0.03)':''}">
-      <div class="fibtitle">${s.isPut?'<span style="color:#ff4444">📉 PUT TERRITORY — </span>':''}AUTO-FIB LEVELS · DAILY CHART</div>
-      <div class="fibgrid">${fibRowsHTML}</div>
-      <div class="fibtrack"><div class="fibfill" style="width:${Math.max(0,pct).toFixed(1)}%;background:${trackColor}"></div><div class="fibdot" style="left:${Math.max(0,pct).toFixed(1)}%;background:#fff"></div></div>
-      ${zone?`<div class="fibzone" style="color:${zoneCol};background:${zoneBg};border-color:${zoneCol}22">${zone}</div>`:''}
+    const tc=s.isPut?'#ff4444':s.isKnife?'#ff8c42':pct>70?'#00ff88':pct>40?'#ffd700':'#ff8c42';
+    return`<div class="fibpanel" style="${s.isPut?'border-color:rgba(255,68,68,0.2);background:rgba(255,68,68,0.03)':s.isKnife?'border-color:rgba(255,140,0,0.2)':''}">
+      <div class="fibtitle">${s.isPut?'<span style="color:#ff4444">📉 PUT — </span>':s.isKnife?'<span style="color:#ff8c42">⚠️ — </span>':''}AUTO-FIB LEVELS · DAILY CHART</div>
+      <div class="fibgrid">${fibR}</div>
+      <div class="fibtrack"><div class="fibfill" style="width:${Math.max(0,pct).toFixed(1)}%;background:${tc}"></div><div class="fibdot" style="left:${Math.max(0,pct).toFixed(1)}%;background:#fff"></div></div>
+      ${zone?`<div class="fibzone" style="color:${zc};background:${zb};border-color:${zc}22">${zone}</div>`:''}
     </div>`;
   }catch(e){return'';}
 }
 
-function callPanelHTML(s){
-  try{
-    if(!s.callRec)return'';
+function oppHTML(s){
+  const isPut=s.isPut||s.isDeepBase;
+  if(isPut&&s.putRec){
+    const pr=s.putRec;const f=FIBS[s.sym];
+    return`<div class="putpanel"><div class="puttitle">📉 PUT OPPORTUNITY</div>
+      <div class="oppgrid">
+        <div><div class="opp-lbl" style="color:#664444">STRIKE</div><div class="opp-val" style="color:#ff4444">${pr.strikeRec}</div></div>
+        <div><div class="opp-lbl" style="color:#664444">EXPIRY</div><div class="opp-val" style="color:${pr.expiry==='SKIP'?'#555':'#ff8888'}">${pr.expiry}</div></div>
+        <div><div class="opp-lbl" style="color:#664444">TARGET (${pr.targetLabel})</div><div class="opp-val" style="color:#ff6666">$${pr.target}</div></div>
+        <div><div class="opp-lbl" style="color:#664444">DOWNSIDE</div><div class="opp-val" style="color:#ff4444">${pr.downPct}%</div></div>
+        <div><div class="opp-lbl" style="color:#664444">STOP (${pr.stopLabel})</div><div class="opp-val" style="color:#ff8c42">$${pr.stop}</div></div>
+        <div><div class="opp-lbl" style="color:#664444">FIB LOW</div><div class="opp-val" style="color:#555">$${f2(f.low)}</div></div>
+      </div>
+      <div class="opp-note" style="border:1px solid rgba(255,68,68,0.2);background:rgba(255,68,68,0.06);color:#ff8888">${pr.expiryReason}</div>
+      <div class="opp-warn">⚠️ Wait 9:45 AM · Confirm auto-checklist below · Max 2 puts</div>
+    </div>`;
+  }
+  if(!isPut&&s.callRec){
     const cr=s.callRec;
-    return`<div class="callpanel">
-      <div class="calltitle">📈 CALL OPPORTUNITY</div>
-      <div class="callgrid">
-        <div><div class="call-lbl">STRIKE</div><div class="call-val" style="color:#00ff88">${cr.strikeRec}</div></div>
-        <div><div class="call-lbl">EXPIRY</div><div class="call-val" style="color:${cr.expiry==='WAIT'?'#555':'#00cc66'}">${cr.expiry}</div></div>
-        <div><div class="call-lbl">TARGET (${cr.targetLabel})</div><div class="call-val" style="color:#00ff88">$${cr.target}</div></div>
-        <div><div class="call-lbl">UPSIDE</div><div class="call-val" style="color:#00ff88">+${cr.upPct}%</div></div>
-        <div><div class="call-lbl">STOP LOSS</div><div class="call-val" style="color:#ff8c42">$${cr.stop} (${cr.stopPct}%)</div></div>
-        <div><div class="call-lbl">R:R</div><div class="call-val" style="color:#ffd700">${cr.rr}:1</div></div>
+    return`<div class="callpanel" style="${s.isKnife?'border-color:rgba(255,140,0,0.3);background:rgba(255,140,0,0.02)':''}">
+      <div class="calltitle" style="${s.isKnife?'color:#ff8c42':''}">${s.isKnife?'⚠️ CALL — VERIFY PRICE ACTION':'📈 CALL OPPORTUNITY'}</div>
+      <div class="oppgrid">
+        <div><div class="opp-lbl" style="color:#224433">STRIKE</div><div class="opp-val" style="color:${s.isKnife?'#ff8c42':'#00ff88'}">${cr.strikeRec}</div></div>
+        <div><div class="opp-lbl" style="color:#224433">EXPIRY</div><div class="opp-val" style="color:${cr.expiry==='WAIT'?'#555':s.isKnife?'#ff8c42':'#00cc66'}">${cr.expiry}</div></div>
+        <div><div class="opp-lbl" style="color:#224433">TARGET (${cr.targetLabel})</div><div class="opp-val" style="color:#00ff88">$${cr.target}</div></div>
+        <div><div class="opp-lbl" style="color:#224433">UPSIDE</div><div class="opp-val" style="color:#00ff88">+${cr.upPct}%</div></div>
+        <div><div class="opp-lbl" style="color:#224433">STOP LOSS</div><div class="opp-val" style="color:#ff8c42">$${cr.stop} (${cr.stopPct}%)</div></div>
+        <div><div class="opp-lbl" style="color:#224433">R:R</div><div class="opp-val" style="color:#ffd700">${cr.rr}:1</div></div>
       </div>
-      <div class="call-rec">${cr.expiryReason}</div>
-      <div class="call-warn">⚠️ Wait 9:45 AM · Confirm green candle above fib resistance · RVOL 1.5x+ preferred · Max 2 calls at once</div>
+      <div class="opp-note" style="border:1px solid rgba(0,255,136,0.2);background:rgba(0,255,136,0.06);color:#00cc66">${cr.expiryReason}</div>
+      <div class="opp-warn">${s.isKnife?'⚠️ FALLING KNIFE — Do NOT enter call · Wait for green close · Check auto-confirmation below':'⚠️ Wait 9:45 AM · Confirm auto-checklist below · Max 2 calls'}</div>
     </div>`;
-  }catch(e){return'';}
-}
-
-function putPanelHTML(s){
-  try{
-    if(!s.putRec)return'';
-    const pr=s.putRec,f=FIBS[s.sym];
-    return`<div class="putpanel">
-      <div class="puttitle">📉 PUT OPPORTUNITY</div>
-      <div class="putgrid">
-        <div><div class="put-lbl">STRIKE</div><div class="put-val" style="color:#ff4444">${pr.strikeRec}</div></div>
-        <div><div class="put-lbl">EXPIRY</div><div class="put-val" style="color:${pr.expiry==='SKIP'?'#555':'#ff8888'}">${pr.expiry}</div></div>
-        <div><div class="put-lbl">TARGET (${pr.targetLabel})</div><div class="put-val" style="color:#ff6666">$${pr.target}</div></div>
-        <div><div class="put-lbl">DOWNSIDE</div><div class="put-val" style="color:#ff4444">${pr.downPct}%</div></div>
-        <div><div class="put-lbl">STOP (reclaims ${pr.stopLabel})</div><div class="put-val" style="color:#ff8c42">$${pr.stop}</div></div>
-        <div><div class="put-lbl">FIB LOW</div><div class="put-val" style="color:#555">$${f2(f.low)}</div></div>
-      </div>
-      <div class="put-rec">${pr.expiryReason}</div>
-      <div class="put-warn">⚠️ Wait 9:45 AM · Confirm red candle below fib low · RSI oversold = bounce risk · Max 2 puts at once</div>
-    </div>`;
-  }catch(e){return'';}
+  }
+  return'';
 }
 
 function portHTML(s){
-  try{
-    const p=PORT[s.sym];if(!p)return'';
-    const price=s.price;let ac='',am='';
-    if(p.exit!=null){const buf=(price-p.exit)/p.exit*100;if(buf<0){ac='red';am=`🔴 BELOW EXIT — exit was $${p.exit}`;}else if(buf<3){ac='warn';am=`⚠️ Only ${buf.toFixed(1)}% above exit $${p.exit}`;}else{ac='ok';am=`✓ ${buf.toFixed(1)}% above exit $${p.exit}`;}}
-    else if(p.reentry!=null){const need=(p.reentry-price)/price*100;ac=need<=0?'ok':'warn';am=need>0?`Needs +${need.toFixed(1)}% to reach re-entry $${p.reentry}`:`🟢 Above re-entry trigger — confirm 2 daily closes`;}
-    return`<div class="pbox"><div class="phead"><div><div class="ptitle">📊 PORTFOLIO ALERT</div><div class="pacct">${p.acct} · ${p.opt}</div></div><span class="pa" style="color:#444;font-size:0.7rem">▼</span></div>
-      <div class="pbody"><div class="plgrid">
-        ${p.exit!=null?`<div><div class="pll">EXIT BELOW</div><div class="plv ex">$${p.exit.toFixed(2)}</div></div>`:''}
-        ${p.reentry!=null?`<div><div class="pll">RE-ENTRY ABOVE</div><div class="plv re">$${p.reentry.toFixed(2)}</div></div>`:''}
-        ${p.trail!=null?`<div><div class="pll">TRAIL TRIGGER</div><div class="plv tr">$${p.trail.toFixed(2)}</div></div>`:''}
-        <div><div class="pll">CURRENT PRICE</div><div class="plv" style="color:#fff">$${f2(price)}</div></div>
-      </div>${am?`<div class="palert ${ac}">${am}</div>`:''}<div class="pnote">${p.note}</div></div></div>`;
-  }catch(e){return'';}
+  const p=PORT[s.sym];if(!p)return'';
+  const price=s.price;let ac='',am='';
+  if(p.exit!=null){const buf=(price-p.exit)/p.exit*100;if(buf<0){ac='red';am=`🔴 BELOW EXIT $${p.exit}`;}else if(buf<3){ac='warn';am=`⚠️ Only ${buf.toFixed(1)}% above exit $${p.exit}`;}else{ac='ok';am=`✓ ${buf.toFixed(1)}% above exit $${p.exit}`;}}
+  else if(p.reentry!=null){const need=(p.reentry-price)/price*100;ac=need<=0?'ok':'warn';am=need>0?`Needs +${need.toFixed(1)}% to reach re-entry $${p.reentry}`:`🟢 Above re-entry — confirm 2 daily closes`;}
+  return`<div class="pbox"><div class="phead"><div><div class="ptitle">📊 PORTFOLIO ALERT</div><div class="pacct">${p.acct} · ${p.opt}</div></div><span class="pa" style="color:#444;font-size:0.7rem">▼</span></div>
+    <div class="pbody"><div class="plgrid">
+      ${p.exit!=null?`<div><div class="pll">EXIT BELOW</div><div class="plv ex">$${p.exit.toFixed(2)}</div></div>`:''}
+      ${p.reentry!=null?`<div><div class="pll">RE-ENTRY ABOVE</div><div class="plv re">$${p.reentry.toFixed(2)}</div></div>`:''}
+      ${p.trail!=null?`<div><div class="pll">TRAIL TRIGGER</div><div class="plv tr">$${p.trail.toFixed(2)}</div></div>`:''}
+      <div><div class="pll">CURRENT PRICE</div><div class="plv" style="color:#fff">$${f2(price)}</div></div>
+    </div>${am?`<div class="palert ${ac}">${am}</div>`:''}<div class="pnote">${p.note}</div></div></div>`;
 }
 
 function cardHTML(s){
   try{
     const m=MODES[mode],sc=SCOL[s.status]||'#888';
-    const isEntryZone=s.isEntry===true,isPutCard=s.isPut||s.isDeepBase;
-    const key=s.sym+'_'+mode,ck=checked[key]||{};
-    const done=m.checks.filter(c=>ck[c.id]).length,all=done===m.checks.length;
-    const rc=all?'#00ff88':done>=3?'#ffd700':'#ff4444';
+    const isEZ=s.isEntry&&!s.isKnife,isPut=s.isPut||s.isDeepBase;
     const fitH=Array.from({length:5},(_,i)=>`<div class="pip" style="background:${i<s.fit?m.color:'var(--dimmer)'}"></div>`).join('');
     const rv2=s.rv>=m.rmin?'#00ff88':s.rv>=1?'#ffd700':'#ff8c42';
     const dc=s.distPct>=-0.5&&s.distPct<=2?'#00ff88':s.distPct>=-3?'#ffd700':'#888';
     const passH=Object.entries(s.pass).map(([k,v])=>`<span class="pc ${v?'y':'n'}">${v?'✓':'✗'} ${k}</span>`).join('');
-    const checkH=m.checks.map(c=>{const on=!!ck[c.id],tc=TFCOL[c.tf]||'#888';return`<div class="emaitem${on?' on':''}" data-k="${key}" data-id="${c.id}"><div class="emacheck" style="${on?`background:${m.color};border-color:${m.color};color:#000`:''}">${on?'✓':''}</div><div class="emalabel">${c.label}</div><span class="tfchip" style="color:${tc};border-color:${tc}33">${c.tf}</span></div>`;}).join('');
+    const bl=s.bias==='bullish'?'▲ BULLISH':s.bias==='bearish'?'▼ BEARISH':'● NEUTRAL';
+    const bb=`<span class="bias-badge ${s.bias}">${bl}</span>`;
+    const kb=s.isKnife?`<span class="knife-badge">⚠️ FALLING KNIFE</span>`:'';
     const resLabel=s.fibNear.above?`${s.fibNear.above.level} FIB`:'FIB RES';
-    const biasLabel=s.bias==='bullish'?'▲ BULLISH':s.bias==='bearish'?'▼ BEARISH':'● NEUTRAL';
-    const biasBadge=`<span class="bias-badge ${s.bias}">${biasLabel}</span>`;
     const roadSteps=[{l:0,short:'0·LOW'},{l:0.236,short:'0.236'},{l:0.382,short:'0.382'},{l:0.618,short:'0.618'},{l:0.786,short:'0.786'},{l:1,short:'1·HIGH'}];
     const roadHTML=roadSteps.map((rs,idx)=>{
       const rp=fibPrice(s.sym,rs.l);if(!rp)return'';
-      const reached=s.price>=rp+0.05;
-      const isNow=s.fibZone&&s.fibZone.below&&Math.abs(s.fibZone.below.l-rs.l)<0.001;
-      const inEntry=rs.l>=0.382&&rs.l<=0.618;
-      const isPivotLow=rs.l===0&&isPutCard;
-      const dc2=reached?'#00ff88':isPivotLow?'#ff4444':isNow?'#ffd700':inEntry?'rgba(0,255,136,0.4)':'#1e1e2e';
-      const db2=reached?'#00ff88':isPivotLow?'#ff4444':isNow?'#ffd700':inEntry?'#00ff88':'#333';
-      const pc2=reached?'#00ff88':isPivotLow?'#ff4444':isNow?'#ffd700':'#444';
+      const reached=s.price>=rp+0.05,isNow=s.fibZone?.below&&Math.abs(s.fibZone.below.l-rs.l)<0.001;
+      const inEntry=rs.l>=0.382&&rs.l<=0.618,isPivLow=rs.l===0&&isPut;
+      const dc2=reached?'#00ff88':isPivLow?'#ff4444':isNow?(s.isKnife?'#ff8c42':'#ffd700'):inEntry?'rgba(0,255,136,0.4)':'#1e1e2e';
+      const db2=reached?'#00ff88':isPivLow?'#ff4444':isNow?(s.isKnife?'#ff8c42':'#ffd700'):inEntry?'#00ff88':'#333';
+      const pc2=reached?'#00ff88':isPivLow?'#ff4444':isNow?(s.isKnife?'#ff8c42':'#ffd700'):'#444';
       const lc=idx<roadSteps.length-1?(reached?'#00ff8855':'#1e1e2e'):'transparent';
-      const tag=(rs.l===0.382||rs.l===0.618)?`<div style="font-size:0.34rem;color:#00ff88;margin-top:1px">${rs.l===0.382?'ENTRY▶':'◀ENTRY'}</div>`:isPivotLow?'<div style="font-size:0.34rem;color:#ff4444;margin-top:1px">PUT▼</div>':'';
-      return'<div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:46px">'
-        +'<div style="width:10px;height:10px;border-radius:50%;background:'+dc2+';border:2px solid '+db2+(isNow?';box-shadow:0 0 6px '+db2:'')+'">'+'</div>'
-        +'<div style="font-size:0.46rem;font-weight:700;color:'+pc2+';margin-top:2px">$'+f2(rp)+'</div>'
-        +'<div style="font-size:0.38rem;color:'+(inEntry?'#00ff8877':'#2a2a3a')+';letter-spacing:0.5px">'+rs.short+'</div>'
-        +tag+'</div>'
-        +(idx<roadSteps.length-1?'<div style="flex:1;height:2px;background:'+lc+';margin-top:4px;min-width:6px"></div>':'');
+      const tag=(rs.l===0.382||rs.l===0.618)?`<div style="font-size:0.34rem;color:#00ff88;margin-top:1px">${rs.l===0.382?'ENTRY▶':'◀ENTRY'}</div>`:isPivLow?'<div style="font-size:0.34rem;color:#ff4444;margin-top:1px">PUT▼</div>':'';
+      return`<div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:46px"><div style="width:10px;height:10px;border-radius:50%;background:${dc2};border:2px solid ${db2}${isNow?`;box-shadow:0 0 6px ${db2}`:''}"></div><div style="font-size:0.46rem;font-weight:700;color:${pc2};margin-top:2px">$${f2(rp)}</div><div style="font-size:0.38rem;color:${inEntry?'#00ff8877':'#2a2a3a'};letter-spacing:0.5px">${rs.short}</div>${tag}</div>${idx<roadSteps.length-1?`<div style="flex:1;height:2px;background:${lc};margin-top:4px;min-width:6px"></div>`:''}`;
     }).join('');
-    const cardClass=isEntryZone?'card entry-zone-card':isPutCard&&s.status==='BROKEN DOWN'?'card put-zone-card':isPutCard?'card deep-base-card':'card';
-    const cardBorder=isEntryZone?'rgba(0,255,136,0.5)':isPutCard?'rgba(255,68,68,0.3)':m.best.includes(s.status)?m.color+'28':'';
+    const cardClass=isEZ?'card entry-zone-card':s.isKnife?'card knife-card':isPut&&s.status==='BROKEN DOWN'?'card put-zone-card':isPut?'card deep-base-card':'card';
+    const cardBorder=isEZ?'rgba(0,255,136,0.5)':s.isKnife?'rgba(255,140,0,0.35)':isPut?'rgba(255,68,68,0.3)':m.best.includes(s.status)?m.color+'28':'';
     return`<div class="${cardClass}"${cardBorder?` style="border-color:${cardBorder}"`:''}">
-  <div class="ctop">
-    <div class="cleft">
-      <div class="symrow">
-        <span class="sym">${s.sym}</span><span class="sec">${s.sec}</span>
-        <span class="${isEntryZone?'sbadge entry-zone-badge':isPutCard?'sbadge put-zone-badge':'sbadge'}" style="${isEntryZone||isPutCard?'':'color:'+sc+';border-color:'+sc+'33;background:'+sc+'10'}">${s.status}</span>
-        <span class="pbadge" style="background:${s.pri===1?'#ff3b3b':s.pri===2?'#ff8c42':'#1e1e2e'};color:${s.pri<=2?'#000':'#666'}">P${s.pri}</span>
-        ${biasBadge}
-      </div>
-      <div class="fitbar">${fitH}</div>
-    </div>
-    <div class="cright"><div class="price">$${f2(s.price)}</div><div class="chg" style="color:${s.chg>=0?'#00ff88':'#ff4444'}">${s.chg>=0?'+':''}${f2(s.chg)}%</div></div>
+  <div class="ctop"><div class="cleft">
+    <div class="symrow"><span class="sym">${s.sym}</span><span class="sec">${s.sec}</span>
+      <span class="${isEZ?'sbadge entry-zone-badge':isPut?'sbadge put-zone-badge':'sbadge'}" style="${isEZ||isPut?'':'color:'+sc+';border-color:'+sc+'33;background:'+sc+'10'}">${s.status}</span>
+      <span class="pbadge" style="background:${s.pri===1?'#ff3b3b':s.pri===2?'#ff8c42':'#1e1e2e'};color:${s.pri<=2?'#000':'#666'}">P${s.pri}</span>
+      ${bb}${kb}</div>
+    <div class="fitbar">${fitH}</div>
   </div>
-  <div class="mhold" style="color:${isPutCard?'#ff4444':m.color}">▶ ${isPutCard?'BELOW FIB LOW · PUT TERRITORY · Wait 9:45 AM':resLabel+' RESISTANCE · HOLD '+m.hold}</div>
-  <div style="margin-bottom:10px;padding:8px 10px;background:rgba(0,0,0,0.3);border-radius:6px;border:1px solid ${isEntryZone?'rgba(0,255,136,0.2)':isPutCard?'rgba(255,68,68,0.15)':'rgba(255,215,0,0.1)'}">
-    <div style="font-size:0.47rem;letter-spacing:2px;color:${isPutCard?'#ff4444':'#ffd700'};font-weight:700;margin-bottom:7px">FIB PROGRESSION ROADMAP</div>
+  <div class="cright"><div class="price">$${f2(s.price)}</div><div class="chg" style="color:${s.chg>=0?'#00ff88':'#ff4444'}">${s.chg>=0?'+':''}${f2(s.chg)}%</div></div></div>
+  <div class="mhold" style="color:${isPut?'#ff4444':s.isKnife?'#ff8c42':m.color}">▶ ${isPut?'PUT TERRITORY · Check auto-confirmation':s.isKnife?'⚠️ FALLING KNIFE · DO NOT ENTER CALL':resLabel+' · '+m.hold}</div>
+  <div style="margin-bottom:10px;padding:8px 10px;background:rgba(0,0,0,0.3);border-radius:6px;border:1px solid ${isEZ?'rgba(0,255,136,0.2)':s.isKnife?'rgba(255,140,0,0.15)':isPut?'rgba(255,68,68,0.15)':'rgba(255,215,0,0.1)'}">
+    <div style="font-size:0.47rem;letter-spacing:2px;color:${isPut?'#ff4444':s.isKnife?'#ff8c42':'#ffd700'};font-weight:700;margin-bottom:7px">FIB PROGRESSION ROADMAP</div>
     <div style="display:flex;align-items:flex-start;overflow-x:auto;padding-bottom:2px">${roadHTML}</div>
-    ${isEntryZone?'<div style="font-size:0.54rem;color:#00ff88;margin-top:8px;padding:5px 8px;background:rgba(0,255,136,0.08);border:1px solid rgba(0,255,136,0.25);border-radius:4px;font-weight:700">✓ ENTRY ZONE — Price between 0.382 and 0.618 fib · See Call Opportunity panel below</div>':''}
-    ${isPutCard?'<div style="font-size:0.54rem;color:#ff4444;margin-top:8px;padding:5px 8px;background:rgba(255,68,68,0.08);border:1px solid rgba(255,68,68,0.25);border-radius:4px;font-weight:700">📉 BELOW FIB LOW — PUT territory · See Put Opportunity panel below</div>':''}
   </div>
   <div class="sgrid">
     <div><div class="sl">VOL</div><div class="sv">${fv(s.vol)}</div></div>
@@ -698,22 +843,14 @@ function cardHTML(s){
     <div><div class="sl">DIST TO RES</div><div class="sv" style="color:${dc}">${f2(s.distPct)}%</div></div>
     <div><div class="sl">FIB SUP</div><div class="sv" style="color:#888">$${f2(s.sup)}</div></div>
   </div>
-  ${fibPanelHTML(s)}
-  ${isPutCard?putPanelHTML(s):callPanelHTML(s)}
+  ${fibPanelHTML(s)}${oppHTML(s)}
   <div class="passes">${passH}</div>
-  ${portHTML(s)}
-  <div class="emawrap${all?' done':''}">
-    <div class="emahead"><div style="display:flex;align-items:center"><span class="ematitle" style="color:${m.color}">20 EMA CHECKLIST</span><span class="emabadge" style="color:${rc};background:${rc}18;border-color:${rc}44">${done}/${m.checks.length}${all?' ✓ READY':' checks'}</span></div><span class="emaarrow" style="color:var(--dim)">▼</span></div>
-    <div class="emabody"><div class="emarule"><span style="color:${m.color};margin-right:4px">Rule:</span>${m.rule}</div>${checkH}
-      <div class="emares" style="color:${rc};background:${rc}0a;border-color:${rc}22">${all?`✓ All ${m.checks.length} confirmed — clear to enter`:done>=3?`${m.checks.length-done} remaining`:`${done}/${m.checks.length} — wait for confirmation`}</div>
-      <div class="emareset" data-k="${key}">RESET</div>
-    </div>
-  </div>
+  ${portHTML(s)}${aconfHTML(s)}
 </div>`;
   }catch(e){return`<div class="card"><div style="color:#ff4444;font-size:0.6rem">Error: ${s?s.sym:'?'} — ${e.message}</div></div>`;}
 }
 
-function setMode(m){mode=m;filter='ALL';if(stocks.length){stocks=stocks.map(s=>build(s.sym,s.price,s.vol,s.chg)).filter(Boolean).sort((a,b)=>b.fit-a.fit||(SORD[a.status]??3)-(SORD[b.status]??3)||a.pri-b.pri);}render();}
+function setMode(m){mode=m;filter='ALL';if(stocks.length){stocks=stocks.map(s=>build(s.sym,s.price,s.vol,s.chg)||s).filter(Boolean).sort((a,b)=>b.fit-a.fit||(SORD[a.status]??3)-(SORD[b.status]??3)||a.pri-b.pri);}render();}
 function setFilter(f){filter=f;render();}
 render();
 </script>
