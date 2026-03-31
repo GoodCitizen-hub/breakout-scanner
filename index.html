@@ -185,7 +185,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:1
 // API KEYS
 // ═══════════════════════════════════════════════════════════════
 const FKEY = 'd6q0co1r01qhcrmidjkgd6q0co1r01qhcrmidjl0';
-const TDKEY = 'YOUR_TWELVE_DATA_KEY'; // ← PASTE YOUR TWELVE DATA KEY HERE
+const TDKEY = '19b2362f45584beaaf3d55a271fe0e07';
 
 const AUTO_MS = 5 * 60 * 1000;
 const DELAY = 1100; // Finnhub free tier = 60 calls/min = 1 per second minimum
@@ -283,7 +283,7 @@ async function tdFetch(url) {
 // Sequential with 500ms delay to avoid rate limit
 // Falls back gracefully if any call fails
 async function fetchAllTwelveData(syms) {
-  if (TDKEY === 'YOUR_TWELVE_DATA_KEY') return;
+  if (!TDKEY || TDKEY.length < 10) return;
   const base = 'https://api.twelvedata.com';
   const k = `&apikey=${TDKEY}&format=JSON`;
   const symStr = syms.join(',');
@@ -738,7 +738,7 @@ function aconfHTML(s){
   const title=isPut?'📉 PUT CONFIRMATION':'📈 CALL CONFIRMATION';
   const border=isPut?'rgba(255,68,68,0.2)':s.isKnife?'rgba(255,140,0,0.28)':'rgba(0,255,136,0.2)';
 
-  if(TDKEY==='YOUR_TWELVE_DATA_KEY'){
+  if(!TDKEY||TDKEY.length<10){
     return`<div class="aconf" style="border:1px solid #1a1a2a"><div class="aconf-head"><div style="display:flex;align-items:center"><span class="aconf-title" style="color:#333">${title}</span><span class="aconf-badge" style="color:#333;border-color:#1a1a2a">KEY NEEDED</span></div><span class="aconf-arrow">▼</span></div><div class="aconf-body"><div style="font-size:0.55rem;color:#444;padding:6px 0;line-height:1.8">Open this file · Find <code style="color:#ffd700">YOUR_TWELVE_DATA_KEY</code> · Replace with your Twelve Data API key</div></div></div>`;
   }
 
