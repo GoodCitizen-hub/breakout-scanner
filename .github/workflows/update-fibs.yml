@@ -1,0 +1,65 @@
+name: Update Fibs from TradingView
+
+on:
+  repository_dispatch:
+    types: [fib-update]
+
+jobs:
+  update-fibs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Parse and update fibs.json
+        run: |
+          # Get the payload from TradingView alert
+          MESSAGE="${{ github.event.client_payload.message }}"
+          echo "Received: $MESSAGE"
+
+          # Parse FIBUPDATE:TICKER:low:high format
+          if [[ "$MESSAGE" =~ ^FIBUPDATE:([A-Z]+):([0-9.]+):([0-9.]+)$ ]]; then
+            TICKER="${BASH_REMATCH[1]}"
+            LOW="${BASH_REMATCH[2]}"
+            HIGH="${BASH_REMATCH[3]}"
+            echo "Ticker: $TICKER | Low: $LOW | High: $HIGH"
+
+            # Update fibs.json using Python
+            python3 - <<EOF
+          import json, os
+          from datetime import date
+
+          with open('fibs.json', 'r') as f:
+              data = json.load(f)
+
+          ticker = "$TICKER"
+          low = float("$LOW")
+          high = float("$HIGH")
+
+          if 'stocks' not in data:
+              data['stocks'] = {}
+
+          data['stocks'][ticker] = {"low": low, "high": high}
+          data['updated'] = str(date.today())
+
+          with open('fibs.json', 'w') as f:
+              json.dump(data, f, indent=2)
+
+          print(f"Updated {ticker}: low={low}, high={high}")
+          EOF
+          else
+            echo "Invalid message format: $MESSAGE"
+            echo "Expected: FIBUPDATE:TICKER:low:high"
+            exit 1
+          fi
+
+      - name: Commit updated fibs.json
+        run: |
+          git config user.name "GoodCitizen Bot"
+          git config user.email "bot@goodcitizen.dev"
+          git add fibs.json
+          git diff --staged --quiet || git commit -m "Auto-update fibs: ${{ github.event.client_payload.message }}"
+          git push
