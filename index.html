@@ -185,26 +185,27 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:1
 // API KEYS
 // ═══════════════════════════════════════════════════════════════
 const FKEY = 'd6q0co1r01qhcrmidjkgd6q0co1r01qhcrmidjl0';
-const TDKEY = '19b2362f45584beaaf3d55a271fe0e07'; // ← PASTE YOUR TWELVE DATA KEY HERE
+const TDKEY = 'YOUR_TWELVE_DATA_KEY'; // ← PASTE YOUR TWELVE DATA KEY HERE
 
 const AUTO_MS = 5 * 60 * 1000;
-const DELAY = 80; // Finnhub delay ms
+const DELAY = 1100; // Finnhub free tier = 60 calls/min = 1 per second minimum
 
 // ═══════════════════════════════════════════════════════════════
 // FIB DATA
 // ═══════════════════════════════════════════════════════════════
 const FIBS = {
+  // Updated Mar 31 2026 — fib levels updated after today's moves
   PLTR:{low:126.23,high:161.45},AVGO:{low:300.68,high:353.14},AMZN:{low:196.00,high:220.47},
   NVDA:{low:167.52,high:197.63},META:{low:525.72,high:737.00},GOOGL:{low:293.93,high:350.15},
   MSFT:{low:356.77,high:398.00},AAPL:{low:243.42,high:280.90},AMD:{low:188.22,high:266.96},
   TSLA:{low:381.40,high:436.35},CRM:{low:174.57,high:204.86},PANW:{low:139.57,high:196.19},
   NET:{low:160.35,high:203.62},DDOG:{low:98.01,high:133.44},CRWD:{low:342.72,high:452.00},
-  MRVL:{low:70.69,high:95.05},SNOW:{low:152.80,high:184.74},ARM:{low:111.26,high:134.25},
+  MRVL:{low:70.69,high:95.05},SNOW:{low:149.41,high:184.74},ARM:{low:111.26,high:134.25},
   SMCI:{low:27.75,high:34.94},AMAT:{low:316.66,high:395.95},ORCL:{low:135.25,high:171.76},
   NOW:{low:98.00,high:126.67},UBER:{low:69.02,high:78.25},COIN:{low:139.36,high:213.50},
   SHOP:{low:104.92,high:135.96},SOFI:{low:15.23,high:29.86},HOOD:{low:66.02,high:84.75},
   MSTR:{low:104.17,high:149.54},LYFT:{low:12.83,high:23.33},IONQ:{low:27.51,high:41.90},
-  MU:{low:355.46,high:455.50},APP:{low:359.00,high:520.36},
+  MU:{low:321.80,high:455.50},APP:{low:359.00,high:520.36},
 };
 
 const CALL_TARGETS = {
@@ -253,86 +254,148 @@ const PUT_TARGETS = {
 let tdData = {}; // {SYM: {dEMA, h4EMA, m5EMA, wEMA, rsi, recentGreen, recentRed, dCloseGreen, dAboveEMA}}
 let tdReady = false;
 
+// ── TWELVE DATA HELPERS ───────────────────────────────────────────────────────
+function parseTDSymbol(res, sym) {
+  // Twelve Data returns keyed object for batch, direct object for single
+  if (!res) return null;
+  if (res[sym]) return res[sym];
+  if (res.values) return res; // single symbol response
+  if (res.status === 'error') return null;
+  return null;
+}
+
+function hasValues(data) {
+  return data && Array.isArray(data.values) && data.values.length > 0 && data.values[0]?.value;
+}
+
+async function tdFetch(url) {
+  try {
+    const r = await fetch(url);
+    if (!r.ok) return null;
+    const d = await r.json();
+    if (d.status === 'error') { console.log('TD error:', d.message); return null; }
+    return d;
+  } catch(e) { return null; }
+}
+
+// ── MAIN TWELVE DATA FETCHER ──────────────────────────────────────────────────
+// Strategy: 3 sequential batch calls (daily data, 4H data, candles)
+// Sequential with 500ms delay to avoid rate limit
+// Falls back gracefully if any call fails
 async function fetchAllTwelveData(syms) {
   if (TDKEY === 'YOUR_TWELVE_DATA_KEY') return;
   const base = 'https://api.twelvedata.com';
-  const k = `&apikey=${TDKEY}`;
+  const k = `&apikey=${TDKEY}&format=JSON`;
   const symStr = syms.join(',');
+  const td_slp = ms => new Promise(r => setTimeout(r, ms));
 
-  document.getElementById('tdstatus').textContent = 'Loading price action data...';
+  document.getElementById('tdstatus').textContent = 'Loading price action...';
   document.getElementById('tdstatus').style.color = '#ffd700';
 
   try {
-    // 6 batch calls — each returns data for ALL 32 symbols at once
-    const [dEMAres, h4EMAres, m5EMAres, wEMAres, rsiRes, candleRes] = await Promise.all([
-      fetch(`${base}/ema?symbol=${symStr}&interval=1day&time_period=20&outputsize=3${k}`).then(r=>r.json()),
-      fetch(`${base}/ema?symbol=${symStr}&interval=4h&time_period=20&outputsize=3${k}`).then(r=>r.json()),
-      fetch(`${base}/ema?symbol=${symStr}&interval=5min&time_period=20&outputsize=2${k}`).then(r=>r.json()),
-      fetch(`${base}/ema?symbol=${symStr}&interval=1week&time_period=20&outputsize=2${k}`).then(r=>r.json()),
-      fetch(`${base}/rsi?symbol=${symStr}&interval=1day&time_period=14&outputsize=1${k}`).then(r=>r.json()),
-      fetch(`${base}/time_series?symbol=${symStr}&interval=1day&outputsize=5${k}`).then(r=>r.json()),
-    ]);
+    // ── CALL 1: Daily EMA + RSI (most important for SWING/LEAP confirmation)
+    document.getElementById('tdstatus').textContent = 'Loading daily EMA data...';
+    const dEMAres = await tdFetch(`${base}/ema?symbol=${symStr}&interval=1day&time_period=20&outputsize=5${k}`);
+    await td_slp(600);
 
-    // Parse each symbol from batch response
-    // Twelve Data returns object keyed by symbol when multiple symbols requested
+    // ── CALL 2: Daily candles (for consecutive green/red detection)
+    document.getElementById('tdstatus').textContent = 'Loading candle data...';
+    const candleRes = await tdFetch(`${base}/time_series?symbol=${symStr}&interval=1day&outputsize=5${k}`);
+    await td_slp(600);
+
+    // ── CALL 3: 4H EMA (for swing confirmation)
+    document.getElementById('tdstatus').textContent = 'Loading 4H EMA data...';
+    const h4EMAres = await tdFetch(`${base}/ema?symbol=${symStr}&interval=4h&time_period=20&outputsize=3${k}`);
+    await td_slp(600);
+
+    // ── CALL 4: Weekly EMA (for LEAP confirmation)
+    document.getElementById('tdstatus').textContent = 'Loading weekly EMA data...';
+    const wEMAres = await tdFetch(`${base}/ema?symbol=${symStr}&interval=1week&time_period=20&outputsize=3${k}`);
+    await td_slp(600);
+
+    // ── CALL 5: RSI daily
+    document.getElementById('tdstatus').textContent = 'Loading RSI data...';
+    const rsiRes = await tdFetch(`${base}/rsi?symbol=${symStr}&interval=1day&time_period=14&outputsize=2${k}`);
+    await td_slp(600);
+
+    // ── CALL 6: 5-min EMA (for DAY mode)
+    document.getElementById('tdstatus').textContent = 'Loading 5-min EMA data...';
+    const m5EMAres = await tdFetch(`${base}/ema?symbol=${symStr}&interval=5min&time_period=20&outputsize=2${k}`);
+
+    // ── PARSE all symbols
+    let loaded = 0;
     for (const sym of syms) {
       try {
-        const dEMAdata = dEMAres[sym] || dEMAres;
-        const h4EMAdata = h4EMAres[sym] || h4EMAres;
-        const m5EMAdata = m5EMAres[sym] || m5EMAres;
-        const wEMAdata = wEMAres[sym] || wEMAres;
-        const rsiData = rsiRes[sym] || rsiRes;
-        const candleData = candleRes[sym] || candleRes;
+        const dEMAdata  = parseTDSymbol(dEMAres, sym);
+        const h4EMAdata = parseTDSymbol(h4EMAres, sym);
+        const m5EMAdata = parseTDSymbol(m5EMAres, sym);
+        const wEMAdata  = parseTDSymbol(wEMAres, sym);
+        const rsiData   = parseTDSymbol(rsiRes, sym);
+        const candleData = parseTDSymbol(candleRes, sym);
 
-        const dEMAval = dEMAdata.values?.[0]?.value ? parseFloat(dEMAdata.values[0].value) : null;
-        const dEMAslope = dEMAdata.values?.[1]?.value ? parseFloat(dEMAdata.values[0].value) - parseFloat(dEMAdata.values[1].value) : null;
-        const h4EMAval = h4EMAdata.values?.[0]?.value ? parseFloat(h4EMAdata.values[0].value) : null;
-        const h4EMAslope = h4EMAdata.values?.[1]?.value ? parseFloat(h4EMAdata.values[0].value) - parseFloat(h4EMAdata.values[1].value) : null;
-        const m5EMAval = m5EMAdata.values?.[0]?.value ? parseFloat(m5EMAdata.values[0].value) : null;
-        const wEMAval = wEMAdata.values?.[0]?.value ? parseFloat(wEMAdata.values[0].value) : null;
-        const rsiVal = rsiData.values?.[0]?.value ? parseFloat(rsiData.values[0].value) : null;
+        // Daily EMA
+        const dEMAval   = hasValues(dEMAdata) ? parseFloat(dEMAdata.values[0].value) : null;
+        const dEMAval1  = hasValues(dEMAdata) && dEMAdata.values[1]?.value ? parseFloat(dEMAdata.values[1].value) : null;
+        const dEMAslope = dEMAval && dEMAval1 ? dEMAval - dEMAval1 : null;
 
-        // Parse candles
+        // 4H EMA
+        const h4EMAval   = hasValues(h4EMAdata) ? parseFloat(h4EMAdata.values[0].value) : null;
+        const h4EMAval1  = hasValues(h4EMAdata) && h4EMAdata.values[1]?.value ? parseFloat(h4EMAdata.values[1].value) : null;
+        const h4EMAslope = h4EMAval && h4EMAval1 ? h4EMAval - h4EMAval1 : null;
+
+        // 5-min EMA
+        const m5EMAval = hasValues(m5EMAdata) ? parseFloat(m5EMAdata.values[0].value) : null;
+
+        // Weekly EMA
+        const wEMAval = hasValues(wEMAdata) ? parseFloat(wEMAdata.values[0].value) : null;
+
+        // RSI
+        const rsiVal = hasValues(rsiData) ? parseFloat(rsiData.values[0].value) : null;
+
+        // Candles — parse last 5 daily candles
         let candles = [];
-        if (candleData.values && Array.isArray(candleData.values)) {
+        if (candleData?.values && Array.isArray(candleData.values)) {
           candles = candleData.values.slice(0, 5).map(c => ({
-            open: parseFloat(c.open),
+            open:  parseFloat(c.open),
             close: parseFloat(c.close),
             green: parseFloat(c.close) >= parseFloat(c.open),
           }));
         }
 
-        const lastClose = candles[0]?.close || null;
-        const lastGreen = candles[0]?.green ?? null;
+        const lastClose  = candles[0]?.close || null;
+        const lastGreen  = candles.length > 0 ? candles[0].green : null;
         const recentGreen = candles.filter((c,i) => i < 3 && c.green).length;
-        const recentRed = candles.filter((c,i) => i < 3 && !c.green).length;
+        const recentRed   = candles.filter((c,i) => i < 3 && !c.green).length;
+
+        // Only mark as loaded if we got at least daily EMA or candle data
+        const gotData = dEMAval !== null || candles.length > 0;
 
         tdData[sym] = {
-          dEMA: dEMAval,
-          dEMAslope,
-          h4EMA: h4EMAval,
-          h4EMAslope,
+          dEMA: dEMAval, dEMAslope,
+          h4EMA: h4EMAval, h4EMAslope,
           m5EMA: m5EMAval,
           wEMA: wEMAval,
           rsi: rsiVal,
           dCloseGreen: lastGreen,
           dAboveEMA: lastClose && dEMAval ? lastClose > dEMAval : null,
-          recentGreen,
-          recentRed,
-          candles,
-          loaded: true,
-          error: false,
+          recentGreen, recentRed, candles,
+          loaded: gotData,
+          error: !gotData,
         };
+        if (gotData) loaded++;
       } catch(e) {
-        tdData[sym] = { loaded:false, error:true };
+        console.log(`TD parse error for ${sym}:`, e.message);
+        tdData[sym] = { loaded:false, error:true, errorMsg: e.message };
       }
     }
 
     tdReady = true;
-    document.getElementById('tdstatus').textContent = `✓ Price action loaded · ${syms.length} stocks`;
-    document.getElementById('tdstatus').style.color = '#00ff88';
+    const pct = Math.round(loaded/syms.length*100);
+    document.getElementById('tdstatus').textContent = `✓ Price action loaded · ${loaded}/${syms.length} stocks (${pct}%)`;
+    document.getElementById('tdstatus').style.color = loaded > syms.length * 0.8 ? '#00ff88' : '#ffd700';
 
   } catch(e) {
+    console.log('TD fetch error:', e);
     document.getElementById('tdstatus').textContent = `⚠️ TD error: ${e.message}`;
     document.getElementById('tdstatus').style.color = '#ff4444';
   }
@@ -404,11 +467,11 @@ function verdict(checks, minPass) {
 // PORTFOLIO
 // ═══════════════════════════════════════════════════════════════
 const PORT = {
-  SNOW:{exit:160.00,reentry:null,trail:null,acct:'Port A · Brokerage',opt:'Shares',note:'Below exit — decision needed Monday'},
+  SNOW:{exit:null,reentry:null,trail:null,acct:'Port A · Closed',opt:'Shares exited Mar 30',note:'Position closed Mar 30 — watching for re-entry above 0.382 fib ($162)'},
   SOFI:{exit:null,reentry:null,trail:null,acct:'Port A+B · Both',opt:'$15C Jun/Jan 2027',note:'LEAPs held through recovery'},
   META:{exit:null,reentry:null,trail:null,acct:'Port A · Watching',opt:'PUT candidate',note:'Below fib low — watching for base'},
   MSTR:{exit:121.50,reentry:null,trail:null,acct:'Port A · Brokerage',opt:'$125C Jan 2027',note:'Trail stop on Fidelity · BTC linked'},
-  AVGO:{exit:307.00,reentry:null,trail:352.00,acct:'Port B · IRA',opt:'$300C Jan 2027',note:'Below exit — decision needed Monday'},
+  AVGO:{exit:null,reentry:null,trail:null,acct:'Port B · Closed',opt:'$300C Jan 2027 exited Mar 30',note:'Position closed Mar 30 — watching for re-entry above 0.382 fib ($320)'},
   HOOD:{exit:69.22,reentry:null,trail:null,acct:'Port B · IRA',opt:'Re-entry watch',note:'Below exit — watching for base'},
   AMD:{exit:190.00,reentry:null,trail:218.00,acct:'Port B · IRA',opt:'$195C Jun 2027',note:'Holding above exit — trail trigger = 0.382 fib'},
   MSFT:{exit:null,reentry:394.11,trail:null,acct:'Port B · IRA',opt:'$390-400C Jan 2027',note:'Re-entry: 2 closes above $394.11'},
@@ -549,16 +612,20 @@ function build(sym,price,vol,chg){
       else{expiry='SKIP';strikeRec='LOW RVOL — skip';expiryReason=`RVOL ${f2(rv)}x — below 1x`;}
       s.putRec={expiry,strikeRec,target,targetLabel,downPct,stop:stopFib.toFixed(2),stopLabel,expiryReason};
     }
-    // CALL rec
+    // CALL rec — target is always NEXT FIB ABOVE current price
     if(!isPut&&!isDeepBase&&['ENTRY ZONE','BREAKOUT NOW','NEAR HIGH','BROKEN OUT','RECOVERING'].includes(status)){
-      const f=FIBS[sym];const ct=CALL_TARGETS[sym];
-      const target=ct?ct.target.toFixed(2):(fibPrice(sym,0.382)||price*1.04).toFixed(2);
-      const targetLabel=ct?ct.label:'next fib';
+      const f=FIBS[sym];
+      // Find next fib resistance meaningfully above current price
+      const allFibs=FIB_LEVELS.map(l=>({l,p:fibPrice(sym,l)})).sort((a,b)=>a.p-b.p);
+      const nextRes=allFibs.find(fl=>fl.p>price*1.005);
+      const ext1236=f.low+(f.high-f.low)*1.236;
+      const target=nextRes?nextRes.p.toFixed(2):ext1236.toFixed(2);
+      const targetLabel=nextRes?`${nextRes.l} fib`:'1.236 ext';
       const upPct=((target-price)/price*100).toFixed(1);
       const stopLevel=nf.below?nf.below.price:f.low;
       const stop=(stopLevel*0.99).toFixed(2);
       const stopPct=((stop-price)/price*100).toFixed(1);
-      const rr=Math.abs(upPct/stopPct).toFixed(1);
+      const rr=Math.abs(Number(upPct)/Math.abs(Number(stopPct))).toFixed(1);
       let expiry,strikeRec,expiryReason;
       const otm=Math.ceil(price*1.02/5)*5;
       if(rv>=2.0){expiry='0DTE';strikeRec=`$${Math.ceil(price*1.005/5)*5}C`;expiryReason=`RVOL ${f2(rv)}x — 0DTE viable`;}
