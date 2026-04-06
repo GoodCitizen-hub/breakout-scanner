@@ -26,10 +26,16 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .mode-tag{font-family:var(--mono);font-size:9px;letter-spacing:.15em;padding:3px 9px;border-radius:2px;border:1px solid}
 .mode-mock{border-color:var(--amber);color:var(--amber);background:var(--amber2)}
 .mode-live{border-color:var(--green);color:var(--green);background:var(--green2)}
-.layout{display:grid;grid-template-columns:300px 1fr;height:calc(100vh - 52px)}
+.layout{display:grid;grid-template-columns:340px 1fr;height:calc(100vh - 52px - 56px)}
+.ctrl-bar{display:flex;align-items:center;gap:12px;padding:0 20px;height:56px;background:var(--s1);border-bottom:1px solid var(--border);flex-shrink:0}
+.ctrl-group{display:flex;align-items:center;gap:8px}
+.ctrl-label{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--text3);white-space:nowrap}
+.ctrl-bar select{width:auto;padding:6px 10px;font-size:10px}
+.ctrl-divider{width:1px;height:28px;background:var(--border2);flex-shrink:0}
+.ctrl-bar .scan-btn{width:auto;padding:8px 20px;margin-top:0;font-size:10px}
 .sidebar{background:var(--s1);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
-.sidebar-section{padding:14px 16px;border-bottom:1px solid var(--border)}
-.slabel{font-family:var(--mono);font-size:9px;letter-spacing:.15em;color:var(--text3);text-transform:uppercase;margin-bottom:8px}
+.sidebar-section{padding:10px 14px;border-bottom:1px solid var(--border)}
+.slabel{font-family:var(--mono);font-size:9px;letter-spacing:.15em;color:var(--text3);text-transform:uppercase;margin-bottom:6px}
 select{width:100%;background:var(--s2);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:11px;padding:8px 10px;border-radius:3px;outline:none;appearance:none;cursor:pointer}
 .range-row{display:flex;align-items:center;gap:8px;margin:8px 0}
 .range-row input[type=range]{flex:1;accent-color:var(--green);cursor:pointer}
@@ -43,10 +49,10 @@ select{width:100%;background:var(--s2);border:1px solid var(--border2);color:var
 .chip.ab{border-color:rgba(77,159,255,.5);color:var(--blue);background:var(--blue2)}
 .chip.ar{border-color:rgba(255,77,109,.5);color:var(--red);background:var(--red2)}
 .chip.aw{border-color:var(--text2);color:var(--text);background:rgba(255,255,255,.04)}
-.metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.m-card{background:var(--s2);border:1px solid var(--border);border-radius:3px;padding:9px 11px}
-.m-label{font-family:var(--mono);font-size:8px;letter-spacing:.1em;color:var(--text3);margin-bottom:3px}
-.m-val{font-family:var(--mono);font-size:17px;font-weight:700}
+.metrics-grid{display:flex;gap:6px}
+.m-card{background:var(--s2);border:1px solid var(--border);border-radius:3px;padding:5px 8px;flex:1;text-align:center}
+.m-label{font-family:var(--mono);font-size:7px;letter-spacing:.08em;color:var(--text3);margin-bottom:2px}
+.m-val{font-family:var(--mono);font-size:14px;font-weight:700}
 .cg{color:var(--green)}.cr{color:var(--red)}.cb{color:var(--blue)}.ca{color:var(--amber)}.cw{color:var(--text)}
 .sig-list{flex:1;overflow-y:auto}
 .sig-item{padding:11px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s}
@@ -368,43 +374,44 @@ export default function BarScanner() {
           </span>
         </div>
 
+        {/* ── Control Bar (full width, compact) ── */}
+        <div className="ctrl-bar">
+          <div className="ctrl-group">
+            <span className="ctrl-label">52W LOW</span>
+            <input type="range" min={1} max={15} step={0.5} value={nearLow}
+              onChange={e=>setNearLow(Number(e.target.value))}
+              style={{width:"100px",accentColor:"var(--green)",cursor:"pointer"}}/>
+            <span style={{fontFamily:"var(--mono)",fontSize:"11px",color:"var(--green)",minWidth:"32px"}}>{nearLow}%</span>
+          </div>
+          <div className="ctrl-divider"/>
+          <div className="ctrl-group">
+            <span className="ctrl-label">PATTERN</span>
+            <div className="chip-row">
+              {CHIP_FILTERS.map(f=>(
+                <button key={f.k} className={`chip ${filterPat===f.k?f.ac:""}`} onClick={()=>setFilterPat(f.k)}>{f.l}</button>
+              ))}
+            </div>
+          </div>
+          <div className="ctrl-divider"/>
+          <button className="scan-btn" onClick={runScan} disabled={scanning}>
+            {scanning?"SCANNING...":"▶  RUN SCAN"}
+          </button>
+        </div>
+
         <div className="layout">
           <div className="sidebar">
-            <div className="sidebar-section">
-              <div className="slabel">Scan parameters</div>
-              <div style={{fontFamily:"var(--mono)",fontSize:"9px",color:"var(--text3)",marginBottom:"4px"}}>NEAR 52W LOW</div>
-              <div className="range-row">
-                <input type="range" min={1} max={15} step={0.5} value={nearLow} onChange={e=>setNearLow(Number(e.target.value))}/>
-                <span className="range-val">{nearLow}%</span>
-              </div>
-              <div style={{fontFamily:"var(--mono)",fontSize:"9px",color:"var(--text3)",marginBottom:"5px",marginTop:"8px"}}>TIMEFRAME</div>
-              <select defaultValue="1D"><option>1D — Daily (recommended)</option></select>
-              <button className="scan-btn" onClick={runScan} disabled={scanning}>
-                {scanning?"SCANNING...":"▶  RUN SCAN"}
-              </button>
-            </div>
-
-            <div className="sidebar-section">
-              <div className="slabel">Pattern filter</div>
-              <div className="chip-row">
-                {CHIP_FILTERS.map(f=>(
-                  <button key={f.k} className={`chip ${filterPat===f.k?f.ac:""}`} onClick={()=>setFilterPat(f.k)}>{f.l}</button>
-                ))}
-              </div>
-            </div>
-
-            <div className="sidebar-section">
-              <div className="slabel">Signal counts</div>
+            {/* Compact counts bar */}
+            <div className="sidebar-section" style={{padding:"8px 12px"}}>
               <div className="metrics-grid">
                 <div className="m-card"><div className="m-label">TOTAL</div><div className="m-val cw">{counts.total}</div></div>
-                <div className="m-card"><div className="m-label">INSIDE ↑</div><div className="m-val cg">{counts.ib}</div></div>
-                <div className="m-card"><div className="m-label">INSIDE ↓</div><div className="m-val cr">{counts.ibr}</div></div>
-                <div className="m-card"><div className="m-label">OUTSIDE ↑</div><div className="m-val cb">{counts.ob}</div></div>
-                <div className="m-card"><div className="m-label">OUTSIDE ↓</div><div className="m-val ca">{counts.obr}</div></div>
+                <div className="m-card"><div className="m-label">IB↑</div><div className="m-val cg">{counts.ib}</div></div>
+                <div className="m-card"><div className="m-label">IB↓</div><div className="m-val cr">{counts.ibr}</div></div>
+                <div className="m-card"><div className="m-label">OB↑</div><div className="m-val cb">{counts.ob}</div></div>
+                <div className="m-card"><div className="m-label">OB↓</div><div className="m-val ca">{counts.obr}</div></div>
               </div>
             </div>
 
-            <div style={{padding:"10px 16px 4px",fontFamily:"var(--mono)",fontSize:"9px",color:"var(--text3)",letterSpacing:".12em"}}>
+            <div style={{padding:"8px 14px 4px",fontFamily:"var(--mono)",fontSize:"9px",color:"var(--text3)",letterSpacing:".12em"}}>
               {scanDone?`${signals.length} SIGNALS — CLICK TO ANALYZE`:"PRESS RUN SCAN"}
             </div>
             <div className="sig-list">
@@ -556,4 +563,3 @@ export default function BarScanner() {
     </>
   );
 }
-
