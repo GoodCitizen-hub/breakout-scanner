@@ -78,11 +78,8 @@ async function handleScan(url, env, MOCK) {
 async function scanLive(key, nearLow, filterPat) {
   const signals = [];
 
-  // Use Daily Market Summary — one call returns ALL tickers for today
-  // Endpoint: GET /v2/aggs/grouped/locale/us/market/stocks/{date}
-  const today    = new Date();
-  const dateStr  = toDateStr(today);
-  const prevDate = toDateStr(getPrevTradingDay(today));
+  // Find last two real trading days — works on weekends, holidays, any time of day
+  const [dateStr, prevDate] = await getLastTwoTradingDays(key);
 
   // Fetch today and yesterday in parallel — need 2 daily bars per symbol
   const [todayRes, prevRes] = await Promise.all([
@@ -320,13 +317,48 @@ function toDateStr(d) {
   return d.toISOString().split("T")[0];
 }
 
-function getPrevTradingDay(d) {
+// Walk back from a date until we find a weekday (Mon-Fri)
+// Excludes weekends — holiday handling done by checking Massive response
+function prevWeekday(d) {
   const prev = new Date(d);
-  prev.setDate(prev.getDate() - 1);
-  // Skip weekend
-  if (prev.getDay() === 0) prev.setDate(prev.getDate() - 2); // Sunday → Friday
-  if (prev.getDay() === 6) prev.setDate(prev.getDate() - 1); // Saturday → Friday
+  do {
+    prev.setDate(prev.getDate() - 1);
+  } while (prev.getDay() === 0 || prev.getDay() === 6); // skip Sun, Sat
   return prev;
+}
+
+// Find the last two real trading days by asking Massive
+// Walks back up to 7 days to skip weekends and market holidays
+async function getLastTwoTradingDays(key) {
+  const found = [];
+  let candidate = new Date();
+  // Start from yesterday if today is weekend or not yet closed
+  const hour = candidate.getUTCHours();
+  const day  = candidate.getDay();
+  // If weekend or before 21:00 UTC (4PM ET + buffer), start from yesterday
+  if (day === 0 || day === 6 || hour < 21) {
+    candidate = prevWeekday(candidate);
+  }
+
+  let attempts = 0;
+  while (found.length < 2 && attempts < 10) {
+    attempts++;
+    const dateStr = toDateStr(candidate);
+    try {
+      const res = await massiveFetch(
+        `/v2/aggs/grouped/locale/us/market/stocks/${dateStr}?adjusted=true&limit=1`,
+        key
+      );
+      if (res.results && res.results.length > 0) {
+        found.push(dateStr);
+      }
+    } catch {}
+    candidate = prevWeekday(candidate);
+  }
+
+  // found[0] = most recent trading day (current bar)
+  // found[1] = trading day before that (mother bar)
+  return [found[0] || toDateStr(new Date()), found[1] || toDateStr(prevWeekday(new Date()))];
 }
 
 // ── Mock data (used when no key is set) ──────────────────────────────────────
