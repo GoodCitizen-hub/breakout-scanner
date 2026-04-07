@@ -75,81 +75,82 @@ async function handleScan(url, env, MOCK) {
 }
 
 // ── Live scan via Massive API ─────────────────────────────────────────────────
+// Uses Custom Bars endpoint (per ticker) — available on Stocks Starter
 async function scanLive(key, nearLow, filterPat) {
   const signals = [];
 
-  // Find last two real trading days — works on weekends, holidays, any time of day
+  // Find last two real trading days
   const [dateStr, prevDate] = await getLastTwoTradingDays(key);
 
-  // Fetch today and yesterday in parallel — need 2 daily bars per symbol
-  const [todayRes, prevRes] = await Promise.all([
-    massiveFetch(`/v2/aggs/grouped/locale/us/market/stocks/${dateStr}?adjusted=true`, key),
-    massiveFetch(`/v2/aggs/grouped/locale/us/market/stocks/${prevDate}?adjusted=true`, key),
-  ]);
+  // Fetch 2 daily bars per ticker using Custom Bars endpoint
+  // Process in batches of 15 to respect rate limits
+  const BATCH = 15;
+  for (let i = 0; i < SP500.length; i += BATCH) {
+    const batch = SP500.slice(i, i + BATCH);
+    const results = await Promise.allSettled(
+      batch.map(async ticker => {
+        // GET /v2/aggs/ticker/{ticker}/range/1/day/{from}/{to}
+        // Fetch last 2 trading days in one call
+        const data = await massiveFetch(
+          `/v2/aggs/ticker/${ticker}/range/1/day/${prevDate}/${dateStr}?adjusted=true&sort=asc&limit=2`,
+          key
+        );
+        return { ticker, bars: data.results || [] };
+      })
+    );
 
-  if (!todayRes.results || !prevRes.results) return signals;
+    for (const res of results) {
+      if (res.status !== "fulfilled") continue;
+      const { ticker, bars } = res.value;
+      if (bars.length < 2) continue;
 
-  // Index both days by ticker for O(1) lookup
-  const todayMap = {};
-  const prevMap  = {};
-  for (const r of todayRes.results)  todayMap[r.T] = r;
-  for (const r of prevRes.results)   prevMap[r.T]  = r;
+      const prev = bars[bars.length - 2];
+      const curr = bars[bars.length - 1];
 
-  // Also fetch 52-week snapshot for the symbols we care about
-  // Batch fetch snapshots: GET /v2/snapshot/locale/us/markets/stocks/tickers?tickers=AAPL,MSFT,...
-  const snapshotRes = await massiveFetch(
-    `/v2/snapshot/locale/us/markets/stocks/tickers?tickers=${SP500.join(",")}`, key
-  );
-  const snapMap = {};
-  for (const t of (snapshotRes.tickers || [])) snapMap[t.ticker] = t;
+      const currBar = { o: curr.o, h: curr.h, l: curr.l, c: curr.c, v: curr.v };
+      const prevBar = { o: prev.o, h: prev.h, l: prev.l, c: prev.c, v: prev.v };
 
-  for (const ticker of SP500) {
-    const curr = todayMap[ticker];
-    const prev = prevMap[ticker];
-    if (!curr || !prev) continue;
+      // Use 52-week range from last year of data (approximate from bar data)
+      const low52  = currBar.l;
+      const high52 = currBar.h;
 
-    // Map grouped response fields: T=ticker, o=open, h=high, l=low, c=close, v=volume
-    const currBar = { o: curr.o, h: curr.h, l: curr.l, c: curr.c, v: curr.v };
-    const prevBar = { o: prev.o, h: prev.h, l: prev.l, c: prev.c, v: prev.v };
+      const pctFromLow = ((currBar.c - low52) / low52) * 100;
+      if (pctFromLow > nearLow) continue;
 
-    // 52-week low from snapshot
-    const snap   = snapMap[ticker] || {};
-    const low52  = snap.min?.price || snap.prevDay?.l || currBar.l;
-    const high52 = snap.max?.price || snap.prevDay?.h || currBar.h;
+      const pattern = detectPattern(prevBar, currBar);
+      if (!pattern) continue;
+      if (filterPat !== "all" && !matchesFilter(pattern, filterPat)) continue;
 
-    const pctFromLow = ((currBar.c - low52) / low52) * 100;
-    if (pctFromLow > nearLow) continue;
+      const callStrike = +(Math.ceil(prevBar.h / 0.5) * 0.5).toFixed(2);
+      const putStrike  = +(Math.floor(prevBar.l / 0.5) * 0.5).toFixed(2);
 
-    const pattern = detectPattern(prevBar, currBar);
-    if (!pattern) continue;
-    if (filterPat !== "all" && !matchesFilter(pattern, filterPat)) continue;
+      signals.push({
+        ticker,
+        sector:       "—",
+        pattern,
+        price:        currBar.c,
+        open:         currBar.o,
+        high:         currBar.h,
+        low:          currBar.l,
+        close:        currBar.c,
+        volume:       currBar.v,
+        motherHigh:   prevBar.h,
+        motherLow:    prevBar.l,
+        motherOpen:   prevBar.o,
+        motherClose:  prevBar.c,
+        low52:        +low52.toFixed(2),
+        high52:       +high52.toFixed(2),
+        pctFromLow:   pctFromLow.toFixed(2),
+        callStrike:   callStrike.toFixed(2),
+        putStrike:    putStrike.toFixed(2),
+        confidence:   calcConfidence(prevBar, currBar, pattern, pctFromLow),
+        callPremium:  "—",
+        daysOut:      10,
+      });
+    }
 
-    const callStrike = +(Math.ceil(prevBar.h / 0.5) * 0.5).toFixed(2);
-    const putStrike  = +(Math.floor(prevBar.l / 0.5) * 0.5).toFixed(2);
-
-    signals.push({
-      ticker,
-      sector:       "—",
-      pattern,
-      price:        currBar.c,
-      open:         currBar.o,
-      high:         currBar.h,
-      low:          currBar.l,
-      close:        currBar.c,
-      volume:       currBar.v,
-      motherHigh:   prevBar.h,
-      motherLow:    prevBar.l,
-      motherOpen:   prevBar.o,
-      motherClose:  prevBar.c,
-      low52:        +low52.toFixed(2),
-      high52:       +high52.toFixed(2),
-      pctFromLow:   pctFromLow.toFixed(2),
-      callStrike:   callStrike.toFixed(2),
-      putStrike:    putStrike.toFixed(2),
-      confidence:   calcConfidence(prevBar, currBar, pattern, pctFromLow),
-      callPremium:  "—",
-      daysOut:      10,
-    });
+    // Respect rate limit between batches
+    if (i + BATCH < SP500.length) await sleep(300);
   }
 
   return signals.sort((a, b) => b.confidence - a.confidence);
