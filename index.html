@@ -45,18 +45,22 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:1
 .fb{background:var(--bg2);border:1px solid var(--dimmer);color:#444;font-family:var(--mono);font-size:0.59rem;font-weight:700;padding:4px 10px;border-radius:4px;cursor:pointer;}
 #fc{font-size:0.54rem;color:var(--dimmer);margin-left:auto;}
 @keyframes entrypulse{0%,100%{box-shadow:0 0 0 rgba(0,255,136,0.3)}50%{box-shadow:0 0 18px rgba(0,255,136,0.7)}}
+@keyframes latepulse{0%,100%{box-shadow:0 0 0 rgba(255,215,0,0.3)}50%{box-shadow:0 0 18px rgba(255,215,0,0.7)}}
 @keyframes putpulse{0%,100%{box-shadow:0 0 0 rgba(255,68,68,0.3)}50%{box-shadow:0 0 18px rgba(255,68,68,0.7)}}
 .entry-zone-card{animation:entrypulse 2.5s infinite;border-color:rgba(0,255,136,0.5)!important;background:rgba(0,255,136,0.04)!important;}
+.late-entry-card{animation:latepulse 2.5s infinite;border-color:rgba(255,215,0,0.4)!important;background:rgba(255,215,0,0.02)!important;}
 .put-zone-card{animation:putpulse 2.5s infinite;border-color:rgba(255,68,68,0.5)!important;background:rgba(255,68,68,0.03)!important;}
 .deep-base-card{border-color:rgba(255,68,68,0.25)!important;background:rgba(255,68,68,0.02)!important;}
 .knife-card{border-color:rgba(255,140,0,0.35)!important;background:rgba(255,140,0,0.02)!important;}
 .entry-zone-badge{background:#00ff88!important;color:#000!important;border-color:#00ff88!important;font-weight:900;}
+.late-entry-badge{background:#ffd700!important;color:#000!important;border-color:#ffd700!important;font-weight:900;}
 .put-zone-badge{background:#ff4444!important;color:#fff!important;border-color:#ff4444!important;font-weight:900;}
 .bias-badge{font-size:0.5rem;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:1px;}
 .bias-badge.bullish{background:rgba(0,255,136,0.1);color:#00ff88;border:1px solid rgba(0,255,136,0.25);}
 .bias-badge.bearish{background:rgba(255,68,68,0.1);color:#ff4444;border:1px solid rgba(255,68,68,0.25);}
 .bias-badge.neutral{background:rgba(255,215,0,0.06);color:#ffd700;border:1px solid rgba(255,215,0,0.18);}
 .knife-badge{font-size:0.5rem;font-weight:700;padding:2px 8px;border-radius:3px;background:rgba(255,140,0,0.15);color:#ff8c42;border:1px solid rgba(255,140,0,0.35);letter-spacing:1px;}
+.late-badge{font-size:0.5rem;font-weight:700;padding:2px 8px;border-radius:3px;background:rgba(255,215,0,0.15);color:#ffd700;border:1px solid rgba(255,215,0,0.35);letter-spacing:1px;}
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:13px;margin-bottom:10px;}
 .ctop{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
 .cleft{flex:1;}.symrow{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:4px;}
@@ -88,7 +92,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:1
 .opp-warn{font-size:0.49rem;padding:4px 7px;border-radius:4px;border:1px solid rgba(255,140,0,0.18);background:rgba(255,140,0,0.05);color:#ff8c42;margin-top:5px;line-height:1.5;}
 .putpanel{background:rgba(255,68,68,0.04);border:1px solid rgba(255,68,68,0.2);border-radius:6px;padding:9px 11px;margin-bottom:10px;}
 .puttitle{font-size:0.48rem;letter-spacing:2px;color:#ff4444;font-weight:700;margin-bottom:8px;}
-/* AUTO CONFIRM */
 .aconf{border-radius:6px;overflow:hidden;margin-bottom:8px;}
 .aconf-head{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;cursor:pointer;}
 .aconf-title{font-size:0.52rem;letter-spacing:2px;font-weight:700;}
@@ -181,20 +184,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:1
   <div id="footer">Prices: Finnhub · EMA/RSI/Candles: Twelve Data (batch) · Fibs: TradingView · Not financial advice</div>
 </div>
 <script>
-// ═══════════════════════════════════════════════════════════════
-// API KEYS
-// ═══════════════════════════════════════════════════════════════
 const FKEY = 'd6q0co1r01qhcrmidjkgd6q0co1r01qhcrmidjl0';
 const TDKEY = '19b2362f45584beaaf3d55a271fe0e07';
 
 const AUTO_MS = 5 * 60 * 1000;
-const DELAY = 1100; // Finnhub free tier = 60 calls/min = 1 per second minimum
+const DELAY = 1100;
 
-// ═══════════════════════════════════════════════════════════════
-// FIB DATA
-// ═══════════════════════════════════════════════════════════════
 const FIBS = {
-  // Updated Mar 31 2026 — fib levels updated after today's moves
   PLTR:{low:126.23,high:161.45},AVGO:{low:300.68,high:353.14},AMZN:{low:196.00,high:220.47},
   NVDA:{low:167.52,high:197.63},META:{low:525.72,high:737.00},GOOGL:{low:293.93,high:350.15},
   MSFT:{low:356.77,high:398.00},AAPL:{low:243.42,high:280.90},AMD:{low:188.22,high:266.96},
@@ -246,20 +242,13 @@ const PUT_TARGETS = {
   LYFT:{support:10.00,label:'monthly floor'},APP:{support:340.00,label:'monthly S1'},
 };
 
-// ═══════════════════════════════════════════════════════════════
-// TWELVE DATA — BATCH FETCHER
-// Fetches all 32 symbols in ONE API call per indicator
-// Total calls per scan: 6 batch calls (~2-3 seconds)
-// ═══════════════════════════════════════════════════════════════
-let tdData = {}; // {SYM: {dEMA, h4EMA, m5EMA, wEMA, rsi, recentGreen, recentRed, dCloseGreen, dAboveEMA}}
+let tdData = {};
 let tdReady = false;
 
-// ── TWELVE DATA HELPERS ───────────────────────────────────────────────────────
 function parseTDSymbol(res, sym) {
-  // Twelve Data returns keyed object for batch, direct object for single
   if (!res) return null;
   if (res[sym]) return res[sym];
-  if (res.values) return res; // single symbol response
+  if (res.values) return res;
   if (res.status === 'error') return null;
   return null;
 }
@@ -278,10 +267,6 @@ async function tdFetch(url) {
   } catch(e) { return null; }
 }
 
-// ── MAIN TWELVE DATA FETCHER ──────────────────────────────────────────────────
-// Strategy: 3 sequential batch calls (daily data, 4H data, candles)
-// Sequential with 500ms delay to avoid rate limit
-// Falls back gracefully if any call fails
 async function fetchAllTwelveData(syms) {
   if (!TDKEY || TDKEY.length < 10) return;
   const base = 'https://api.twelvedata.com';
@@ -293,36 +278,29 @@ async function fetchAllTwelveData(syms) {
   document.getElementById('tdstatus').style.color = '#ffd700';
 
   try {
-    // ── CALL 1: Daily EMA + RSI (most important for SWING/LEAP confirmation)
     document.getElementById('tdstatus').textContent = 'Loading daily EMA data...';
     const dEMAres = await tdFetch(`${base}/ema?symbol=${symStr}&interval=1day&time_period=20&outputsize=5${k}`);
     await td_slp(600);
 
-    // ── CALL 2: Daily candles (for consecutive green/red detection)
     document.getElementById('tdstatus').textContent = 'Loading candle data...';
     const candleRes = await tdFetch(`${base}/time_series?symbol=${symStr}&interval=1day&outputsize=5${k}`);
     await td_slp(600);
 
-    // ── CALL 3: 4H EMA (for swing confirmation)
     document.getElementById('tdstatus').textContent = 'Loading 4H EMA data...';
     const h4EMAres = await tdFetch(`${base}/ema?symbol=${symStr}&interval=4h&time_period=20&outputsize=3${k}`);
     await td_slp(600);
 
-    // ── CALL 4: Weekly EMA (for LEAP confirmation)
     document.getElementById('tdstatus').textContent = 'Loading weekly EMA data...';
     const wEMAres = await tdFetch(`${base}/ema?symbol=${symStr}&interval=1week&time_period=20&outputsize=3${k}`);
     await td_slp(600);
 
-    // ── CALL 5: RSI daily
     document.getElementById('tdstatus').textContent = 'Loading RSI data...';
     const rsiRes = await tdFetch(`${base}/rsi?symbol=${symStr}&interval=1day&time_period=14&outputsize=2${k}`);
     await td_slp(600);
 
-    // ── CALL 6: 5-min EMA (for DAY mode)
     document.getElementById('tdstatus').textContent = 'Loading 5-min EMA data...';
     const m5EMAres = await tdFetch(`${base}/ema?symbol=${symStr}&interval=5min&time_period=20&outputsize=2${k}`);
 
-    // ── PARSE all symbols
     let loaded = 0;
     for (const sym of syms) {
       try {
@@ -333,26 +311,18 @@ async function fetchAllTwelveData(syms) {
         const rsiData   = parseTDSymbol(rsiRes, sym);
         const candleData = parseTDSymbol(candleRes, sym);
 
-        // Daily EMA
         const dEMAval   = hasValues(dEMAdata) ? parseFloat(dEMAdata.values[0].value) : null;
         const dEMAval1  = hasValues(dEMAdata) && dEMAdata.values[1]?.value ? parseFloat(dEMAdata.values[1].value) : null;
         const dEMAslope = dEMAval && dEMAval1 ? dEMAval - dEMAval1 : null;
 
-        // 4H EMA
         const h4EMAval   = hasValues(h4EMAdata) ? parseFloat(h4EMAdata.values[0].value) : null;
         const h4EMAval1  = hasValues(h4EMAdata) && h4EMAdata.values[1]?.value ? parseFloat(h4EMAdata.values[1].value) : null;
         const h4EMAslope = h4EMAval && h4EMAval1 ? h4EMAval - h4EMAval1 : null;
 
-        // 5-min EMA
         const m5EMAval = hasValues(m5EMAdata) ? parseFloat(m5EMAdata.values[0].value) : null;
-
-        // Weekly EMA
         const wEMAval = hasValues(wEMAdata) ? parseFloat(wEMAdata.values[0].value) : null;
-
-        // RSI
         const rsiVal = hasValues(rsiData) ? parseFloat(rsiData.values[0].value) : null;
 
-        // Candles — parse last 5 daily candles
         let candles = [];
         if (candleData?.values && Array.isArray(candleData.values)) {
           candles = candleData.values.slice(0, 5).map(c => ({
@@ -367,7 +337,6 @@ async function fetchAllTwelveData(syms) {
         const recentGreen = candles.filter((c,i) => i < 3 && c.green).length;
         const recentRed   = candles.filter((c,i) => i < 3 && !c.green).length;
 
-        // Only mark as loaded if we got at least daily EMA or candle data
         const gotData = dEMAval !== null || candles.length > 0;
 
         tdData[sym] = {
@@ -401,9 +370,6 @@ async function fetchAllTwelveData(syms) {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// AUTO CONFIRMATION CHECKS
-// ═══════════════════════════════════════════════════════════════
 const TFCOL = {'5 MIN':'#00ccff','4 HR':'#00cc66','DAILY':'#ffd700','WEEKLY':'#ffaa00','LIVE':'#ff8c42'};
 
 function getChecks(s, td, mode, isPut) {
@@ -463,9 +429,6 @@ function verdict(checks, minPass) {
   return {v:`${passed}/${checks.length} — WAIT`,c:'#ffd700',ready:false};
 }
 
-// ═══════════════════════════════════════════════════════════════
-// PORTFOLIO
-// ═══════════════════════════════════════════════════════════════
 const PORT = {
   SNOW:{exit:null,reentry:null,trail:null,acct:'Port A · Closed',opt:'Shares exited Mar 30',note:'Position closed Mar 30 — watching for re-entry above 0.382 fib ($162)'},
   SOFI:{exit:null,reentry:null,trail:null,acct:'Port A+B · Both',opt:'$15C Jun/Jan 2027',note:'LEAPs held through recovery'},
@@ -511,8 +474,10 @@ const MODES={
   SWING:{color:'#00ff88',hold:'2–10 Days',rmin:1.0,minPass:4,best:['ENTRY ZONE','BREAKOUT NOW','NEAR HIGH']},
   LEAP:{color:'#ffd700',hold:'6–12 Months',rmin:0.7,minPass:4,best:['ENTRY ZONE','RECOVERING','BASING']},
 };
-const SCOL={'BROKEN OUT':'#00ccff','NEAR HIGH':'#00ccff','BREAKOUT NOW':'#00ff88','ENTRY ZONE':'#00ff88','RECOVERING':'#ffd700','BASING':'#ff8c42','DEEP BASE':'#ff4444','BROKEN DOWN':'#ff4444'};
-const SORD={'BROKEN OUT':0,'NEAR HIGH':1,'BREAKOUT NOW':2,'ENTRY ZONE':3,'RECOVERING':4,'BASING':5,'DEEP BASE':6,'BROKEN DOWN':7};
+
+// ── UPDATED: LATE ENTRY added to SCOL and SORD ──
+const SCOL={'BROKEN OUT':'#00ccff','NEAR HIGH':'#00ccff','BREAKOUT NOW':'#00ff88','ENTRY ZONE':'#00ff88','LATE ENTRY':'#ffd700','RECOVERING':'#ffd700','BASING':'#ff8c42','DEEP BASE':'#ff4444','BROKEN DOWN':'#ff4444'};
+const SORD={'BROKEN OUT':0,'NEAR HIGH':1,'BREAKOUT NOW':2,'ENTRY ZONE':3,'LATE ENTRY':4,'RECOVERING':5,'BASING':6,'DEEP BASE':7,'BROKEN DOWN':8};
 
 const FIBS_URL='https://raw.githubusercontent.com/GoodCitizen-hub/breakout-scanner/main/fibs.json';
 let fibSource='hardcoded';
@@ -533,23 +498,25 @@ async function getQuote(sym){
   return{price:d.c,vol:d.v||0,chg:d.dp||0};
 }
 
+// ── UPDATED: getFibZone — PRIMARY ENTRY (0.382-0.5) vs LATE ENTRY (0.5-0.618) ──
 function getFibZone(sym,price){
-  const f=FIBS[sym];if(!f)return{status:'BASING',isEntry:false,isPut:false,isDeepBase:false,pct:0,below:null,above:null};
-  const low=f.low,high=f.high,range=high-low;if(range<=0)return{status:'BASING',isEntry:false,isPut:false,isDeepBase:false,pct:0,below:null,above:null};
+  const f=FIBS[sym];if(!f)return{status:'BASING',isEntry:false,isPut:false,isDeepBase:false,isLateEntry:false,pct:0,below:null,above:null};
+  const low=f.low,high=f.high,range=high-low;if(range<=0)return{status:'BASING',isEntry:false,isPut:false,isDeepBase:false,isLateEntry:false,pct:0,below:null,above:null};
   const pts=FIB_LEVELS.map(l=>({l,p:fibPrice(sym,l)})).sort((a,b)=>a.p-b.p);
   let below=null,above=null;for(const pt of pts){if(pt.p<=price)below=pt;else if(!above)above=pt;}
   const bl=below?below.l:-1,al=above?above.l:2;
-  let status,isEntry=false,isPut=false,isDeepBase=false;
+  let status,isEntry=false,isPut=false,isDeepBase=false,isLateEntry=false;
   if(price<low*0.97){status='BROKEN DOWN';isPut=true;isDeepBase=true;}
   else if(price<low){status='DEEP BASE';isPut=true;isDeepBase=true;}
   else if(bl>=0&&al<=0.236)status='BASING';
   else if(bl>=0.236&&al<=0.382)status='RECOVERING';
-  else if(bl>=0.382&&al<=0.618){status='ENTRY ZONE';isEntry=true;}
+  else if(bl>=0.382&&al<=0.5){status='ENTRY ZONE';isEntry=true;}
+  else if(bl>=0.5&&al<=0.618){status='LATE ENTRY';isLateEntry=true;}
   else if(bl>=0.618&&al<=0.786)status='BREAKOUT NOW';
   else if(bl>=0.786&&al<=1)status='NEAR HIGH';
   else if(price>=high)status='BROKEN OUT';
   else status='BASING';
-  return{status,isEntry,isPut,isDeepBase,pct:Math.max(0,Math.min(1,(price-low)/range)),below,above};
+  return{status,isEntry,isPut,isDeepBase,isLateEntry,pct:Math.max(0,Math.min(1,(price-low)/range)),below,above};
 }
 
 function isFallingKnife(s){
@@ -584,21 +551,20 @@ function build(sym,price,vol,chg){
     const sup=nf.below?nf.below.price:price*0.95;
     const distPct=(price-res)/res*100;
     const f0p=fibPrice(sym,0);const f0d=f0p?(price-f0p)/f0p*100:0;
-    const status=fz.status,isEntry=fz.isEntry,isPut=fz.isPut,isDeepBase=fz.isDeepBase;
+    const status=fz.status,isEntry=fz.isEntry,isPut=fz.isPut,isDeepBase=fz.isDeepBase,isLateEntry=fz.isLateEntry;
     const pass={RVOL:rv>=m.rmin,'FIB RES':distPct>=-5,'TREND':f0d>-30};
     const pc=Object.values(pass).filter(Boolean).length;
     const pri=pc===3?1:pc===2?2:3;
     let fit=0;
     if(mode==='DAY')fit=(m.best.includes(status)?2:0)+(rv>=1.5?2:0)+(rv>=2?1:0);
-    if(mode==='SWING')fit=(isEntry?3:0)+(m.best.includes(status)&&!isEntry?2:0)+(rv>=1?1:0)+(pc>=2?1:0);
+    if(mode==='SWING')fit=(isEntry?3:0)+(isLateEntry?1:0)+(m.best.includes(status)&&!isEntry&&!isLateEntry?2:0)+(rv>=1?1:0)+(pc>=2?1:0);
     if(mode==='LEAP')fit=(isEntry?2:0)+(status==='BASING'||status==='RECOVERING'?1:0)+(f0d<-15?1:0)+(pc>=2?1:0);
     let putFit=0;
     if(isPut||isDeepBase){putFit+=isDeepBase?3:1;putFit+=status==='BROKEN DOWN'?2:0;putFit+=rv>=1.5?2:rv>=1.0?1:0;putFit+=chg<-3?2:chg<-1?1:0;}
-    const s={sym,sec:b.sec,price,vol,avg:b.vol,rv,chg:chg||0,res,sup,distPct,f0d,status,isEntry,isPut,isDeepBase,pass,pri,fit:Math.min(fit,5),putFit,fibNear:nf,fibZone:fz};
+    const s={sym,sec:b.sec,price,vol,avg:b.vol,rv,chg:chg||0,res,sup,distPct,f0d,status,isEntry,isPut,isDeepBase,isLateEntry,pass,pri,fit:Math.min(fit,5),putFit,fibNear:nf,fibZone:fz};
     s.isKnife=isFallingKnife(s);
     s.bias=getBias(s);
     if(s.isKnife&&s.pri===1)s.pri=2;
-    // PUT rec
     if(isPut||isDeepBase){
       const f=FIBS[sym];const pt=PUT_TARGETS[sym];
       const target=pt?pt.support.toFixed(2):(f.low*0.95).toFixed(2);
@@ -612,10 +578,8 @@ function build(sym,price,vol,chg){
       else{expiry='SKIP';strikeRec='LOW RVOL — skip';expiryReason=`RVOL ${f2(rv)}x — below 1x`;}
       s.putRec={expiry,strikeRec,target,targetLabel,downPct,stop:stopFib.toFixed(2),stopLabel,expiryReason};
     }
-    // CALL rec — target is always NEXT FIB ABOVE current price
-    if(!isPut&&!isDeepBase&&['ENTRY ZONE','BREAKOUT NOW','NEAR HIGH','BROKEN OUT','RECOVERING'].includes(status)){
+    if(!isPut&&!isDeepBase&&['ENTRY ZONE','LATE ENTRY','BREAKOUT NOW','NEAR HIGH','BROKEN OUT','RECOVERING'].includes(status)){
       const f=FIBS[sym];
-      // Find next fib resistance meaningfully above current price
       const allFibs=FIB_LEVELS.map(l=>({l,p:fibPrice(sym,l)})).sort((a,b)=>a.p-b.p);
       const nextRes=allFibs.find(fl=>fl.p>price*1.005);
       const ext1236=f.low+(f.high-f.low)*1.236;
@@ -646,7 +610,6 @@ async function doScan(){
   document.getElementById('upd').textContent='Syncing fib levels...';
   const fibsUp=await fetchLiveFibs();
 
-  // Phase 1: Prices (Finnhub) — fast
   const res=[],errs=[];
   for(let i=0;i<SYMS.length;i++){
     const sym=SYMS[i];
@@ -657,7 +620,6 @@ async function doScan(){
   }
   stocks=res.sort((a,b)=>b.fit-a.fit||(SORD[a.status]??3)-(SORD[b.status]??3)||a.pri-b.pri);
 
-  // Render immediately with prices
   const open=mktOpen();
   document.getElementById('mkt-dot').className=open?'open':'';
   document.getElementById('mkt-txt').textContent=open?'MARKET OPEN — LIVE PRICES':'MARKET CLOSED — LAST CLOSE PRICES';
@@ -665,10 +627,8 @@ async function doScan(){
   document.getElementById('upd').textContent=`Prices loaded · Fetching price action (batch)...`;
   render();
 
-  // Phase 2: Twelve Data — 6 batch calls for all 32 stocks (~3 seconds)
   await fetchAllTwelveData(SYMS);
 
-  // Rebuild stocks with TD data
   for(let i=0;i<stocks.length;i++){
     const s=stocks[i];
     const rebuilt=build(s.sym,s.price,s.vol,s.chg);
@@ -709,7 +669,7 @@ function render(){
   });
   const list=stocks.filter(s=>{
     if(filter==='ALL')return true;if(filter==='PORT')return!!PORT[s.sym];
-    if(filter==='BREAKOUTS')return['ENTRY ZONE','BREAKOUT NOW','NEAR HIGH','BROKEN OUT'].includes(s.status)&&!s.isKnife;
+    if(filter==='BREAKOUTS')return['ENTRY ZONE','LATE ENTRY','BREAKOUT NOW','NEAR HIGH','BROKEN OUT'].includes(s.status)&&!s.isKnife;
     if(filter==='NEAR')return s.status==='RECOVERING'&&!s.isKnife;
     if(filter==='SETUP')return s.status==='BASING';
     if(filter==='PUTS')return s.isPut||s.isDeepBase;
@@ -734,9 +694,9 @@ function render(){
 function aconfHTML(s){
   const isPut=s.isPut||s.isDeepBase;
   const m=MODES[mode];
-  const col=isPut?'#ff4444':s.isKnife?'#ff8c42':m.color;
+  const col=isPut?'#ff4444':s.isKnife?'#ff8c42':s.isLateEntry?'#ffd700':m.color;
   const title=isPut?'📉 PUT CONFIRMATION':'📈 CALL CONFIRMATION';
-  const border=isPut?'rgba(255,68,68,0.2)':s.isKnife?'rgba(255,140,0,0.28)':'rgba(0,255,136,0.2)';
+  const border=isPut?'rgba(255,68,68,0.2)':s.isKnife?'rgba(255,140,0,0.28)':s.isLateEntry?'rgba(255,215,0,0.28)':'rgba(0,255,136,0.2)';
 
   if(!TDKEY||TDKEY.length<10){
     return`<div class="aconf" style="border:1px solid #1a1a2a"><div class="aconf-head"><div style="display:flex;align-items:center"><span class="aconf-title" style="color:#333">${title}</span><span class="aconf-badge" style="color:#333;border-color:#1a1a2a">KEY NEEDED</span></div><span class="aconf-arrow">▼</span></div><div class="aconf-body"><div style="font-size:0.55rem;color:#444;padding:6px 0;line-height:1.8">Open this file · Find <code style="color:#ffd700">YOUR_TWELVE_DATA_KEY</code> · Replace with your Twelve Data API key</div></div></div>`;
@@ -765,6 +725,7 @@ function aconfHTML(s){
 
   const resultHTML=`<div class="aconf-result" style="color:${vd.c};background:${vd.c}0a;border-color:${vd.c}22">${vd.v}${vd.why?`<br/><span style="font-size:0.48rem;opacity:0.7;font-weight:400">${vd.why}</span>`:''}</div>`;
   const knifeHTML=s.isKnife&&!isPut?`<div class="aconf-knife">⚠️ FALLING KNIFE — ${td.recentRed}/3 recent closes RED · Do NOT enter call · Wait for green close</div>`:'';
+  const lateHTML=s.isLateEntry&&!isPut?`<div class="aconf-knife" style="background:rgba(255,215,0,0.07);border-color:rgba(255,215,0,0.28);color:#ffd700">⚠️ LATE ENTRY (0.5–0.618) — Momentum may be spent · Reduce position size · Tighten stop loss · Best entry was 0.382–0.5</div>`:'';
 
   return`<div class="aconf" style="border:1px solid ${border}">
     <div class="aconf-head">
@@ -774,10 +735,11 @@ function aconfHTML(s){
       </div>
       <span class="aconf-arrow">▼</span>
     </div>
-    <div class="aconf-body">${rows}${resultHTML}${knifeHTML}</div>
+    <div class="aconf-body">${rows}${resultHTML}${knifeHTML}${lateHTML}</div>
   </div>`;
 }
 
+// ── UPDATED: fibPanelHTML — PRIMARY ENTRY vs LATE ENTRY zones ──
 function fibPanelHTML(s){
   try{
     const f=FIBS[s.sym];if(!f)return'';
@@ -791,7 +753,8 @@ function fibPanelHTML(s){
     else if(s.isKnife){zone='⚠️ FALLING KNIFE — Entry zone but price action bearish';zc='#ff8c42';zb='rgba(255,140,0,0.06)';}
     else if(ab&&bl){
       const bll=bl.level,all=ab.level;
-      if(bll>=0.382&&all<=0.618){zone='ENTRY ZONE — Check auto-confirmation below';zc='#00ff88';zb='rgba(0,255,136,0.06)';}
+      if(bll>=0.382&&all<=0.5){zone='✅ PRIMARY ENTRY ZONE (0.382–0.5) — Optimal · Tight stop · Best R:R · Check confirmation below';zc='#00ff88';zb='rgba(0,255,136,0.06)';}
+      else if(bll>=0.5&&all<=0.618){zone='⚠️ LATE ENTRY (0.5–0.618) — Momentum may be spent · Reduce size · Tighten stop · Best entry was 0.382–0.5';zc='#ffd700';zb='rgba(255,215,0,0.06)';}
       else if(bll>=0.618&&all<=0.786){zone='BREAKOUT NOW — Strong momentum';zc='#00ff88';zb='rgba(0,255,136,0.04)';}
       else if(bll>=0.786){zone='NEAR HIGH — Call target zone';zc='#00ccff';zb='rgba(0,204,255,0.05)';}
       else if(bll>=0.236&&all<=0.382){zone='RECOVERING — Watch for entry zone break';zc='#ffd700';zb='rgba(255,215,0,0.06)';}
@@ -802,9 +765,9 @@ function fibPanelHTML(s){
       const isCur=s.fibNear.above?.level===l,isBlw=s.fibNear.below?.level===l;
       return`<div><div class="fll" style="color:${col}">${l===0?'0 (pivot)':l===1?'1 (pivot)':l}</div><div class="flv" style="color:${isCur?m.color:isBlw?'#888':'#555'};${isCur?'font-weight:900':''}">${isCur?'▶ ':''}$${f2(p)}</div></div>`;
     }).join('');
-    const tc=s.isPut?'#ff4444':s.isKnife?'#ff8c42':pct>70?'#00ff88':pct>40?'#ffd700':'#ff8c42';
-    return`<div class="fibpanel" style="${s.isPut?'border-color:rgba(255,68,68,0.2);background:rgba(255,68,68,0.03)':s.isKnife?'border-color:rgba(255,140,0,0.2)':''}">
-      <div class="fibtitle">${s.isPut?'<span style="color:#ff4444">📉 PUT — </span>':s.isKnife?'<span style="color:#ff8c42">⚠️ — </span>':''}AUTO-FIB LEVELS · DAILY CHART</div>
+    const tc=s.isPut?'#ff4444':s.isKnife?'#ff8c42':s.isLateEntry?'#ffd700':pct>70?'#00ff88':pct>40?'#ffd700':'#ff8c42';
+    return`<div class="fibpanel" style="${s.isPut?'border-color:rgba(255,68,68,0.2);background:rgba(255,68,68,0.03)':s.isKnife?'border-color:rgba(255,140,0,0.2)':s.isLateEntry?'border-color:rgba(255,215,0,0.2)':''}">
+      <div class="fibtitle">${s.isPut?'<span style="color:#ff4444">📉 PUT — </span>':s.isKnife?'<span style="color:#ff8c42">⚠️ — </span>':s.isLateEntry?'<span style="color:#ffd700">⚠️ LATE — </span>':''}AUTO-FIB LEVELS · DAILY CHART</div>
       <div class="fibgrid">${fibR}</div>
       <div class="fibtrack"><div class="fibfill" style="width:${Math.max(0,pct).toFixed(1)}%;background:${tc}"></div><div class="fibdot" style="left:${Math.max(0,pct).toFixed(1)}%;background:#fff"></div></div>
       ${zone?`<div class="fibzone" style="color:${zc};background:${zb};border-color:${zc}22">${zone}</div>`:''}
@@ -831,18 +794,19 @@ function oppHTML(s){
   }
   if(!isPut&&s.callRec){
     const cr=s.callRec;
-    return`<div class="callpanel" style="${s.isKnife?'border-color:rgba(255,140,0,0.3);background:rgba(255,140,0,0.02)':''}">
-      <div class="calltitle" style="${s.isKnife?'color:#ff8c42':''}">${s.isKnife?'⚠️ CALL — VERIFY PRICE ACTION':'📈 CALL OPPORTUNITY'}</div>
+    const isLate=s.isLateEntry;
+    return`<div class="callpanel" style="${s.isKnife?'border-color:rgba(255,140,0,0.3);background:rgba(255,140,0,0.02)':isLate?'border-color:rgba(255,215,0,0.3);background:rgba(255,215,0,0.02)':''}">
+      <div class="calltitle" style="${s.isKnife?'color:#ff8c42':isLate?'color:#ffd700':''}">${s.isKnife?'⚠️ CALL — VERIFY PRICE ACTION':isLate?'⚠️ LATE ENTRY — REDUCE SIZE':'📈 CALL OPPORTUNITY'}</div>
       <div class="oppgrid">
-        <div><div class="opp-lbl" style="color:#224433">STRIKE</div><div class="opp-val" style="color:${s.isKnife?'#ff8c42':'#00ff88'}">${cr.strikeRec}</div></div>
-        <div><div class="opp-lbl" style="color:#224433">EXPIRY</div><div class="opp-val" style="color:${cr.expiry==='WAIT'?'#555':s.isKnife?'#ff8c42':'#00cc66'}">${cr.expiry}</div></div>
+        <div><div class="opp-lbl" style="color:#224433">STRIKE</div><div class="opp-val" style="color:${s.isKnife?'#ff8c42':isLate?'#ffd700':'#00ff88'}">${cr.strikeRec}</div></div>
+        <div><div class="opp-lbl" style="color:#224433">EXPIRY</div><div class="opp-val" style="color:${cr.expiry==='WAIT'?'#555':s.isKnife?'#ff8c42':isLate?'#ffd700':'#00cc66'}">${cr.expiry}</div></div>
         <div><div class="opp-lbl" style="color:#224433">TARGET (${cr.targetLabel})</div><div class="opp-val" style="color:#00ff88">$${cr.target}</div></div>
         <div><div class="opp-lbl" style="color:#224433">UPSIDE</div><div class="opp-val" style="color:#00ff88">+${cr.upPct}%</div></div>
         <div><div class="opp-lbl" style="color:#224433">STOP LOSS</div><div class="opp-val" style="color:#ff8c42">$${cr.stop} (${cr.stopPct}%)</div></div>
         <div><div class="opp-lbl" style="color:#224433">R:R</div><div class="opp-val" style="color:#ffd700">${cr.rr}:1</div></div>
       </div>
       <div class="opp-note" style="border:1px solid rgba(0,255,136,0.2);background:rgba(0,255,136,0.06);color:#00cc66">${cr.expiryReason}</div>
-      <div class="opp-warn">${s.isKnife?'⚠️ FALLING KNIFE — Do NOT enter call · Wait for green close · Check auto-confirmation below':'⚠️ Wait 9:45 AM · Confirm auto-checklist below · Max 2 calls'}</div>
+      <div class="opp-warn">${s.isKnife?'⚠️ FALLING KNIFE — Do NOT enter call · Wait for green close · Check auto-confirmation below':isLate?'⚠️ LATE ENTRY — Momentum may be spent · Reduce size · Tighten stop · Best entry was 0.382–0.5':'⚠️ Wait 9:45 AM · Confirm auto-checklist below · Max 2 calls'}</div>
     </div>`;
   }
   return'';
@@ -862,10 +826,13 @@ function portHTML(s){
     </div>${am?`<div class="palert ${ac}">${am}</div>`:''}<div class="pnote">${p.note}</div></div></div>`;
 }
 
+// ── UPDATED: cardHTML — LATE ENTRY card class and badge ──
 function cardHTML(s){
   try{
     const m=MODES[mode],sc=SCOL[s.status]||'#888';
-    const isEZ=s.isEntry&&!s.isKnife,isPut=s.isPut||s.isDeepBase;
+    const isEZ=s.isEntry&&!s.isKnife;
+    const isLE=s.isLateEntry&&!s.isKnife;
+    const isPut=s.isPut||s.isDeepBase;
     const fitH=Array.from({length:5},(_,i)=>`<div class="pip" style="background:${i<s.fit?m.color:'var(--dimmer)'}"></div>`).join('');
     const rv2=s.rv>=m.rmin?'#00ff88':s.rv>=1?'#ffd700':'#ff8c42';
     const dc=s.distPct>=-0.5&&s.distPct<=2?'#00ff88':s.distPct>=-3?'#ffd700':'#888';
@@ -873,33 +840,38 @@ function cardHTML(s){
     const bl=s.bias==='bullish'?'▲ BULLISH':s.bias==='bearish'?'▼ BEARISH':'● NEUTRAL';
     const bb=`<span class="bias-badge ${s.bias}">${bl}</span>`;
     const kb=s.isKnife?`<span class="knife-badge">⚠️ FALLING KNIFE</span>`:'';
+    const lb=isLE?`<span class="late-badge">⚠️ LATE ENTRY</span>`:'';
     const resLabel=s.fibNear.above?`${s.fibNear.above.level} FIB`:'FIB RES';
     const roadSteps=[{l:0,short:'0·LOW'},{l:0.236,short:'0.236'},{l:0.382,short:'0.382'},{l:0.618,short:'0.618'},{l:0.786,short:'0.786'},{l:1,short:'1·HIGH'}];
     const roadHTML=roadSteps.map((rs,idx)=>{
       const rp=fibPrice(s.sym,rs.l);if(!rp)return'';
       const reached=s.price>=rp+0.05,isNow=s.fibZone?.below&&Math.abs(s.fibZone.below.l-rs.l)<0.001;
-      const inEntry=rs.l>=0.382&&rs.l<=0.618,isPivLow=rs.l===0&&isPut;
-      const dc2=reached?'#00ff88':isPivLow?'#ff4444':isNow?(s.isKnife?'#ff8c42':'#ffd700'):inEntry?'rgba(0,255,136,0.4)':'#1e1e2e';
-      const db2=reached?'#00ff88':isPivLow?'#ff4444':isNow?(s.isKnife?'#ff8c42':'#ffd700'):inEntry?'#00ff88':'#333';
-      const pc2=reached?'#00ff88':isPivLow?'#ff4444':isNow?(s.isKnife?'#ff8c42':'#ffd700'):'#444';
+      const inPrimary=rs.l>=0.382&&rs.l<=0.5;
+      const inLate=rs.l>0.5&&rs.l<=0.618;
+      const isPivLow=rs.l===0&&isPut;
+      const dc2=reached?'#00ff88':isPivLow?'#ff4444':isNow?(s.isKnife?'#ff8c42':isLE?'#ffd700':'#ffd700'):inPrimary?'rgba(0,255,136,0.4)':inLate?'rgba(255,215,0,0.4)':'#1e1e2e';
+      const db2=reached?'#00ff88':isPivLow?'#ff4444':isNow?(s.isKnife?'#ff8c42':isLE?'#ffd700':'#ffd700'):inPrimary?'#00ff88':inLate?'#ffd700':'#333';
+      const pc2=reached?'#00ff88':isPivLow?'#ff4444':isNow?(s.isKnife?'#ff8c42':isLE?'#ffd700':'#ffd700'):'#444';
       const lc=idx<roadSteps.length-1?(reached?'#00ff8855':'#1e1e2e'):'transparent';
-      const tag=(rs.l===0.382||rs.l===0.618)?`<div style="font-size:0.34rem;color:#00ff88;margin-top:1px">${rs.l===0.382?'ENTRY▶':'◀ENTRY'}</div>`:isPivLow?'<div style="font-size:0.34rem;color:#ff4444;margin-top:1px">PUT▼</div>':'';
-      return`<div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:46px"><div style="width:10px;height:10px;border-radius:50%;background:${dc2};border:2px solid ${db2}${isNow?`;box-shadow:0 0 6px ${db2}`:''}"></div><div style="font-size:0.46rem;font-weight:700;color:${pc2};margin-top:2px">$${f2(rp)}</div><div style="font-size:0.38rem;color:${inEntry?'#00ff8877':'#2a2a3a'};letter-spacing:0.5px">${rs.short}</div>${tag}</div>${idx<roadSteps.length-1?`<div style="flex:1;height:2px;background:${lc};margin-top:4px;min-width:6px"></div>`:''}`;
+      const tag=(rs.l===0.382)?`<div style="font-size:0.34rem;color:#00ff88;margin-top:1px">ENTRY▶</div>`:
+                (rs.l===0.618)?`<div style="font-size:0.34rem;color:#ffd700;margin-top:1px">◀LATE</div>`:
+                isPivLow?'<div style="font-size:0.34rem;color:#ff4444;margin-top:1px">PUT▼</div>':'';
+      return`<div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:46px"><div style="width:10px;height:10px;border-radius:50%;background:${dc2};border:2px solid ${db2}${isNow?`;box-shadow:0 0 6px ${db2}`:''}"></div><div style="font-size:0.46rem;font-weight:700;color:${pc2};margin-top:2px">$${f2(rp)}</div><div style="font-size:0.38rem;color:${inPrimary?'#00ff8877':inLate?'#ffd70077':'#2a2a3a'};letter-spacing:0.5px">${rs.short}</div>${tag}</div>${idx<roadSteps.length-1?`<div style="flex:1;height:2px;background:${lc};margin-top:4px;min-width:6px"></div>`:''}`;
     }).join('');
-    const cardClass=isEZ?'card entry-zone-card':s.isKnife?'card knife-card':isPut&&s.status==='BROKEN DOWN'?'card put-zone-card':isPut?'card deep-base-card':'card';
-    const cardBorder=isEZ?'rgba(0,255,136,0.5)':s.isKnife?'rgba(255,140,0,0.35)':isPut?'rgba(255,68,68,0.3)':m.best.includes(s.status)?m.color+'28':'';
+    const cardClass=isEZ?'card entry-zone-card':s.isKnife?'card knife-card':isLE?'card late-entry-card':isPut&&s.status==='BROKEN DOWN'?'card put-zone-card':isPut?'card deep-base-card':'card';
+    const cardBorder=isEZ?'rgba(0,255,136,0.5)':s.isKnife?'rgba(255,140,0,0.35)':isLE?'rgba(255,215,0,0.4)':isPut?'rgba(255,68,68,0.3)':m.best.includes(s.status)?m.color+'28':'';
     return`<div class="${cardClass}"${cardBorder?` style="border-color:${cardBorder}"`:''}">
   <div class="ctop"><div class="cleft">
     <div class="symrow"><span class="sym">${s.sym}</span><span class="sec">${s.sec}</span>
-      <span class="${isEZ?'sbadge entry-zone-badge':isPut?'sbadge put-zone-badge':'sbadge'}" style="${isEZ||isPut?'':'color:'+sc+';border-color:'+sc+'33;background:'+sc+'10'}">${s.status}</span>
+      <span class="${isEZ?'sbadge entry-zone-badge':isLE?'sbadge late-entry-badge':isPut?'sbadge put-zone-badge':'sbadge'}" style="${isEZ||isLE||isPut?'':'color:'+sc+';border-color:'+sc+'33;background:'+sc+'10'}">${s.status}</span>
       <span class="pbadge" style="background:${s.pri===1?'#ff3b3b':s.pri===2?'#ff8c42':'#1e1e2e'};color:${s.pri<=2?'#000':'#666'}">P${s.pri}</span>
-      ${bb}${kb}</div>
+      ${bb}${kb}${lb}</div>
     <div class="fitbar">${fitH}</div>
   </div>
   <div class="cright"><div class="price">$${f2(s.price)}</div><div class="chg" style="color:${s.chg>=0?'#00ff88':'#ff4444'}">${s.chg>=0?'+':''}${f2(s.chg)}%</div></div></div>
-  <div class="mhold" style="color:${isPut?'#ff4444':s.isKnife?'#ff8c42':m.color}">▶ ${isPut?'PUT TERRITORY · Check auto-confirmation':s.isKnife?'⚠️ FALLING KNIFE · DO NOT ENTER CALL':resLabel+' · '+m.hold}</div>
-  <div style="margin-bottom:10px;padding:8px 10px;background:rgba(0,0,0,0.3);border-radius:6px;border:1px solid ${isEZ?'rgba(0,255,136,0.2)':s.isKnife?'rgba(255,140,0,0.15)':isPut?'rgba(255,68,68,0.15)':'rgba(255,215,0,0.1)'}">
-    <div style="font-size:0.47rem;letter-spacing:2px;color:${isPut?'#ff4444':s.isKnife?'#ff8c42':'#ffd700'};font-weight:700;margin-bottom:7px">FIB PROGRESSION ROADMAP</div>
+  <div class="mhold" style="color:${isPut?'#ff4444':s.isKnife?'#ff8c42':isLE?'#ffd700':m.color}">▶ ${isPut?'PUT TERRITORY · Check auto-confirmation':s.isKnife?'⚠️ FALLING KNIFE · DO NOT ENTER CALL':isLE?'⚠️ LATE ENTRY · REDUCE SIZE · TIGHTEN STOP':resLabel+' · '+m.hold}</div>
+  <div style="margin-bottom:10px;padding:8px 10px;background:rgba(0,0,0,0.3);border-radius:6px;border:1px solid ${isEZ?'rgba(0,255,136,0.2)':s.isKnife?'rgba(255,140,0,0.15)':isLE?'rgba(255,215,0,0.2)':isPut?'rgba(255,68,68,0.15)':'rgba(255,215,0,0.1)'}">
+    <div style="font-size:0.47rem;letter-spacing:2px;color:${isPut?'#ff4444':s.isKnife?'#ff8c42':isLE?'#ffd700':'#ffd700'};font-weight:700;margin-bottom:7px">FIB PROGRESSION ROADMAP</div>
     <div style="display:flex;align-items:flex-start;overflow-x:auto;padding-bottom:2px">${roadHTML}</div>
   </div>
   <div class="sgrid">
