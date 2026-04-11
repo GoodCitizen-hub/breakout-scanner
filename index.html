@@ -842,8 +842,7 @@ function cardHTML(s){
     const kb=s.isKnife?`<span class="knife-badge">⚠️ FALLING KNIFE</span>`:'';
     const lb=isLE?`<span class="late-badge">⚠️ LATE ENTRY</span>`:'';
     const resLabel=s.fibNear.above?`${s.fibNear.above.level} FIB`:'FIB RES';
-    const roadSteps=[{l:0,short:'0·LOW'},{l:0.236,short:'0.236'},{l:0.382,short:'0.382'},{l:0.618,short:'0.618'},{l:0.786,short:'0.786'},{l:1,short:'1·HIGH'}];
-    const roadHTML=roadSteps.map((rs,idx)=>{
+    const roadSteps=[{l:0,short:'0·LOW'},{l:0.236,short:'0.236'},{l:0.382,short:'0.382'},{l:0.5,short:'0.5'},{l:0.618,short:'0.618'},{l:0.786,short:'0.786'},{l:1,short:'1·HIGH'}];
       const rp=fibPrice(s.sym,rs.l);if(!rp)return'';
       const reached=s.price>=rp+0.05,isNow=s.fibZone?.below&&Math.abs(s.fibZone.below.l-rs.l)<0.001;
       const inPrimary=rs.l>=0.382&&rs.l<=0.5;
