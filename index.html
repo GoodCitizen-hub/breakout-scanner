@@ -186,7 +186,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:1
 <script>
 const FKEY = 'd6q0co1r01qhcrmidjkgd6q0co1r01qhcrmidjl0';
 const TDKEY = '19b2362f45584beaaf3d55a271fe0e07';
-
 const AUTO_MS = 5 * 60 * 1000;
 const DELAY = 1100;
 
@@ -273,34 +272,26 @@ async function fetchAllTwelveData(syms) {
   const k = `&apikey=${TDKEY}&format=JSON`;
   const symStr = syms.join(',');
   const td_slp = ms => new Promise(r => setTimeout(r, ms));
-
   document.getElementById('tdstatus').textContent = 'Loading price action...';
   document.getElementById('tdstatus').style.color = '#ffd700';
-
   try {
     document.getElementById('tdstatus').textContent = 'Loading daily EMA data...';
     const dEMAres = await tdFetch(`${base}/ema?symbol=${symStr}&interval=1day&time_period=20&outputsize=5${k}`);
     await td_slp(600);
-
     document.getElementById('tdstatus').textContent = 'Loading candle data...';
     const candleRes = await tdFetch(`${base}/time_series?symbol=${symStr}&interval=1day&outputsize=5${k}`);
     await td_slp(600);
-
     document.getElementById('tdstatus').textContent = 'Loading 4H EMA data...';
     const h4EMAres = await tdFetch(`${base}/ema?symbol=${symStr}&interval=4h&time_period=20&outputsize=3${k}`);
     await td_slp(600);
-
     document.getElementById('tdstatus').textContent = 'Loading weekly EMA data...';
     const wEMAres = await tdFetch(`${base}/ema?symbol=${symStr}&interval=1week&time_period=20&outputsize=3${k}`);
     await td_slp(600);
-
     document.getElementById('tdstatus').textContent = 'Loading RSI data...';
     const rsiRes = await tdFetch(`${base}/rsi?symbol=${symStr}&interval=1day&time_period=14&outputsize=2${k}`);
     await td_slp(600);
-
     document.getElementById('tdstatus').textContent = 'Loading 5-min EMA data...';
     const m5EMAres = await tdFetch(`${base}/ema?symbol=${symStr}&interval=5min&time_period=20&outputsize=2${k}`);
-
     let loaded = 0;
     for (const sym of syms) {
       try {
@@ -310,19 +301,15 @@ async function fetchAllTwelveData(syms) {
         const wEMAdata  = parseTDSymbol(wEMAres, sym);
         const rsiData   = parseTDSymbol(rsiRes, sym);
         const candleData = parseTDSymbol(candleRes, sym);
-
         const dEMAval   = hasValues(dEMAdata) ? parseFloat(dEMAdata.values[0].value) : null;
         const dEMAval1  = hasValues(dEMAdata) && dEMAdata.values[1]?.value ? parseFloat(dEMAdata.values[1].value) : null;
         const dEMAslope = dEMAval && dEMAval1 ? dEMAval - dEMAval1 : null;
-
         const h4EMAval   = hasValues(h4EMAdata) ? parseFloat(h4EMAdata.values[0].value) : null;
         const h4EMAval1  = hasValues(h4EMAdata) && h4EMAdata.values[1]?.value ? parseFloat(h4EMAdata.values[1].value) : null;
         const h4EMAslope = h4EMAval && h4EMAval1 ? h4EMAval - h4EMAval1 : null;
-
         const m5EMAval = hasValues(m5EMAdata) ? parseFloat(m5EMAdata.values[0].value) : null;
         const wEMAval = hasValues(wEMAdata) ? parseFloat(wEMAdata.values[0].value) : null;
         const rsiVal = hasValues(rsiData) ? parseFloat(rsiData.values[0].value) : null;
-
         let candles = [];
         if (candleData?.values && Array.isArray(candleData.values)) {
           candles = candleData.values.slice(0, 5).map(c => ({
@@ -331,14 +318,11 @@ async function fetchAllTwelveData(syms) {
             green: parseFloat(c.close) >= parseFloat(c.open),
           }));
         }
-
         const lastClose  = candles[0]?.close || null;
         const lastGreen  = candles.length > 0 ? candles[0].green : null;
         const recentGreen = candles.filter((c,i) => i < 3 && c.green).length;
         const recentRed   = candles.filter((c,i) => i < 3 && !c.green).length;
-
         const gotData = dEMAval !== null || candles.length > 0;
-
         tdData[sym] = {
           dEMA: dEMAval, dEMAslope,
           h4EMA: h4EMAval, h4EMAslope,
@@ -357,12 +341,10 @@ async function fetchAllTwelveData(syms) {
         tdData[sym] = { loaded:false, error:true, errorMsg: e.message };
       }
     }
-
     tdReady = true;
     const pct = Math.round(loaded/syms.length*100);
     document.getElementById('tdstatus').textContent = `✓ Price action loaded · ${loaded}/${syms.length} stocks (${pct}%)`;
     document.getElementById('tdstatus').style.color = loaded > syms.length * 0.8 ? '#00ff88' : '#ffd700';
-
   } catch(e) {
     console.log('TD fetch error:', e);
     document.getElementById('tdstatus').textContent = `⚠️ TD error: ${e.message}`;
@@ -475,7 +457,6 @@ const MODES={
   LEAP:{color:'#ffd700',hold:'6–12 Months',rmin:0.7,minPass:4,best:['ENTRY ZONE','RECOVERING','BASING']},
 };
 
-// ── UPDATED: LATE ENTRY added to SCOL and SORD ──
 const SCOL={'BROKEN OUT':'#00ccff','NEAR HIGH':'#00ccff','BREAKOUT NOW':'#00ff88','ENTRY ZONE':'#00ff88','LATE ENTRY':'#ffd700','RECOVERING':'#ffd700','BASING':'#ff8c42','DEEP BASE':'#ff4444','BROKEN DOWN':'#ff4444'};
 const SORD={'BROKEN OUT':0,'NEAR HIGH':1,'BREAKOUT NOW':2,'ENTRY ZONE':3,'LATE ENTRY':4,'RECOVERING':5,'BASING':6,'DEEP BASE':7,'BROKEN DOWN':8};
 
@@ -498,7 +479,6 @@ async function getQuote(sym){
   return{price:d.c,vol:d.v||0,chg:d.dp||0};
 }
 
-// ── UPDATED: getFibZone — PRIMARY ENTRY (0.382-0.5) vs LATE ENTRY (0.5-0.618) ──
 function getFibZone(sym,price){
   const f=FIBS[sym];if(!f)return{status:'BASING',isEntry:false,isPut:false,isDeepBase:false,isLateEntry:false,pct:0,below:null,above:null};
   const low=f.low,high=f.high,range=high-low;if(range<=0)return{status:'BASING',isEntry:false,isPut:false,isDeepBase:false,isLateEntry:false,pct:0,below:null,above:null};
@@ -609,7 +589,6 @@ async function doScan(){
   document.getElementById('errbox').style.display='none';
   document.getElementById('upd').textContent='Syncing fib levels...';
   const fibsUp=await fetchLiveFibs();
-
   const res=[],errs=[];
   for(let i=0;i<SYMS.length;i++){
     const sym=SYMS[i];
@@ -619,27 +598,22 @@ async function doScan(){
     if(i<SYMS.length-1)await slp(DELAY);
   }
   stocks=res.sort((a,b)=>b.fit-a.fit||(SORD[a.status]??3)-(SORD[b.status]??3)||a.pri-b.pri);
-
   const open=mktOpen();
   document.getElementById('mkt-dot').className=open?'open':'';
   document.getElementById('mkt-txt').textContent=open?'MARKET OPEN — LIVE PRICES':'MARKET CLOSED — LAST CLOSE PRICES';
   document.getElementById('mkt-txt').className=open?'open':'';
   document.getElementById('upd').textContent=`Prices loaded · Fetching price action (batch)...`;
   render();
-
   await fetchAllTwelveData(SYMS);
-
   for(let i=0;i<stocks.length;i++){
     const s=stocks[i];
     const rebuilt=build(s.sym,s.price,s.vol,s.chg);
     if(rebuilt)stocks[i]=rebuilt;
   }
   stocks.sort((a,b)=>b.fit-a.fit||(SORD[a.status]??3)-(SORD[b.status]??3)||a.pri-b.pri);
-
   document.getElementById('upd').textContent=`Updated ${new Date().toLocaleTimeString()} · ${res.length}/${SYMS.length} stocks · Fibs: ${fibSource}${fibsUp>0?' ('+fibsUp+' updated)':''}`;
   if(errs.length){const eb=document.getElementById('errbox');eb.style.display='block';eb.innerHTML=errs.join('<br>');}
   render();
-
   rb.textContent='↻ REFRESH';rb.style.color='';sb.disabled=false;
   cdV=AUTO_MS/1000;
   cdT=setInterval(()=>{cdV=Math.max(0,cdV-1);document.getElementById('cd').textContent=`Next refresh in ${Math.floor(cdV/60)}:${String(cdV%60).padStart(2,'0')}`;},1000);
@@ -697,11 +671,9 @@ function aconfHTML(s){
   const col=isPut?'#ff4444':s.isKnife?'#ff8c42':s.isLateEntry?'#ffd700':m.color;
   const title=isPut?'📉 PUT CONFIRMATION':'📈 CALL CONFIRMATION';
   const border=isPut?'rgba(255,68,68,0.2)':s.isKnife?'rgba(255,140,0,0.28)':s.isLateEntry?'rgba(255,215,0,0.28)':'rgba(0,255,136,0.2)';
-
   if(!TDKEY||TDKEY.length<10){
-    return`<div class="aconf" style="border:1px solid #1a1a2a"><div class="aconf-head"><div style="display:flex;align-items:center"><span class="aconf-title" style="color:#333">${title}</span><span class="aconf-badge" style="color:#333;border-color:#1a1a2a">KEY NEEDED</span></div><span class="aconf-arrow">▼</span></div><div class="aconf-body"><div style="font-size:0.55rem;color:#444;padding:6px 0;line-height:1.8">Open this file · Find <code style="color:#ffd700">YOUR_TWELVE_DATA_KEY</code> · Replace with your Twelve Data API key</div></div></div>`;
+    return`<div class="aconf" style="border:1px solid #1a1a2a"><div class="aconf-head"><div style="display:flex;align-items:center"><span class="aconf-title" style="color:#333">${title}</span><span class="aconf-badge" style="color:#333;border-color:#1a1a2a">KEY NEEDED</span></div><span class="aconf-arrow">▼</span></div><div class="aconf-body"><div style="font-size:0.55rem;color:#444;padding:6px 0;line-height:1.8">Add your Twelve Data API key</div></div></div>`;
   }
-
   const td=tdData[s.sym];
   if(!td){
     return`<div class="aconf" style="border:1px solid ${border}"><div class="aconf-head"><div style="display:flex;align-items:center"><span class="aconf-title" style="color:${col}">${title}</span><span class="aconf-badge" style="color:#ffd700;border-color:#ffd70033;background:rgba(255,215,0,0.06)">LOADING</span></div><span class="aconf-arrow">▼</span></div><div class="aconf-body"><div style="font-size:0.52rem;color:#333;padding:8px 0;text-align:center">Fetching EMA · RSI · Candles from Twelve Data...</div></div></div>`;
@@ -709,12 +681,10 @@ function aconfHTML(s){
   if(td.error){
     return`<div class="aconf" style="border:1px solid rgba(255,68,68,0.15)"><div class="aconf-head"><div style="display:flex;align-items:center"><span class="aconf-title" style="color:#555">${title}</span><span class="aconf-badge" style="color:#ff4444;border-color:rgba(255,68,68,0.2)">DATA ERROR</span></div><span class="aconf-arrow">▼</span></div><div class="aconf-body"><div style="font-size:0.5rem;color:#ff4444;padding:6px 0">Failed to load price action data for ${s.sym}</div></div></div>`;
   }
-
   const checks=getChecks(s,td,mode,isPut);
   if(!checks)return'';
   const vd=verdict(checks,m.minPass);
   const passed=checks.filter(c=>c.pass===true).length;
-
   const rows=checks.map(c=>{
     const ic=c.pass===true?'p':c.pass===false?(c.crit?'cf':'f'):'l';
     const lc=c.pass===true?'p':c.pass===false?'f':'l';
@@ -722,11 +692,9 @@ function aconfHTML(s){
     const tc=TFCOL[c.tf]||'#888';
     return`<div class="aconf-row"><div class="aconf-icon ${ic}">${c.pass===true?'✓':c.pass===false?'✗':'·'}</div><div class="aconf-lbl ${lc}">${c.label}</div><span class="aconf-tf" style="color:${tc};border-color:${tc}33">${c.tf}</span><div class="aconf-val" style="color:${vc}">${c.val}</div></div>`;
   }).join('');
-
   const resultHTML=`<div class="aconf-result" style="color:${vd.c};background:${vd.c}0a;border-color:${vd.c}22">${vd.v}${vd.why?`<br/><span style="font-size:0.48rem;opacity:0.7;font-weight:400">${vd.why}</span>`:''}</div>`;
   const knifeHTML=s.isKnife&&!isPut?`<div class="aconf-knife">⚠️ FALLING KNIFE — ${td.recentRed}/3 recent closes RED · Do NOT enter call · Wait for green close</div>`:'';
   const lateHTML=s.isLateEntry&&!isPut?`<div class="aconf-knife" style="background:rgba(255,215,0,0.07);border-color:rgba(255,215,0,0.28);color:#ffd700">⚠️ LATE ENTRY (0.5–0.618) — Momentum may be spent · Reduce position size · Tighten stop loss · Best entry was 0.382–0.5</div>`:'';
-
   return`<div class="aconf" style="border:1px solid ${border}">
     <div class="aconf-head">
       <div style="display:flex;align-items:center">
@@ -739,7 +707,6 @@ function aconfHTML(s){
   </div>`;
 }
 
-// ── UPDATED: fibPanelHTML — PRIMARY ENTRY vs LATE ENTRY zones ──
 function fibPanelHTML(s){
   try{
     const f=FIBS[s.sym];if(!f)return'';
@@ -826,7 +793,6 @@ function portHTML(s){
     </div>${am?`<div class="palert ${ac}">${am}</div>`:''}<div class="pnote">${p.note}</div></div></div>`;
 }
 
-// ── UPDATED: cardHTML — LATE ENTRY card class and badge ──
 function cardHTML(s){
   try{
     const m=MODES[mode],sc=SCOL[s.status]||'#888';
@@ -842,21 +808,37 @@ function cardHTML(s){
     const kb=s.isKnife?`<span class="knife-badge">⚠️ FALLING KNIFE</span>`:'';
     const lb=isLE?`<span class="late-badge">⚠️ LATE ENTRY</span>`:'';
     const resLabel=s.fibNear.above?`${s.fibNear.above.level} FIB`:'FIB RES';
-    const roadSteps=[{l:0,short:'0·LOW'},{l:0.236,short:'0.236'},{l:0.382,short:'0.382'},{l:0.5,short:'0.5'},{l:0.618,short:'0.618'},{l:0.786,short:'0.786'},{l:1,short:'1·HIGH'}];
+
+    // ── UPDATED ROADMAP: now includes 0.5 level ──
+    const roadSteps=[
+      {l:0,   short:'0·LOW'},
+      {l:0.236,short:'0.236'},
+      {l:0.382,short:'0.382'},
+      {l:0.5,  short:'0.5'},
+      {l:0.618,short:'0.618'},
+      {l:0.786,short:'0.786'},
+      {l:1,    short:'1·HIGH'}
+    ];
+
+    const roadHTML=roadSteps.map((rs,idx)=>{
       const rp=fibPrice(s.sym,rs.l);if(!rp)return'';
-      const reached=s.price>=rp+0.05,isNow=s.fibZone?.below&&Math.abs(s.fibZone.below.l-rs.l)<0.001;
-      const inPrimary=rs.l>=0.382&&rs.l<=0.5;
+      const reached=s.price>=rp+0.05;
+      const isNow=s.fibZone?.below&&Math.abs(s.fibZone.below.l-rs.l)<0.001;
+      const inPrimary=rs.l>=0.382&&rs.l<0.5;
+      const isHalf=rs.l===0.5;
       const inLate=rs.l>0.5&&rs.l<=0.618;
       const isPivLow=rs.l===0&&isPut;
-      const dc2=reached?'#00ff88':isPivLow?'#ff4444':isNow?(s.isKnife?'#ff8c42':isLE?'#ffd700':'#ffd700'):inPrimary?'rgba(0,255,136,0.4)':inLate?'rgba(255,215,0,0.4)':'#1e1e2e';
-      const db2=reached?'#00ff88':isPivLow?'#ff4444':isNow?(s.isKnife?'#ff8c42':isLE?'#ffd700':'#ffd700'):inPrimary?'#00ff88':inLate?'#ffd700':'#333';
+      const dc2=reached?'#00ff88':isPivLow?'#ff4444':isNow?(s.isKnife?'#ff8c42':isLE?'#ffd700':'#ffd700'):inPrimary?'rgba(0,255,136,0.4)':isHalf?'rgba(0,255,136,0.6)':inLate?'rgba(255,215,0,0.4)':'#1e1e2e';
+      const db2=reached?'#00ff88':isPivLow?'#ff4444':isNow?(s.isKnife?'#ff8c42':isLE?'#ffd700':'#ffd700'):inPrimary?'#00ff88':isHalf?'#00ff88':inLate?'#ffd700':'#333';
       const pc2=reached?'#00ff88':isPivLow?'#ff4444':isNow?(s.isKnife?'#ff8c42':isLE?'#ffd700':'#ffd700'):'#444';
       const lc=idx<roadSteps.length-1?(reached?'#00ff8855':'#1e1e2e'):'transparent';
-      const tag=(rs.l===0.382)?`<div style="font-size:0.34rem;color:#00ff88;margin-top:1px">ENTRY▶</div>`:
-                (rs.l===0.618)?`<div style="font-size:0.34rem;color:#ffd700;margin-top:1px">◀LATE</div>`:
+      const tag=rs.l===0.382?`<div style="font-size:0.34rem;color:#00ff88;margin-top:1px">ENTRY▶</div>`:
+                rs.l===0.5?`<div style="font-size:0.34rem;color:#00ff88;margin-top:1px">─ 0.5 ─</div>`:
+                rs.l===0.618?`<div style="font-size:0.34rem;color:#ffd700;margin-top:1px">◀LATE</div>`:
                 isPivLow?'<div style="font-size:0.34rem;color:#ff4444;margin-top:1px">PUT▼</div>':'';
-      return`<div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:46px"><div style="width:10px;height:10px;border-radius:50%;background:${dc2};border:2px solid ${db2}${isNow?`;box-shadow:0 0 6px ${db2}`:''}"></div><div style="font-size:0.46rem;font-weight:700;color:${pc2};margin-top:2px">$${f2(rp)}</div><div style="font-size:0.38rem;color:${inPrimary?'#00ff8877':inLate?'#ffd70077':'#2a2a3a'};letter-spacing:0.5px">${rs.short}</div>${tag}</div>${idx<roadSteps.length-1?`<div style="flex:1;height:2px;background:${lc};margin-top:4px;min-width:6px"></div>`:''}`;
+      return`<div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:40px"><div style="width:10px;height:10px;border-radius:50%;background:${dc2};border:2px solid ${db2}${isNow?`;box-shadow:0 0 6px ${db2}`:''}"></div><div style="font-size:0.46rem;font-weight:700;color:${pc2};margin-top:2px">$${f2(rp)}</div><div style="font-size:0.38rem;color:${inPrimary||isHalf?'#00ff8877':inLate?'#ffd70077':'#2a2a3a'};letter-spacing:0.5px">${rs.short}</div>${tag}</div>${idx<roadSteps.length-1?`<div style="flex:1;height:2px;background:${lc};margin-top:4px;min-width:4px"></div>`:''}`;
     }).join('');
+
     const cardClass=isEZ?'card entry-zone-card':s.isKnife?'card knife-card':isLE?'card late-entry-card':isPut&&s.status==='BROKEN DOWN'?'card put-zone-card':isPut?'card deep-base-card':'card';
     const cardBorder=isEZ?'rgba(0,255,136,0.5)':s.isKnife?'rgba(255,140,0,0.35)':isLE?'rgba(255,215,0,0.4)':isPut?'rgba(255,68,68,0.3)':m.best.includes(s.status)?m.color+'28':'';
     return`<div class="${cardClass}"${cardBorder?` style="border-color:${cardBorder}"`:''}">
