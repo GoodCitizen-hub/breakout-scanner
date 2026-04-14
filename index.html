@@ -521,6 +521,108 @@ function getBias(s){
   return'neutral';
 }
 
+
+// ═══════════════════════════════════════════════════════════════
+// SMART EXPIRY + STRIKE CALCULATOR
+// Zone-aware, mode-aware, confirmation-aware
+// ═══════════════════════════════════════════════════════════════
+function getNextFriday(weeksOut){
+  const now=new Date();
+  const day=now.getDay();
+  const daysUntilFriday=day<=5?(5-day):(12-day);
+  const d=new Date(now);
+  d.setDate(now.getDate()+daysUntilFriday+((weeksOut-1)*7));
+  return d;
+}
+function getMonthlyExpiry(monthsOut){
+  const now=new Date();
+  const t=new Date(now.getFullYear(),now.getMonth()+monthsOut,1);
+  const first=new Date(t.getFullYear(),t.getMonth(),1);
+  first.setDate(1+((5-first.getDay()+7)%7));
+  first.setDate(first.getDate()+14);
+  return first;
+}
+function getLeapExpiry(){
+  const now=new Date();
+  let year=now.getFullYear()+1;
+  if(now.getMonth()>=6)year++;
+  const jan=new Date(year,0,1);
+  jan.setDate(1+((5-jan.getDay()+7)%7));
+  jan.setDate(jan.getDate()+14);
+  return jan;
+}
+function fmtExp(d){
+  const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return`${M[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+}
+function getSmartExpiry(status,mode,confirmScore,rv,isLateEntry){
+  if(mode==='LEAP'){const d=getLeapExpiry();return{label:fmtExp(d),reason:'LEAP mode — Jan expiry, long conviction'};}
+  if(mode==='DAY'){
+    if(rv>=2.0)return{label:fmtExp(getNextFriday(1)),reason:`RVOL ${rv.toFixed(2)}x — 0DTE/same week`};
+    return{label:fmtExp(getNextFriday(1)),reason:`RVOL ${rv.toFixed(2)}x — this week`};
+  }
+  // SWING — zone + confirmation + rvol aware
+  if(status==='BREAKOUT NOW'||status==='NEAR HIGH'){
+    return{label:fmtExp(getNextFriday(1)),reason:'Breakout momentum — tight 1-week expiry'};}
+  if(status==='ENTRY ZONE'&&!isLateEntry){
+    if(rv>=2.0)return{label:fmtExp(getNextFriday(1)),reason:`RVOL ${rv.toFixed(2)}x — high volume, 1-week viable`};
+    if(confirmScore>=4)return{label:fmtExp(getNextFriday(2)),reason:`${confirmScore}/5 confirmed — 2-week optimal`};
+    if(confirmScore===3)return{label:fmtExp(getNextFriday(3)),reason:`${confirmScore}/5 — adding 1-week buffer`};
+    return{label:fmtExp(getNextFriday(4)),reason:`Low confirmation — 4-week gives room`};
+  }
+  if(isLateEntry){
+    return{label:fmtExp(getNextFriday(3)),reason:'Late entry — extra week, momentum may fade'};}
+  if(status==='RECOVERING'){
+    return{label:fmtExp(getMonthlyExpiry(1)),reason:'Recovering — 4-6 weeks needed to develop'};}
+  if(status==='BASING'){
+    return{label:fmtExp(getMonthlyExpiry(3)),reason:'Basing — 3-month min for floor to confirm'};}
+  if(status==='BROKEN OUT'){
+    return{label:fmtExp(getNextFriday(2)),reason:'Broken out — 2-week continuation play'};}
+  return{label:fmtExp(getNextFriday(2)),reason:`RVOL ${rv.toFixed(2)}x — standard 2-week`};
+}
+function getSmartStrike(price,status,mode,confirmScore,isLateEntry,rv){
+  // Determine rounding interval by price
+  let interval=5;
+  if(price<20)interval=0.5;
+  else if(price<50)interval=1;
+  else if(price<100)interval=2;
+  else if(price<200)interval=5;
+  else if(price<500)interval=5;
+  else interval=10;
+  const rnd=(p,i)=>Math.round(Math.ceil(p/i)*i*100)/100;
+  if(mode==='LEAP'){
+    const s=rnd(price*0.95,interval);
+    return{strike:s,label:`$${s}C`,note:'ITM LEAP — deeper strike for long hold, more delta'};}
+  if(mode==='DAY'){
+    if(rv>=2.0){const s=rnd(price*1.005,interval);return{strike:s,label:`$${s}C`,note:'ATM — max delta for fast day move'};}
+    const s=rnd(price*1.01,interval);
+    return{strike:s,label:`$${s}C`,note:'Near ATM — DAY trade with tight stop'};}
+  // SWING zone-aware
+  if(status==='BREAKOUT NOW'||status==='NEAR HIGH'){
+    const s=rnd(price*1.005,interval);
+    return{strike:s,label:`$${s}C`,note:'ATM — breakout momentum, move already happening'};}
+  if(status==='ENTRY ZONE'&&!isLateEntry){
+    if(confirmScore>=4){const s=rnd(price*1.01,interval);return{strike:s,label:`$${s}C`,note:'1 strike OTM — confirmed entry, best R:R'};}
+    if(confirmScore===3){const s=rnd(price*1.02,interval);return{strike:s,label:`$${s}C`,note:'2 strikes OTM — partial confirm, buffer needed'};}
+    const s=rnd(price*1.025,interval);
+    return{strike:s,label:`$${s}C`,note:'Conservative OTM — low confirmation'};
+  }
+  if(isLateEntry){
+    const s=rnd(price*1.02,interval);
+    return{strike:s,label:`$${s}C`,note:'2 strikes OTM — late entry risk buffer'};}
+  if(status==='RECOVERING'){
+    const s=rnd(price*1.04,interval);
+    return{strike:s,label:`$${s}C`,note:'4% OTM — recovery needs room to develop'};}
+  if(status==='BASING'){
+    const s=rnd(price*1.06,interval);
+    return{strike:s,label:`$${s}C`,note:'6% OTM — basing trade needs significant room'};}
+  if(status==='BROKEN OUT'){
+    const s=rnd(price*1.01,interval);
+    return{strike:s,label:`$${s}C`,note:'Near ATM — broken out continuation'};}
+  const s=rnd(price*1.02,interval);
+  return{strike:s,label:`$${s}C`,note:'Standard 2% OTM'};
+}
+
 function build(sym,price,vol,chg){
   try{
     const b=BASE[sym],m=MODES[mode];
@@ -553,12 +655,13 @@ function build(sym,price,vol,chg){
       const stopFib=nf.above?nf.above.price:f.low*1.01;
       const stopLabel=nf.above?`${nf.above.level} fib`:'fib low';
       let expiry,strikeRec,expiryReason;
-      if(rv>=2.0){expiry='0DTE';strikeRec=`$${Math.floor(price*0.985/5)*5}P`;expiryReason=`RVOL ${f2(rv)}x — 0DTE viable`;}
-      else if(rv>=1.0){expiry='Apr 4 (weekly)';strikeRec=`$${Math.floor(price*0.96/5)*5}P`;expiryReason=`RVOL ${f2(rv)}x — weekly`;}
-      else{expiry='SKIP';strikeRec='LOW RVOL — skip';expiryReason=`RVOL ${f2(rv)}x — below 1x`;}
+      const putInterval=price<50?1:price<100?2:price<200?5:5;
+      if(rv>=2.0){expiry=fmtExp(getNextFriday(1));strikeRec=`$${Math.floor(price*0.985/putInterval)*putInterval}P`;expiryReason=`RVOL ${f2(rv)}x — 0DTE/same week viable`;}
+      else if(rv>=1.0){expiry=fmtExp(getNextFriday(2));strikeRec=`$${Math.floor(price*0.97/putInterval)*putInterval}P`;expiryReason=`RVOL ${f2(rv)}x — 2-week put`;}
+      else{expiry='SKIP';strikeRec='LOW RVOL — skip';expiryReason=`RVOL ${f2(rv)}x — below 1x, wait for volume`;}
       s.putRec={expiry,strikeRec,target,targetLabel,downPct,stop:stopFib.toFixed(2),stopLabel,expiryReason};
     }
-    if(!isPut&&!isDeepBase&&['ENTRY ZONE','LATE ENTRY','BREAKOUT NOW','NEAR HIGH','BROKEN OUT','RECOVERING'].includes(status)){
+    if(!isPut&&!isDeepBase&&['ENTRY ZONE','LATE ENTRY','BREAKOUT NOW','NEAR HIGH','BROKEN OUT','RECOVERING','BASING'].includes(status)){
       const f=FIBS[sym];
       const allFibs=FIB_LEVELS.map(l=>({l,p:fibPrice(sym,l)})).sort((a,b)=>a.p-b.p);
       const nextRes=allFibs.find(fl=>fl.p>price*1.005);
@@ -570,13 +673,28 @@ function build(sym,price,vol,chg){
       const stop=(stopLevel*0.99).toFixed(2);
       const stopPct=((stop-price)/price*100).toFixed(1);
       const rr=Math.abs(Number(upPct)/Math.abs(Number(stopPct))).toFixed(1);
+      // Smart confirmation score
+      const td=tdData[sym];
+      const checks=td?.loaded?[
+        td.dCloseGreen&&td.dAboveEMA,
+        td.h4EMA?price>td.h4EMA:null,
+        td.recentGreen>=2,
+        td.h4EMAslope!==null?td.h4EMAslope>0:null,
+        rv>=1.5
+      ].filter(v=>v===true).length:0;
+      // Get smart expiry and strike
+      const expiryInfo=getSmartExpiry(status,mode,checks,rv,isLateEntry);
+      const strikeInfo=getSmartStrike(price,status,mode,checks,isLateEntry,rv);
       let expiry,strikeRec,expiryReason;
-      const otm=Math.ceil(price*1.02/5)*5;
-      if(rv>=2.0){expiry='0DTE';strikeRec=`$${Math.ceil(price*1.005/5)*5}C`;expiryReason=`RVOL ${f2(rv)}x — 0DTE viable`;}
-      else if(rv>=1.5){expiry='Apr 4 (weekly)';strikeRec=`$${otm}C`;expiryReason=`RVOL ${f2(rv)}x — weekly preferred`;}
-      else if(rv>=1.0){expiry='Apr 11 (2 week)';strikeRec=`$${otm}C`;expiryReason=`RVOL ${f2(rv)}x — 2-week gives room`;}
-      else{expiry='WAIT';strikeRec='LOW RVOL — wait';expiryReason=`RVOL ${f2(rv)}x — wait for volume`;}
-      s.callRec={expiry,strikeRec,target,targetLabel,upPct,stop,stopPct,rr,expiryReason};
+      if(rv<0.5&&mode!=='LEAP'){
+        expiry='WAIT';strikeRec='LOW RVOL — wait for volume';expiryReason=`RVOL ${f2(rv)}x — below minimum threshold`;
+      } else {
+        expiry=expiryInfo.label;
+        strikeRec=strikeInfo.label;
+        expiryReason=`${expiryInfo.reason} · ${strikeInfo.note}`;
+      }
+      s.callRec={expiry,strikeRec,target,targetLabel,upPct,stop,stopPct,rr,expiryReason,
+        expiryContext:{zone:status,mode,confirmScore:checks,rvol:rv,isLateEntry}};
     }
     return s;
   }catch(e){return null;}
@@ -773,6 +891,7 @@ function oppHTML(s){
         <div><div class="opp-lbl" style="color:#224433">R:R</div><div class="opp-val" style="color:#ffd700">${cr.rr}:1</div></div>
       </div>
       <div class="opp-note" style="border:1px solid rgba(0,255,136,0.2);background:rgba(0,255,136,0.06);color:#00cc66">${cr.expiryReason}</div>
+      ${cr.expiryContext?`<div class="opp-note" style="border:1px solid rgba(255,215,0,0.15);background:rgba(255,215,0,0.04);color:#888;font-size:0.47rem;margin-top:4px;">📊 Zone: ${cr.expiryContext.zone} · Mode: ${cr.expiryContext.mode} · Confirm: ${cr.expiryContext.confirmScore}/5 · RVOL: ${cr.expiryContext.rvol.toFixed(2)}x</div>`:''}
       <div class="opp-warn">${s.isKnife?'⚠️ FALLING KNIFE — Do NOT enter call · Wait for green close · Check auto-confirmation below':isLate?'⚠️ LATE ENTRY — Momentum may be spent · Reduce size · Tighten stop · Best entry was 0.382–0.5':'⚠️ Wait 9:45 AM · Confirm auto-checklist below · Max 2 calls'}</div>
     </div>`;
   }
