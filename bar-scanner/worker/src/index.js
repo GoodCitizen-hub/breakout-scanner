@@ -17,7 +17,6 @@
 const BASE = "https://api.massive.com";
 
 // ── S&P 500 symbols ───────────────────────────────────────────────────────────
-// Full list — expand to all 503 in production
 const SP500 = [
   "AAPL","MSFT","NVDA","AMZN","META","GOOGL","GOOG","LLY","AVGO","JPM",
   "TSLA","UNH","V","XOM","MA","PG","COST","JNJ","HD","MRK",
@@ -47,7 +46,7 @@ export default {
     const url  = new URL(request.url);
     const path = url.pathname;
 
-    // Detect mock mode — runs when no key is set
+    // MOCK mode only when key is genuinely missing
     const MOCK = !env.MASSIVE_API_KEY || env.MASSIVE_API_KEY === "YOUR_KEY_HERE";
 
     try {
@@ -71,37 +70,56 @@ async function handleScan(url, env, MOCK) {
     ? getMockSignals(nearLow, filterPat)
     : await scanLive(env.MASSIVE_API_KEY, nearLow, filterPat);
 
-  return ok({ signals, mode: MOCK ? "mock" : "live", universe: SP500.length, signalCount: signals.length, scannedAt: new Date().toISOString() });
+  return ok({
+    signals,
+    mode:        MOCK ? "mock" : "live",
+    universe:    SP500.length,
+    signalCount: signals.length,
+    scannedAt:   new Date().toISOString()
+  });
 }
 
 // ── Live scan via Massive API ─────────────────────────────────────────────────
-// Uses Custom Bars endpoint (per ticker) — available on Stocks Starter
 async function scanLive(key, nearLow, filterPat) {
   const signals = [];
 
-  // Find last two real trading days
+  // FIX: Use per-ticker Custom Bars endpoint to find last two trading days
+  // Walk back from today up to 10 days — no grouped endpoint needed
   const [dateStr, prevDate] = await getLastTwoTradingDays(key);
 
-  // Fetch 2 daily bars per ticker using Custom Bars endpoint
+  // Also fetch 52W low window: 365 days back from most recent trading day
+  const low52From = toDateStr(new Date(new Date(dateStr).getTime() - 365 * 86400000));
+
   // Process in batches of 15 to respect rate limits
   const BATCH = 15;
   for (let i = 0; i < SP500.length; i += BATCH) {
     const batch = SP500.slice(i, i + BATCH);
     const results = await Promise.allSettled(
       batch.map(async ticker => {
-        // GET /v2/aggs/ticker/{ticker}/range/1/day/{from}/{to}
-        // Fetch last 2 trading days in one call
-        const data = await massiveFetch(
+        // Fetch last 2 trading days
+        const recentData = await massiveFetch(
           `/v2/aggs/ticker/${ticker}/range/1/day/${prevDate}/${dateStr}?adjusted=true&sort=asc&limit=2`,
           key
         );
-        return { ticker, bars: data.results || [] };
+
+        // FIX: Fetch 52W low properly — get full year of daily bars
+        // Use limit=365, sort ascending, take the lowest low
+        const yearData = await massiveFetch(
+          `/v2/aggs/ticker/${ticker}/range/1/day/${low52From}/${dateStr}?adjusted=true&sort=asc&limit=365`,
+          key
+        );
+
+        return {
+          ticker,
+          bars:     recentData.results || [],
+          yearBars: yearData.results   || []
+        };
       })
     );
 
     for (const res of results) {
       if (res.status !== "fulfilled") continue;
-      const { ticker, bars } = res.value;
+      const { ticker, bars, yearBars } = res.value;
       if (bars.length < 2) continue;
 
       const prev = bars[bars.length - 2];
@@ -110,9 +128,13 @@ async function scanLive(key, nearLow, filterPat) {
       const currBar = { o: curr.o, h: curr.h, l: curr.l, c: curr.c, v: curr.v };
       const prevBar = { o: prev.o, h: prev.h, l: prev.l, c: prev.c, v: prev.v };
 
-      // Use 52-week range from last year of data (approximate from bar data)
-      const low52  = currBar.l;
-      const high52 = currBar.h;
+      // FIX: Calculate real 52W low from full year of bars
+      const low52  = yearBars.length > 0
+        ? Math.min(...yearBars.map(b => b.l))
+        : currBar.l;
+      const high52 = yearBars.length > 0
+        ? Math.max(...yearBars.map(b => b.h))
+        : currBar.h;
 
       const pctFromLow = ((currBar.c - low52) / low52) * 100;
       if (pctFromLow > nearLow) continue;
@@ -121,31 +143,31 @@ async function scanLive(key, nearLow, filterPat) {
       if (!pattern) continue;
       if (filterPat !== "all" && !matchesFilter(pattern, filterPat)) continue;
 
-      const callStrike = +(Math.ceil(prevBar.h / 0.5) * 0.5).toFixed(2);
+      const callStrike = +(Math.ceil(prevBar.h  / 0.5) * 0.5).toFixed(2);
       const putStrike  = +(Math.floor(prevBar.l / 0.5) * 0.5).toFixed(2);
 
       signals.push({
         ticker,
-        sector:       "—",
+        sector:      "—",
         pattern,
-        price:        currBar.c,
-        open:         currBar.o,
-        high:         currBar.h,
-        low:          currBar.l,
-        close:        currBar.c,
-        volume:       currBar.v,
-        motherHigh:   prevBar.h,
-        motherLow:    prevBar.l,
-        motherOpen:   prevBar.o,
-        motherClose:  prevBar.c,
-        low52:        +low52.toFixed(2),
-        high52:       +high52.toFixed(2),
-        pctFromLow:   pctFromLow.toFixed(2),
-        callStrike:   callStrike.toFixed(2),
-        putStrike:    putStrike.toFixed(2),
-        confidence:   calcConfidence(prevBar, currBar, pattern, pctFromLow),
-        callPremium:  "—",
-        daysOut:      10,
+        price:       currBar.c,
+        open:        currBar.o,
+        high:        currBar.h,
+        low:         currBar.l,
+        close:       currBar.c,
+        volume:      currBar.v,
+        motherHigh:  prevBar.h,
+        motherLow:   prevBar.l,
+        motherOpen:  prevBar.o,
+        motherClose: prevBar.c,
+        low52:       +low52.toFixed(2),
+        high52:      +high52.toFixed(2),
+        pctFromLow:  pctFromLow.toFixed(2),
+        callStrike:  callStrike.toFixed(2),
+        putStrike:   putStrike.toFixed(2),
+        confidence:  calcConfidence(prevBar, currBar, pattern, pctFromLow),
+        callPremium: "—",
+        daysOut:     10,
       });
     }
 
@@ -163,9 +185,9 @@ async function handleBars(url, env, MOCK) {
 
   if (MOCK) return ok({ bars: genMock5m(22), mode: "mock" });
 
-  const today = toDateStr(new Date());
+  // FIX: If today is weekend, fetch last trading day's 5-min bars
+  const today = getMostRecentTradingDay();
 
-  // Endpoint: GET /v2/aggs/ticker/{ticker}/range/5/minute/{from}/{to}
   const data = await massiveFetch(
     `/v2/aggs/ticker/${ticker}/range/5/minute/${today}/${today}?adjusted=true&sort=asc&limit=200`,
     env.MASSIVE_API_KEY
@@ -186,21 +208,20 @@ async function handleOptions(url, env, MOCK) {
 
   if (MOCK) return ok({ options: genMockOptions(ticker, direction), mode: "mock" });
 
-  const today  = toDateStr(new Date());
-  const expTo  = toDateStr(new Date(Date.now() + 30 * 86400000));
+  const today = getMostRecentTradingDay();
+  const expTo = toDateStr(new Date(Date.now() + 30 * 86400000));
 
-  // Endpoint: GET /v3/reference/options/contracts
   const data = await massiveFetch(
     `/v3/reference/options/contracts?underlying_ticker=${ticker}&contract_type=${direction}&expiration_date.gte=${today}&expiration_date.lte=${expTo}&limit=10&sort=expiration_date&order=asc`,
     env.MASSIVE_API_KEY
   );
 
   const options = (data.results || []).map(o => ({
-    strike:        o.strike_price,
-    expiry:        o.expiration_date,
-    contractType:  o.contract_type,
-    daysToExpiry:  Math.round((new Date(o.expiration_date) - new Date()) / 86400000),
-    premium:       null, // requires Options Starter for live premiums
+    strike:       o.strike_price,
+    expiry:       o.expiration_date,
+    contractType: o.contract_type,
+    daysToExpiry: Math.round((new Date(o.expiration_date) - new Date()) / 86400000),
+    premium:      null,
   }));
 
   return ok({ options, mode: "live" });
@@ -268,21 +289,21 @@ function detectPattern(prev, curr) {
 }
 
 function matchesFilter(pattern, filter) {
-  if (filter === "inside")       return pattern.startsWith("inside");
-  if (filter === "outside")      return pattern.startsWith("outside");
+  if (filter === "inside")  return pattern.startsWith("inside");
+  if (filter === "outside") return pattern.startsWith("outside");
   return pattern === filter;
 }
 
 // ── Confidence score ──────────────────────────────────────────────────────────
 function calcConfidence(prev, curr, pattern, pctFromLow) {
   let score = 50;
-  const range    = prev.h - prev.l || 1;
+  const range     = prev.h - prev.l || 1;
   const bodyRatio = Math.abs(prev.c - prev.o) / range;
 
   if (bodyRatio > 0.6) score += 10;
   if (bodyRatio > 0.8) score += 5;
 
-  if (pctFromLow <= 1) score += 20;
+  if (pctFromLow <= 1)      score += 20;
   else if (pctFromLow <= 2) score += 15;
   else if (pctFromLow <= 3) score += 10;
   else if (pctFromLow <= 5) score += 5;
@@ -295,10 +316,10 @@ function calcConfidence(prev, curr, pattern, pctFromLow) {
 
   if (pattern.startsWith("outside")) {
     const pos = (curr.c - curr.l) / (curr.h - curr.l || 1);
-    if (pattern === "outside-bull" && pos > 0.8)  score += 15;
-    if (pattern === "outside-bull" && pos > 0.6)  score += 8;
-    if (pattern === "outside-bear" && pos < 0.2)  score += 15;
-    if (pattern === "outside-bear" && pos < 0.4)  score += 8;
+    if (pattern === "outside-bull" && pos > 0.8) score += 15;
+    if (pattern === "outside-bull" && pos > 0.6) score += 8;
+    if (pattern === "outside-bear" && pos < 0.2) score += 15;
+    if (pattern === "outside-bear" && pos < 0.4) score += 8;
   }
 
   return Math.min(99, Math.max(40, Math.round(score)));
@@ -306,7 +327,7 @@ function calcConfidence(prev, curr, pattern, pctFromLow) {
 
 // ── Massive fetch helper ──────────────────────────────────────────────────────
 async function massiveFetch(path, key) {
-  const res  = await fetch(`${BASE}${path}`, {
+  const res = await fetch(`${BASE}${path}`, {
     headers: { "Authorization": `Bearer ${key}` }
   });
   if (!res.ok) throw new Error(`Massive API ${res.status}: ${path}`);
@@ -318,25 +339,33 @@ function toDateStr(d) {
   return d.toISOString().split("T")[0];
 }
 
-// Walk back from a date until we find a weekday (Mon-Fri)
-// Excludes weekends — holiday handling done by checking Massive response
 function prevWeekday(d) {
   const prev = new Date(d);
   do {
     prev.setDate(prev.getDate() - 1);
-  } while (prev.getDay() === 0 || prev.getDay() === 6); // skip Sun, Sat
+  } while (prev.getDay() === 0 || prev.getDay() === 6);
   return prev;
 }
 
-// Find the last two real trading days by asking Massive
-// Walks back up to 7 days to skip weekends and market holidays
+// Returns the most recent weekday as a date string
+// Used for /bars and /options when market is closed
+function getMostRecentTradingDay() {
+  let d = new Date();
+  while (d.getDay() === 0 || d.getDay() === 6) {
+    d = prevWeekday(d);
+  }
+  return toDateStr(d);
+}
+
+// FIX: Find last two real trading days using per-ticker bars (not grouped endpoint)
+// Grouped endpoint requires higher plan. This uses AAPL as a reliable proxy ticker.
 async function getLastTwoTradingDays(key) {
   const found = [];
   let candidate = new Date();
-  // Start from yesterday if today is weekend or not yet closed
+
+  // Start from yesterday if today is weekend or before 21:00 UTC (4PM ET + buffer)
   const hour = candidate.getUTCHours();
   const day  = candidate.getDay();
-  // If weekend or before 21:00 UTC (4PM ET + buffer), start from yesterday
   if (day === 0 || day === 6 || hour < 21) {
     candidate = prevWeekday(candidate);
   }
@@ -346,23 +375,43 @@ async function getLastTwoTradingDays(key) {
     attempts++;
     const dateStr = toDateStr(candidate);
     try {
+      // FIX: Use per-ticker AAPL bars instead of grouped endpoint
+      // This works on Stocks Starter plan
       const res = await massiveFetch(
-        `/v2/aggs/grouped/locale/us/market/stocks/${dateStr}?adjusted=true&limit=1`,
+        `/v2/aggs/ticker/AAPL/range/1/day/${dateStr}/${dateStr}?adjusted=true&limit=1`,
         key
       );
       if (res.results && res.results.length > 0) {
         found.push(dateStr);
       }
-    } catch {}
+    } catch (e) {
+      // Log but continue walking back
+      console.error(`Date check failed for ${dateStr}: ${e.message}`);
+    }
     candidate = prevWeekday(candidate);
+  }
+
+  // Fallback: if we still can't find dates, walk back from most recent weekday
+  if (found.length < 2) {
+    let fb = new Date();
+    while (found.length < 2) {
+      fb = prevWeekday(fb);
+      const s = toDateStr(fb);
+      if (!found.includes(s)) found.push(s);
+    }
   }
 
   // found[0] = most recent trading day (current bar)
   // found[1] = trading day before that (mother bar)
-  return [found[0] || toDateStr(new Date()), found[1] || toDateStr(prevWeekday(new Date()))];
+  return [found[0], found[1]];
 }
 
-// ── Mock data (used when no key is set) ──────────────────────────────────────
+// ── Utility ───────────────────────────────────────────────────────────────────
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// ── Mock data (used only when MASSIVE_API_KEY is not set) ─────────────────────
 function getMockSignals(nearLow, filterPat) {
   const stocks = [
     { ticker:"KHC",  sector:"Consumer Staples", pattern:"inside-bull",  price:22.52, motherHigh:23.10, motherLow:21.80, motherOpen:21.90, motherClose:23.05, high:22.80, low:22.15, open:22.10, close:22.52, low52:21.04, high52:31.15, pctFromLow:"6.94",  callStrike:"23.50", putStrike:"21.50", confidence:88, daysOut:10, callPremium:"0.12" },
@@ -381,7 +430,7 @@ function getMockSignals(nearLow, filterPat) {
     .filter(s => {
       const pct = parseFloat(s.pctFromLow);
       if (pct > nearLow) return false;
-      if (filterPat === "all") return true;
+      if (filterPat === "all")     return true;
       if (filterPat === "inside")  return s.pattern.startsWith("inside");
       if (filterPat === "outside") return s.pattern.startsWith("outside");
       return s.pattern === filterPat;
@@ -405,14 +454,14 @@ function genMock5m(price) {
 function genMockOptions(ticker, direction) {
   const base = 22 + (ticker.charCodeAt(0) % 10);
   return [7,10,14,21,30].map((days, i) => ({
-    strike:        +(base + (direction==="call" ? i*0.5 : -i*0.5)).toFixed(2),
-    expiry:        toDateStr(new Date(Date.now() + days*86400000)),
-    contractType:  direction,
-    daysToExpiry:  days,
-    premium:       +(0.08 + i*0.04).toFixed(2)
+    strike:       +(base + (direction==="call" ? i*0.5 : -i*0.5)).toFixed(2),
+    expiry:       toDateStr(new Date(Date.now() + days*86400000)),
+    contractType: direction,
+    daysToExpiry: days,
+    premium:      +(0.08 + i*0.04).toFixed(2)
   }));
 }
 
 // ── Response helpers ──────────────────────────────────────────────────────────
-function ok(data)          { return new Response(JSON.stringify(data), { headers: CORS }); }
-function err(msg, status)  { return new Response(JSON.stringify({ error: msg }), { status, headers: CORS }); }
+function ok(data)         { return new Response(JSON.stringify(data), { headers: CORS }); }
+function err(msg, status) { return new Response(JSON.stringify({ error: msg }), { status, headers: CORS }); }
