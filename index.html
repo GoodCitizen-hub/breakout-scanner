@@ -165,7 +165,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:1
   <div id="errbox"></div>
   <div id="summary">
     <div class="sc" onclick="setFilter('BREAKOUTS')"><div class="sn" id="sn-b" style="color:var(--swing)">0</div><div class="slbl">CALL SETUPS</div></div>
-    <div class="sc" onclick="setFilter('NEAR')"><div class="sn" id="sn-n" style="color:var(--leap)">0</div><div class="slbl">RECOVERING</div></div>
+    <div class="sc" onclick="setFilter('NEAR')"><div class="sn" id="sn-n" style="color:var(--leap)">0</div><div class="slbl" id="leap-lbl">LEAP READY</div></div>
     <div class="sc" onclick="setFilter('PUTS')"><div class="sn" id="sn-p" style="color:#ff4444">0</div><div class="slbl">PUT SETUPS</div></div>
   </div>
   <div id="filters">
@@ -383,13 +383,24 @@ function getChecks(s, td, mode, isPut) {
     {label:'4H: 20 EMA slope DOWN', tf:'4 HR', crit:false, pass:td.h4EMAslope!==null?td.h4EMAslope<0:null, val:td.h4EMAslope!==null?(td.h4EMAslope<0?'▼ DOWN':'▲ UP'):'—'},
     {label:'RVOL 1.5x+', tf:'LIVE', crit:false, pass:s.rv>=1.5, val:`${s.rv.toFixed(2)}x`},
   ];
-  if (mode==='LEAP' && !isPut) return [
-    {label:'⚡ Weekly: Above 20 EMA', tf:'WEEKLY', crit:true, pass:td.wEMA?p>td.wEMA:null, val:td.wEMA?`EMA $${td.wEMA.toFixed(2)}`:'—'},
-    {label:'⚡ Daily: 2+ consecutive green closes', tf:'DAILY', crit:true, pass:td.recentGreen>=2, val:`${td.recentGreen}/3 green`},
-    {label:'Daily: 20 EMA turning upward', tf:'DAILY', crit:false, pass:td.dEMAslope!==null?td.dEMAslope>0:null, val:td.dEMAslope!==null?(td.dEMAslope>0?'▲ rising':'▼ falling'):'—'},
-    {label:'⚡ Base forming — not knife catching', tf:'DAILY', crit:true, pass:td.recentGreen>=1&&s.chg>-3, val:s.chg>-3?'Stable ✓':`${s.chg.toFixed(1)}% falling`},
-    {label:'RSI recovering (25–50)', tf:'DAILY', crit:false, pass:td.rsi?td.rsi<50&&td.rsi>25:null, val:td.rsi?`RSI ${td.rsi.toFixed(1)}`:'—'},
-  ];
+  if (mode==='LEAP' && !isPut) {
+    // Zone-aware LEAP checks — less strict than SWING, focused on weekly structure
+    const isRecBas = s.status==='RECOVERING'||s.status==='BASING'||s.status==='ENTRY ZONE';
+    if(s.status==='RECOVERING'||s.status==='BASING') return [
+      {label:'⚡ Not knife-catching — price stable or rising', tf:'DAILY', crit:true, pass:s.chg>-3&&td.recentGreen>=1, val:s.chg>-3?`${s.chg.toFixed(1)}% — stable ✓`:`${s.chg.toFixed(1)}% — falling ✗`},
+      {label:'⚡ Weekly chart not broken (above 0.236 fib)', tf:'WEEKLY', crit:true, pass:s.price>fibPrice(s.sym,0.236), val:s.price>fibPrice(s.sym,0.236)?`Above $${fibPrice(s.sym,0.236).toFixed(2)} ✓`:`Below $${fibPrice(s.sym,0.236).toFixed(2)} ✗`},
+      {label:'Daily: 20 EMA slope not deeply falling', tf:'DAILY', crit:false, pass:td.dEMAslope!==null?td.dEMAslope>-1:null, val:td.dEMAslope!==null?(td.dEMAslope>0?'▲ rising':td.dEMAslope>-1?'→ flat':'▼ falling'):'—'},
+      {label:'At least 1 green close in last 3 days', tf:'DAILY', crit:false, pass:td.recentGreen>=1, val:`${td.recentGreen}/3 green`},
+      {label:'RSI not overbought (<65)', tf:'DAILY', crit:false, pass:td.rsi?td.rsi<65:null, val:td.rsi?`RSI ${td.rsi.toFixed(1)}`:'—'},
+    ];
+    return [
+      {label:'⚡ Weekly: Above 20 EMA', tf:'WEEKLY', crit:true, pass:td.wEMA?p>td.wEMA:null, val:td.wEMA?`EMA $${td.wEMA.toFixed(2)}`:'—'},
+      {label:'⚡ Daily: 2+ consecutive green closes', tf:'DAILY', crit:true, pass:td.recentGreen>=2, val:`${td.recentGreen}/3 green`},
+      {label:'Daily: 20 EMA turning upward', tf:'DAILY', crit:false, pass:td.dEMAslope!==null?td.dEMAslope>0:null, val:td.dEMAslope!==null?(td.dEMAslope>0?'▲ rising':'▼ falling'):'—'},
+      {label:'⚡ Base forming — not knife catching', tf:'DAILY', crit:true, pass:td.recentGreen>=1&&s.chg>-3, val:s.chg>-3?'Stable ✓':`${s.chg.toFixed(1)}% falling`},
+      {label:'RSI recovering (25–65)', tf:'DAILY', crit:false, pass:td.rsi?td.rsi<65&&td.rsi>20:null, val:td.rsi?`RSI ${td.rsi.toFixed(1)}`:'—'},
+    ];
+  }
   if (mode==='LEAP' && isPut) return [
     {label:'⚡ Weekly: Below 20 EMA', tf:'WEEKLY', crit:true, pass:td.wEMA?p<td.wEMA:null, val:td.wEMA?`EMA $${td.wEMA.toFixed(2)}`:'—'},
     {label:'⚡ Daily: 2+ consecutive red closes', tf:'DAILY', crit:true, pass:td.recentRed>=2, val:`${td.recentRed}/3 red`},
@@ -453,8 +464,8 @@ function nearestFibs(sym,price){
 
 const MODES={
   DAY:{color:'#00ccff',hold:'Minutes–Hours',rmin:1.5,minPass:4,best:['BREAKOUT NOW','BROKEN OUT','NEAR HIGH']},
-  SWING:{color:'#00ff88',hold:'2–10 Days',rmin:1.0,minPass:4,best:['ENTRY ZONE','BREAKOUT NOW','NEAR HIGH']},
-  LEAP:{color:'#ffd700',hold:'6–12 Months',rmin:0.7,minPass:4,best:['ENTRY ZONE','RECOVERING','BASING']},
+  SWING:{color:'#00ff88',hold:'2–10 Days',rmin:1.0,minPass:3,best:['ENTRY ZONE','BREAKOUT NOW','NEAR HIGH']},
+  LEAP:{color:'#ffd700',hold:'6–12 Months',rmin:0.5,minPass:2,best:['ENTRY ZONE','RECOVERING','BASING']},
 };
 
 const SCOL={'BROKEN OUT':'#00ccff','NEAR HIGH':'#00ccff','BREAKOUT NOW':'#00ff88','ENTRY ZONE':'#00ff88','LATE ENTRY':'#ffd700','RECOVERING':'#ffd700','BASING':'#ff8c42','DEEP BASE':'#ff4444','BROKEN DOWN':'#ff4444'};
@@ -750,7 +761,9 @@ function render(){
   document.getElementById('filters').style.display='flex';
   document.getElementById('empty').style.display='none';
   document.getElementById('sn-b').textContent=stocks.filter(s=>['ENTRY ZONE','BREAKOUT NOW','NEAR HIGH','BROKEN OUT'].includes(s.status)&&!s.isKnife).length;
-  document.getElementById('sn-n').textContent=stocks.filter(s=>s.status==='RECOVERING'&&!s.isKnife).length;
+  const leapCandidates=stocks.filter(s=>(s.status==='RECOVERING'||s.status==='BASING')&&!s.isKnife).length;
+  document.getElementById('sn-n').textContent=leapCandidates;
+  document.getElementById('leap-lbl').textContent=leapCandidates>0?`LEAP READY (${leapCandidates})`:'LEAP READY';
   document.getElementById('sn-p').textContent=stocks.filter(s=>s.isPut||s.isDeepBase).length;
   document.querySelectorAll('.fb').forEach(b=>{
     const on=b.dataset.f===filter;
@@ -762,7 +775,7 @@ function render(){
   const list=stocks.filter(s=>{
     if(filter==='ALL')return true;if(filter==='PORT')return!!PORT[s.sym];
     if(filter==='BREAKOUTS')return['ENTRY ZONE','LATE ENTRY','BREAKOUT NOW','NEAR HIGH','BROKEN OUT'].includes(s.status)&&!s.isKnife;
-    if(filter==='NEAR')return s.status==='RECOVERING'&&!s.isKnife;
+    if(filter==='NEAR')return (s.status==='RECOVERING'||s.status==='BASING')&&!s.isKnife;
     if(filter==='SETUP')return s.status==='BASING';
     if(filter==='PUTS')return s.isPut||s.isDeepBase;
     if(filter==='P1')return s.pri===1;if(filter==='P2')return s.pri<=2;
@@ -842,8 +855,8 @@ function fibPanelHTML(s){
       else if(bll>=0.5&&all<=0.618){zone='⚠️ LATE ENTRY (0.5–0.618) — Momentum may be spent · Reduce size · Tighten stop · Best entry was 0.382–0.5';zc='#ffd700';zb='rgba(255,215,0,0.06)';}
       else if(bll>=0.618&&all<=0.786){zone='BREAKOUT NOW — Strong momentum';zc='#00ff88';zb='rgba(0,255,136,0.04)';}
       else if(bll>=0.786){zone='NEAR HIGH — Call target zone';zc='#00ccff';zb='rgba(0,204,255,0.05)';}
-      else if(bll>=0.236&&all<=0.382){zone='RECOVERING — Watch for entry zone break';zc='#ffd700';zb='rgba(255,215,0,0.06)';}
-      else{zone='BASING — Building floor';zc='#ff8c42';zb='rgba(255,140,0,0.06)';}
+      else if(bll>=0.236&&all<=0.382){zone=mode==='LEAP'?'🟡 LEAP CANDIDATE — Recovering zone · Slightly ITM Jan expiry · Weekly chart intact = entry':'RECOVERING — Watch for entry zone break · Switch to LEAP mode to evaluate';zc='#ffd700';zb='rgba(255,215,0,0.06)';}
+      else{zone=mode==='LEAP'?'🟡 LEAP CANDIDATE — Basing zone · 3-month expiry · Wait for 1 green close + stable price':'BASING — Building floor · Switch to LEAP mode to evaluate';zc='#ff8c42';zb='rgba(255,140,0,0.06)';}
     }
     const fibR=levels.map(({l,p})=>{
       const col=FIB_COLORS[l]||'#888';
@@ -881,7 +894,7 @@ function oppHTML(s){
     const cr=s.callRec;
     const isLate=s.isLateEntry;
     return`<div class="callpanel" style="${s.isKnife?'border-color:rgba(255,140,0,0.3);background:rgba(255,140,0,0.02)':isLate?'border-color:rgba(255,215,0,0.3);background:rgba(255,215,0,0.02)':''}">
-      <div class="calltitle" style="${s.isKnife?'color:#ff8c42':isLate?'color:#ffd700':''}">${s.isKnife?'⚠️ CALL — VERIFY PRICE ACTION':isLate?'⚠️ LATE ENTRY — REDUCE SIZE':'📈 CALL OPPORTUNITY'}</div>
+      <div class="calltitle" style="${s.isKnife?'color:#ff8c42':isLate?'color:#ffd700':(s.status==='RECOVERING'||s.status==='BASING')&&mode==='LEAP'?'color:#ffd700':''}">${s.isKnife?'⚠️ CALL — VERIFY PRICE ACTION':isLate?'⚠️ LATE ENTRY — REDUCE SIZE':(s.status==='RECOVERING')&&mode==='LEAP'?'🟡 LEAP CANDIDATE — RECOVERING':s.status==='BASING'&&mode==='LEAP'?'🟡 LEAP CANDIDATE — BASING':'📈 CALL OPPORTUNITY'}</div>
       <div class="oppgrid">
         <div><div class="opp-lbl" style="color:#224433">STRIKE</div><div class="opp-val" style="color:${s.isKnife?'#ff8c42':isLate?'#ffd700':'#00ff88'}">${cr.strikeRec}</div></div>
         <div><div class="opp-lbl" style="color:#224433">EXPIRY</div><div class="opp-val" style="color:${cr.expiry==='WAIT'?'#555':s.isKnife?'#ff8c42':isLate?'#ffd700':'#00cc66'}">${cr.expiry}</div></div>
@@ -892,7 +905,7 @@ function oppHTML(s){
       </div>
       <div class="opp-note" style="border:1px solid rgba(0,255,136,0.2);background:rgba(0,255,136,0.06);color:#00cc66">${cr.expiryReason}</div>
       ${cr.expiryContext?`<div class="opp-note" style="border:1px solid rgba(255,215,0,0.15);background:rgba(255,215,0,0.04);color:#888;font-size:0.47rem;margin-top:4px;">📊 Zone: ${cr.expiryContext.zone} · Mode: ${cr.expiryContext.mode} · Confirm: ${cr.expiryContext.confirmScore}/5 · RVOL: ${cr.expiryContext.rvol.toFixed(2)}x</div>`:''}
-      <div class="opp-warn">${s.isKnife?'⚠️ FALLING KNIFE — Do NOT enter call · Wait for green close · Check auto-confirmation below':isLate?'⚠️ LATE ENTRY — Momentum may be spent · Reduce size · Tighten stop · Best entry was 0.382–0.5':'⚠️ Wait 9:45 AM · Confirm auto-checklist below · Max 2 calls'}</div>
+      <div class="opp-warn" style="${mode==='LEAP'&&(s.status==='RECOVERING'||s.status==='BASING')?'border-color:rgba(255,215,0,0.3);background:rgba(255,215,0,0.05);color:#ffd700':''}">${s.isKnife?'⚠️ FALLING KNIFE — Do NOT enter call · Wait for green close · Check auto-confirmation below':isLate?'⚠️ LATE ENTRY — Momentum may be spent · Reduce size · Tighten stop · Best entry was 0.382–0.5':mode==='LEAP'&&(s.status==='RECOVERING'||s.status==='BASING')?'🟡 LEAP ENTRY — Slightly ITM strike · Jan expiry · Hold 6–12 months · No swing confirmation needed · Check weekly chart':'⚠️ Wait 9:45 AM · Confirm auto-checklist below · Max 2 calls'}</div>
     </div>`;
   }
   return'';
