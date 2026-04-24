@@ -143,7 +143,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:1
   <div id="header-top">
     <div>
       <div id="app-label">GOODCITIZEN · BREAKOUT SCANNER · LIVE</div>
-      <div id="mode-title">SWING TRADER</div>
+      <div id="mode-title">GoodCitizen Breakout Scanner</div>
       <div id="mkt-row"><div id="mkt-dot"></div><span id="mkt-txt">MARKET CLOSED</span></div>
       <div id="upd">Press SCAN to load live prices</div>
     </div>
@@ -179,6 +179,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:1
     <button class="fb" data-f="P2" onclick="setFilter('P2')">P2</button>
     <span id="fc"></span>
   </div>
+  <div id="watch-banner" style="display:none;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.4);border-radius:6px;padding:10px 16px;margin:4px 0 8px;color:#ffd700;font-family:var(--mono)"></div>
   <div id="cards"></div>
   <div id="empty">Press SCAN · Prices load first · Auto-confirmation follows in seconds<br/><span class="sub">Finnhub prices + Twelve Data EMA/RSI/Candles · All 32 stocks</span></div>
   <div id="footer">Prices: Finnhub · EMA/RSI/Candles: Twelve Data (batch) · Fibs: TradingView · Not financial advice</div>
@@ -675,10 +676,17 @@ function build(sym,price,vol,chg){
     if(!isPut&&!isDeepBase&&['ENTRY ZONE','LATE ENTRY','BREAKOUT NOW','NEAR HIGH','BROKEN OUT','RECOVERING','BASING'].includes(status)){
       const f=FIBS[sym];
       const allFibs=FIB_LEVELS.map(l=>({l,p:fibPrice(sym,l)})).sort((a,b)=>a.p-b.p);
-      const nextRes=allFibs.find(fl=>fl.p>price*1.005);
-      const ext1236=f.low+(f.high-f.low)*1.236;
-      const target=nextRes?nextRes.p.toFixed(2):ext1236.toFixed(2);
-      const targetLabel=nextRes?`${nextRes.l} fib`:'1.236 ext';
+      // LEAP mode: target = full Fib high (1.0). SWING/DAY: next Fib level
+      let target, targetLabel;
+      if(mode==='LEAP'){
+        target=fibPrice(sym,1).toFixed(2);
+        targetLabel='1.0 fib (full high)';
+      } else {
+        const nextRes=allFibs.find(fl=>fl.p>price*1.005);
+        const ext1236=f.low+(f.high-f.low)*1.236;
+        target=nextRes?nextRes.p.toFixed(2):ext1236.toFixed(2);
+        targetLabel=nextRes?`${nextRes.l} fib`:'1.236 ext';
+      }
       const upPct=((target-price)/price*100).toFixed(1);
       const stopLevel=nf.below?nf.below.price:f.low;
       const stop=(stopLevel*0.99).toFixed(2);
@@ -711,6 +719,45 @@ function build(sym,price,vol,chg){
   }catch(e){return null;}
 }
 
+// ═══════════════════════════════════════════════
+// AUTO-FIB RECALCULATION
+// When price breaks above high or below low,
+// reset Fib anchors using 52-week range
+// ═══════════════════════════════════════════════
+const FIB_OVERRIDE = {}; // stores auto-recalculated fibs this session
+const FIB_BROKEN = {}; // tracks which syms are broken out/down
+
+function checkFibStale(sym, price) {
+  const f = FIBS[sym];
+  if (!f) return { stale: false };
+  const range = f.high - f.low;
+  const aboveHigh = price > f.high * 1.02; // 2% above hardcoded high
+  const belowLow = price < f.low * 0.98;   // 2% below hardcoded low
+  if (aboveHigh) return { stale: true, reason: 'BROKEN_HIGH', pct: ((price - f.high) / f.high * 100).toFixed(1) };
+  if (belowLow)  return { stale: true, reason: 'BROKEN_LOW',  pct: ((f.low - price) / f.low * 100).toFixed(1) };
+  return { stale: false };
+}
+
+async function autoRecalcFib(sym, price, finnhubKey) {
+  // Already recalculated this session?
+  if (FIB_OVERRIDE[sym]) return FIB_OVERRIDE[sym];
+  try {
+    // Fetch 52-week high/low from Finnhub quote
+    const r = await fetch(`https://finnhub.io/api/v1/quote?symbol=${sym}&token=${finnhubKey}`);
+    if (!r.ok) return null;
+    const d = await r.json();
+    const w52High = d['52WeekHigh'] || d.h || null;
+    const w52Low  = d['52WeekLow']  || d.l || null;
+    if (!w52High || !w52Low || w52High <= w52Low) return null;
+    // New fib anchors: use 52-week range
+    const newFibs = { low: parseFloat(w52Low.toFixed(2)), high: parseFloat(w52High.toFixed(2)), auto: true };
+    FIB_OVERRIDE[sym] = newFibs;
+    FIBS[sym] = newFibs; // update live
+    console.log(`Auto-recalc ${sym}: low=$${newFibs.low} high=$${newFibs.high} (52-week)`);
+    return newFibs;
+  } catch(e) { return null; }
+}
+
 async function doScan(){
   const rb=document.getElementById('rbtn'),sb=document.getElementById('sbtn');
   rb.textContent='↻';rb.style.color='#ffd700';sb.disabled=true;
@@ -722,7 +769,11 @@ async function doScan(){
   for(let i=0;i<SYMS.length;i++){
     const sym=SYMS[i];
     document.getElementById('upd').textContent=`Prices ${i+1}/${SYMS.length}: ${sym}...`;
-    try{const q=await getQuote(sym);const s=build(sym,q.price,q.vol,q.chg);if(s)res.push(s);}
+    try{const q=await getQuote(sym);
+      // Check if fib anchors are stale — flag for badge display
+      const fibStaleChk=checkFibStale(sym,q.price);
+      if(fibStaleChk.stale)FIB_BROKEN[sym]=fibStaleChk;
+      const s=build(sym,q.price,q.vol,q.chg);if(s)res.push(s);}
     catch(e){errs.push(sym+': '+e.message);}
     if(i<SYMS.length-1)await slp(DELAY);
   }
@@ -742,6 +793,19 @@ async function doScan(){
   stocks.sort((a,b)=>b.fit-a.fit||(SORD[a.status]??3)-(SORD[b.status]??3)||a.pri-b.pri);
   document.getElementById('upd').textContent=`Updated ${new Date().toLocaleTimeString()} · ${res.length}/${SYMS.length} stocks · Fibs: ${fibSource}${fibsUp>0?' ('+fibsUp+' updated)':''}`;
   if(errs.length){const eb=document.getElementById('errbox');eb.style.display='block';eb.innerHTML=errs.join('<br>');}
+  // Watch alert check after full scan completes
+  checkWatchAlerts(stocks);
+  const watchSyms=Object.keys(WATCH_ALERTS).filter(k=>!k.includes('_approaching'));
+  const approachSyms=Object.keys(WATCH_ALERTS).filter(k=>k.includes('_approaching')).map(k=>k.replace('_approaching',''));
+  const banner=document.getElementById('watch-banner');
+  if(banner){
+    if(watchSyms.length||approachSyms.length){
+      let html='';
+      if(watchSyms.length)html+=`<div style="font-size:0.75rem;font-weight:700;margin-bottom:4px;">🚨 CROSSED 0.382 FIB — WATCH NOW: ${watchSyms.join(', ')}</div>`;
+      if(approachSyms.length)html+=`<div style="font-size:0.68rem;color:#ffdd77;">⚡ APPROACHING 0.382: ${approachSyms.join(', ')} — Get ready</div>`;
+      banner.innerHTML=html;banner.style.display='block';
+    }else{banner.style.display='none';}
+  }
   render();
   rb.textContent='↻ REFRESH';rb.style.color='';sb.disabled=false;
   cdV=AUTO_MS/1000;
@@ -749,10 +813,45 @@ async function doScan(){
   autoT=setInterval(()=>doScan(),AUTO_MS);
 }
 
+// ═══════════════════════════════════════════════
+// WATCH ALERT SYSTEM
+// Tracks stocks that just crossed 0.382 Fib
+// into ENTRY ZONE from RECOVERING
+// ═══════════════════════════════════════════════
+const PREV_STATUS = {}; // tracks prior status per sym
+const WATCH_ALERTS = {}; // syms that just crossed 0.382
+
+function checkWatchAlerts(stockList) {
+  const newWatches = [];
+  for (const s of stockList) {
+    const prev = PREV_STATUS[s.sym];
+    const curr = s.status;
+    // Just crossed from RECOVERING into ENTRY ZONE
+    if (prev === 'RECOVERING' && curr === 'ENTRY ZONE' && !s.isKnife) {
+      WATCH_ALERTS[s.sym] = { price: s.price, time: new Date().toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit',hour12:true}), fib382: fibPrice(s.sym, 0.382) };
+      newWatches.push(s.sym);
+    }
+    // Also flag if price is within 0.5% of 0.382 fib (approaching)
+    const fib382 = fibPrice(s.sym, 0.382);
+    if (fib382 && curr === 'RECOVERING') {
+      const distTo382 = (fib382 - s.price) / s.price * 100;
+      if (distTo382 >= 0 && distTo382 <= 1.5) { // within 1.5% of entry
+        if (!WATCH_ALERTS[s.sym + '_approaching']) {
+          WATCH_ALERTS[s.sym + '_approaching'] = { price: s.price, fib382, distPct: distTo382.toFixed(1) };
+          newWatches.push(s.sym + ' (approaching 0.382)');
+        }
+      }
+    }
+    PREV_STATUS[s.sym] = curr;
+  }
+  if (newWatches.length) console.log('WATCH alerts:', newWatches.join(', '));
+  return newWatches;
+}
+
 function render(){
   const m=MODES[mode];
-  document.getElementById('mode-title').textContent=mode+' TRADER';
-  document.getElementById('mode-title').style.color=m.color;
+  document.getElementById('mode-title').textContent='GoodCitizen Breakout Scanner';
+  document.getElementById('mode-title').style.color='#ffffff';
   const sb=document.getElementById('sbtn');
   sb.textContent=`▶  SCAN FOR ${mode} TRADES`;sb.style.background=m.color;sb.style.color='#000';sb.style.border='none';
   document.querySelectorAll('.tab').forEach(t=>{t.className='tab'+(t.dataset.m===mode?' a'+mode[0]:'');});
@@ -938,6 +1037,8 @@ function cardHTML(s){
     const bl=s.bias==='bullish'?'▲ BULLISH':s.bias==='bearish'?'▼ BEARISH':'● NEUTRAL';
     const bb=`<span class="bias-badge ${s.bias}">${bl}</span>`;
     const kb=s.isKnife?`<span class="knife-badge">⚠️ FALLING KNIFE</span>`:'';
+    const fibStaleCheck=checkFibStale(s.sym,s.price);
+    const staleBadge=fibStaleCheck.stale?`<span class="knife-badge" style="background:rgba(0,204,255,0.1);border-color:rgba(0,204,255,0.4);color:#00ccff">⚡ FIB RESET NEEDED ${fibStaleCheck.pct}% ${fibStaleCheck.reason==='BROKEN_HIGH'?'ABOVE HIGH':'BELOW LOW'}</span>`:'';
     const lb=isLE?`<span class="late-badge">⚠️ LATE ENTRY</span>`:'';
     const resLabel=s.fibNear.above?`${s.fibNear.above.level} FIB`:'FIB RES';
 
@@ -978,7 +1079,7 @@ function cardHTML(s){
     <div class="symrow"><span class="sym">${s.sym}</span><span class="sec">${s.sec}</span>
       <span class="${isEZ?'sbadge entry-zone-badge':isLE?'sbadge late-entry-badge':isPut?'sbadge put-zone-badge':'sbadge'}" style="${isEZ||isLE||isPut?'':'color:'+sc+';border-color:'+sc+'33;background:'+sc+'10'}">${s.status}</span>
       <span class="pbadge" style="background:${s.pri===1?'#ff3b3b':s.pri===2?'#ff8c42':'#1e1e2e'};color:${s.pri<=2?'#000':'#666'}">P${s.pri}</span>
-      ${bb}${kb}${lb}</div>
+      ${bb}${kb}${lb}${staleBadge}</div>
     <div class="fitbar">${fitH}</div>
   </div>
   <div class="cright"><div class="price">$${f2(s.price)}</div><div class="chg" style="color:${s.chg>=0?'#00ff88':'#ff4444'}">${s.chg>=0?'+':''}${f2(s.chg)}%</div></div></div>
