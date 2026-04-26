@@ -202,6 +202,17 @@ const FIBS = {
   SHOP:{low:104.92,high:135.96},SOFI:{low:15.23,high:29.86},HOOD:{low:66.02,high:84.75},
   MSTR:{low:104.17,high:149.54},LYFT:{low:12.83,high:23.33},IONQ:{low:27.51,high:41.90},
   MU:{low:321.80,high:455.50},APP:{low:359.00,high:520.36},
+  // ── FINANCIALS ──
+  JPM:{low:238.43,high:337.25},BAC:{low:34.50,high:48.35},GS:{low:384.10,high:659.90},V:{low:240.50,high:362.80},
+  // ── HEALTHCARE ──
+  LLY:{low:623.78,high:1133.95},UNH:{low:285.50,high:630.00},ABBV:{low:176.11,high:244.81},MRNA:{low:22.28,high:59.55},
+  // ── ENERGY ──
+  XOM:{low:95.50,high:130.45},CVX:{low:133.77,high:214.71},OXY:{low:32.00,high:58.80},
+  // ── CONSUMER ──
+  WMT:{low:91.89,high:134.69},COST:{low:750.00,high:1058.00},
+  // ── STREAMING/FINTECH/TECH ──
+  NFLX:{low:542.00,high:1065.00},PYPL:{low:52.50,high:115.90},SQ:{low:45.20,high:108.20},
+  DELL:{low:68.50,high:179.70},RKLB:{low:14.71,high:99.58},
 };
 
 const CALL_TARGETS = {
@@ -450,6 +461,11 @@ const BASE = {
   SHOP:{vol:9.5e6,sec:'eComm'},SOFI:{vol:77e6,sec:'Fintech'},HOOD:{vol:18e6,sec:'Fintech'},
   MSTR:{vol:22e6,sec:'Crypto'},LYFT:{vol:15e6,sec:'Tech'},IONQ:{vol:19e6,sec:'Quantum'},
   MU:{vol:18e6,sec:'Semi'},APP:{vol:5.2e6,sec:'AdTech/AI'},
+  JPM:{vol:8.4e6,sec:'Financials'},BAC:{vol:45e6,sec:'Financials'},GS:{vol:3.2e6,sec:'Financials'},V:{vol:6.8e6,sec:'Payments'},
+  LLY:{vol:3.6e6,sec:'Healthcare'},UNH:{vol:4.2e6,sec:'Healthcare'},ABBV:{vol:6.7e6,sec:'Healthcare'},MRNA:{vol:6e6,sec:'Biotech'},
+  XOM:{vol:16e6,sec:'Energy'},CVX:{vol:10.2e6,sec:'Energy'},OXY:{vol:18e6,sec:'Energy'},
+  WMT:{vol:17.4e6,sec:'Consumer'},COST:{vol:2.8e6,sec:'Consumer'},NFLX:{vol:4.5e6,sec:'Streaming'},
+  PYPL:{vol:14e6,sec:'Fintech'},SQ:{vol:8.5e6,sec:'Fintech'},DELL:{vol:6.2e6,sec:'Technology'},RKLB:{vol:28e6,sec:'Aerospace'},
 };
 const SYMS = Object.keys(BASE);
 
