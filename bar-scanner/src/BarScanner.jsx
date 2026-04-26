@@ -12,6 +12,7 @@ const STYLE = `
   --red:#ff4d6d;--red2:rgba(255,77,109,0.12);
   --blue:#4d9fff;--blue2:rgba(77,159,255,0.1);
   --amber:#ffb347;--amber2:rgba(255,179,71,0.1);
+  --purple:#b47fff;--purple2:rgba(180,127,255,0.12);
   --text:#c8d8e8;--text2:#6a8aaa;--text3:#3a5a7a;
   --mono:'Space Mono',monospace;--sans:'DM Sans',sans-serif;
   --glow-g:0 0 20px rgba(0,229,160,0.15);
@@ -28,7 +29,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .mode-mock{border-color:var(--amber);color:var(--amber);background:var(--amber2)}
 .mode-live{border-color:var(--green);color:var(--green);background:var(--green2)}
 
-/* ── Controls (mobile: stacked, desktop: horizontal) ── */
+/* ── Controls ── */
 .ctrl-panel{background:var(--s1);border-bottom:1px solid var(--border);padding:10px 14px;display:flex;flex-direction:column;gap:10px}
 .ctrl-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .ctrl-label{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--text3);white-space:nowrap;flex-shrink:0}
@@ -52,9 +53,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .m-card{background:var(--s2);border:1px solid var(--border);border-radius:3px;padding:5px 8px;flex:1;text-align:center;min-width:0}
 .m-label{font-family:var(--mono);font-size:7px;letter-spacing:.06em;color:var(--text3);margin-bottom:2px}
 .m-val{font-family:var(--mono);font-size:14px;font-weight:700}
-.cg{color:var(--green)}.cr{color:var(--red)}.cb{color:var(--blue)}.ca{color:var(--amber)}.cw{color:var(--text)}
+.cg{color:var(--green)}.cr{color:var(--red)}.cb{color:var(--blue)}.ca{color:var(--amber)}.cw{color:var(--text)}.cp{color:var(--purple)}
 
-/* ── Mobile: full screen views ── */
+/* ── Signal list ── */
 .mobile-signals{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .sig-item{padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;-webkit-tap-highlight-color:transparent}
 .sig-item:hover,.sig-item:active{background:rgba(77,159,255,.06)}
@@ -74,7 +75,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .conf-fill{height:100%;border-radius:2px}
 .conf-num{font-family:var(--mono);font-size:10px;min-width:24px;text-align:right}
 
-/* ── Detail panel (mobile: full screen overlay, desktop: right column) ── */
+/* ── Detail panel ── */
 .detail-panel{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
 .back-btn{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--s1);cursor:pointer;font-family:var(--mono);font-size:10px;color:var(--text2);border:none;width:100%;text-align:left;-webkit-tap-highlight-color:transparent}
 .back-btn:hover{color:var(--text)}
@@ -112,7 +113,37 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .step-val{font-size:12px;color:var(--text2);line-height:1.6}
 .sig-count-label{padding:8px 16px 4px;font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:.12em}
 
-/* ── Desktop layout (>768px) ── */
+/* ── GEX styles ── */
+.gex-loading{display:flex;align-items:center;justify-content:center;padding:40px;font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.12em}
+.gex-error{background:var(--s1);border:1px solid var(--border);border-radius:4px;padding:16px;font-family:var(--mono);font-size:10px;color:var(--amber);text-align:center}
+.gex-regime{border-radius:4px;padding:14px;margin-bottom:12px;border:1px solid}
+.gex-regime.pos{border-color:rgba(0,229,160,.3);background:var(--green2)}
+.gex-regime.neg{border-color:rgba(255,77,109,.3);background:var(--red2)}
+.gex-regime-label{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--text3);margin-bottom:4px}
+.gex-regime-title{font-family:var(--mono);font-size:16px;font-weight:700;margin-bottom:4px}
+.gex-regime-desc{font-size:11px;color:var(--text2);line-height:1.5}
+.gex-levels{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.gex-level-card{background:var(--s1);border:1px solid var(--border);border-radius:4px;padding:12px}
+.gex-level-label{font-family:var(--mono);font-size:8px;letter-spacing:.1em;color:var(--text3);margin-bottom:4px}
+.gex-level-price{font-family:var(--mono);font-size:16px;font-weight:700}
+.gex-level-sub{font-size:10px;color:var(--text3);margin-top:2px}
+.gex-confluence{border-radius:4px;padding:14px;margin-bottom:12px;border:1px solid}
+.gex-confluence.high{border-color:rgba(0,229,160,.5);background:rgba(0,229,160,.08)}
+.gex-confluence.med{border-color:rgba(255,179,71,.4);background:rgba(255,179,71,.06)}
+.gex-confluence.low{border-color:rgba(255,77,109,.4);background:rgba(255,77,109,.06)}
+.gex-confluence-label{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--text3);margin-bottom:4px}
+.gex-confluence-title{font-family:var(--mono);font-size:13px;font-weight:700;margin-bottom:4px}
+.gex-confluence-desc{font-size:11px;color:var(--text2);line-height:1.6}
+.gex-heatmap{background:var(--s1);border:1px solid var(--border);border-radius:4px;padding:14px;margin-bottom:12px}
+.gex-bar-row{display:flex;align-items:center;gap:8px;padding:3px 0}
+.gex-bar-strike{font-family:var(--mono);font-size:9px;color:var(--text3);min-width:52px;text-align:right}
+.gex-bar-track{flex:1;height:12px;background:var(--s2);border-radius:2px;overflow:hidden;position:relative}
+.gex-bar-fill{height:100%;border-radius:2px;transition:width .3s}
+.gex-bar-val{font-family:var(--mono);font-size:8px;color:var(--text3);min-width:36px}
+.gex-bar-spot{position:absolute;top:0;bottom:0;width:1px;background:var(--amber);opacity:.8}
+.gex-note{font-family:var(--mono);font-size:9px;color:var(--text3);line-height:1.7;background:var(--s1);border:1px solid var(--border);border-radius:4px;padding:10px;margin-bottom:12px}
+
+/* ── Desktop layout ── */
 @media(min-width:769px){
   .hdr{height:52px;padding:0 24px}
   .hdr-logo{font-size:11px;letter-spacing:.2em}
@@ -126,9 +157,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   .back-btn{display:none}
   .opt-grid{grid-template-columns:repeat(3,1fr)}
   .detail-grid{grid-template-columns:1fr 1fr}
+  .gex-levels{grid-template-columns:repeat(4,1fr)}
 }
 
-/* ── Mobile: hide desktop elements ── */
+/* ── Mobile ── */
 @media(max-width:768px){
   .desktop-layout{display:flex;flex-direction:column;flex:1;overflow:hidden}
   .desktop-sidebar{display:flex;flex-direction:column;overflow:hidden}
@@ -176,6 +208,78 @@ function confColor(n){ return n>=80?"var(--green)":n>=65?"var(--amber)":"var(--r
 function fmt(n,d=2){ return Number(n).toFixed(d); }
 function ts(){ return new Date().toTimeString().slice(0,8); }
 function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+function fmtGex(n){
+  if(!n&&n!==0) return "—";
+  const abs=Math.abs(n);
+  if(abs>=1e9) return (n/1e9).toFixed(2)+"B";
+  if(abs>=1e6) return (n/1e6).toFixed(1)+"M";
+  if(abs>=1e3) return (n/1e3).toFixed(0)+"K";
+  return n.toFixed(0);
+}
+
+// ── Confluence logic ──────────────────────────────────────────────────────────
+// Compares bar pattern direction vs GEX regime + gamma flip
+// Returns { level: "high"|"med"|"low", title, desc }
+function calcConfluence(sig, gex) {
+  const patternDir = sig.pattern.includes("bull") ? "bull" : "bear";
+  const regime     = gex.net_gex_label; // "positive" or "negative"
+  const spot       = gex.underlying_price;
+  const flip       = gex.gamma_flip;
+  const callWall   = gex.call_wall?.strike;
+  const putWall    = gex.put_wall?.strike;
+
+  // Bear pattern + negative GEX = dealers amplify moves down = HIGH
+  // Bull pattern + negative GEX = dealers amplify moves up   = HIGH
+  // Any pattern + negative GEX  = momentum favored           = MED+
+  // Any pattern + positive GEX  = mean reversion, move may stall = lower
+
+  const negGex = regime === "negative";
+  const aboveFlip = spot > flip;
+
+  if (patternDir === "bear") {
+    // Bearish bar pattern
+    if (negGex && !aboveFlip) {
+      return {
+        level: "high",
+        title: "HIGH CONVICTION — GEX CONFIRMS",
+        desc: `Negative gamma regime + price below gamma flip ($${fmt(flip)}). Dealers short gamma — they SELL as price falls, amplifying your PUT play. ${callWall ? `Call wall at $${fmt(callWall)} caps any bounce.` : ""}`
+      };
+    }
+    if (negGex && aboveFlip) {
+      return {
+        level: "med",
+        title: "MODERATE — WATCH GAMMA FLIP",
+        desc: `Negative gamma but price still above flip ($${fmt(flip)}). Move becomes amplified once price crosses below flip. ${putWall ? `Put wall at $${fmt(putWall)} is next support.` : ""}`
+      };
+    }
+    return {
+      level: "low",
+      title: "CAUTION — GEX HEADWIND",
+      desc: `Positive gamma regime — dealers BUY dips, dampening the breakdown. Price may stall or mean-revert. ${putWall ? `Put wall at $${fmt(putWall)} = dealer support zone.` : ""} Consider smaller size.`
+    };
+  } else {
+    // Bullish bar pattern
+    if (negGex && aboveFlip) {
+      return {
+        level: "high",
+        title: "HIGH CONVICTION — GEX CONFIRMS",
+        desc: `Negative gamma regime + price above gamma flip ($${fmt(flip)}). Dealers short gamma — they BUY as price rises, amplifying your CALL play. ${putWall ? `Put wall at $${fmt(putWall)} = strong floor.` : ""}`
+      };
+    }
+    if (negGex && !aboveFlip) {
+      return {
+        level: "med",
+        title: "MODERATE — WATCH GAMMA FLIP",
+        desc: `Negative gamma but price still below flip ($${fmt(flip)}). Rally accelerates once price crosses above flip. ${callWall ? `Call wall at $${fmt(callWall)} is resistance.` : ""}`
+      };
+    }
+    return {
+      level: "low",
+      title: "CAUTION — GEX HEADWIND",
+      desc: `Positive gamma regime — dealers SELL into rallies, dampening breakout. ${callWall ? `Call wall at $${fmt(callWall)} = heavy dealer resistance.` : ""} Consider smaller size.`
+    };
+  }
+}
 
 function gen5mBars(price){
   const bars=[];let p=price*0.992;
@@ -201,21 +305,24 @@ function genMockOptions(sig){
 }
 
 export default function BarScanner(){
-  const [signals,   setSignals]   = useState([]);
-  const [scanning,  setScanning]  = useState(false);
-  const [scanDone,  setScanDone]  = useState(false);
-  const [selected,  setSelected]  = useState(null);
-  const [showDetail,setShowDetail]= useState(false); // mobile: show detail panel
-  const [activeTab, setActiveTab] = useState("detail");
-  const [analysis,  setAnalysis]  = useState("");
-  const [analyzing, setAnalyzing] = useState(false);
-  const [bars5m,    setBars5m]    = useState([]);
-  const [options,   setOptions]   = useState([]);
-  const [logs,      setLogs]      = useState([]);
-  const [nearLow,   setNearLow]   = useState(15);
-  const [useLowFilter, setUseLowFilter] = useState(false); // OFF by default
-  const [filterPat, setFilterPat] = useState("all");
-  const [mode,      setMode]      = useState("mock");
+  const [signals,    setSignals]    = useState([]);
+  const [scanning,   setScanning]   = useState(false);
+  const [scanDone,   setScanDone]   = useState(false);
+  const [selected,   setSelected]   = useState(null);
+  const [showDetail, setShowDetail] = useState(false);
+  const [activeTab,  setActiveTab]  = useState("detail");
+  const [analysis,   setAnalysis]   = useState("");
+  const [analyzing,  setAnalyzing]  = useState(false);
+  const [bars5m,     setBars5m]     = useState([]);
+  const [options,    setOptions]    = useState([]);
+  const [logs,       setLogs]       = useState([]);
+  const [nearLow,    setNearLow]    = useState(15);
+  const [useLowFilter, setUseLowFilter] = useState(false);
+  const [filterPat,  setFilterPat]  = useState("all");
+  const [mode,       setMode]       = useState("mock");
+  const [gexData,    setGexData]    = useState(null);
+  const [gexLoading, setGexLoading] = useState(false);
+  const [gexError,   setGexError]   = useState(null);
   const analysisRef = useRef("");
   const logsEndRef  = useRef(null);
 
@@ -228,11 +335,9 @@ export default function BarScanner(){
     setScanning(true);setScanDone(false);
     setSignals([]);setSelected(null);setShowDetail(false);
     setAnalysis("");setBars5m([]);setOptions([]);setLogs([]);
+    setGexData(null);setGexError(null);
     addLog("Connecting to Worker...","b");
-
-    // Pass nearLow=100 when filter is off (returns all signals)
     const effectiveNearLow = useLowFilter ? nearLow : 100;
-
     try{
       const res=await fetch(`${WORKER_URL}/scan?nearLow=${effectiveNearLow}&pattern=${filterPat}`);
       if(!res.ok) throw new Error(`Worker ${res.status}`);
@@ -264,6 +369,7 @@ export default function BarScanner(){
   async function selectSignal(sig){
     setSelected(sig);setShowDetail(true);
     setActiveTab("detail");setAnalysis("");analysisRef.current="";
+    setGexData(null);setGexError(null);
     addLog(`Selected ${sig.ticker}...`,"b");
     try{
       const [bRes,oRes]=await Promise.allSettled([
@@ -276,28 +382,27 @@ export default function BarScanner(){
     await streamAnalysis(sig);
   }
 
+  // Load GEX only when GEX tab is clicked — preserves 5 daily API calls
+  async function loadGex(ticker){
+    if(gexData||gexLoading) return; // already loaded or loading
+    setGexLoading(true);setGexError(null);
+    addLog(`Fetching GEX for ${ticker}...`,"b");
+    try{
+      const res=await fetch(`${WORKER_URL}/gex?ticker=${ticker}`);
+      if(!res.ok) throw new Error(`GEX ${res.status}`);
+      const data=await res.json();
+      if(data.error) throw new Error(data.error);
+      setGexData(data);
+      addLog(`GEX loaded — ${data.net_gex_label} gamma regime`,"g");
+    }catch(e){
+      setGexError(e.message);
+      addLog(`GEX error: ${e.message}`,"r");
+    }
+    setGexLoading(false);
+  }
+
   async function streamAnalysis(sig){
     setAnalyzing(true);analysisRef.current="";
-    const dir=PM[sig.pattern].dir;
-    const prompt=`You are an elite options trader. Analyze this signal with exact prices. Be direct.
-
-${sig.ticker} (${sig.name}) — ${sig.sector}
-Pattern: ${sig.pattern} on 1D
-Price: $${sig.price} | 52W Low: $${sig.low52} | Distance: ${sig.pctFromLow}%
-Mother bar: H$${sig.motherHigh} / L$${sig.motherLow}
-Current bar: H$${sig.high} / L$${sig.low} / Close $${sig.close}
-${sig.pattern.startsWith("inside")?`Inside bar: ${fmt((sig.high-sig.low)/(sig.motherHigh-sig.motherLow)*100,0)}% of mother`:`Outside bar engulfs ${fmt((sig.high-sig.low)/(sig.motherHigh-sig.motherLow)*100,0)}% of prior`}
-Option: ${dir.toUpperCase()} $${dir==="call"?sig.callStrike:sig.putStrike} | ~$${sig.callPremium} | ${sig.daysOut}d
-Confidence: ${sig.confidence}/99
-
-Answer:
-1. SETUP QUALITY — one sentence
-2. 1D ENTRY TRIGGER — exact price
-3. 5-MIN EXECUTION — how to time entry
-4. STOP LOSS — exact level
-5. OPTION PLAY — entry, target, max loss
-6. KEY RISK — one sentence`;
-
     try{
       const res=await fetch(`${WORKER_URL}/analyze`,{
         method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(sig)
@@ -389,7 +494,161 @@ Answer:
     );
   }
 
-  // Signal list (shared between mobile + desktop)
+  // ── GEX Tab Component ────────────────────────────────────────────────────────
+  function GexTab({sig, gexData, gexLoading, gexError}){
+    if(gexLoading){
+      return <div className="gex-loading">⟳ LOADING GEX DATA...</div>;
+    }
+    if(gexError){
+      return(
+        <div className="gex-error">
+          <div style={{marginBottom:"6px"}}>⚠ GEX ERROR</div>
+          <div style={{fontSize:"9px",color:"var(--text3)"}}>{gexError}</div>
+          <div style={{fontSize:"9px",color:"var(--text3)",marginTop:"6px"}}>Free tier: 5 requests/day. Check FlashAlpha key in Worker secrets.</div>
+        </div>
+      );
+    }
+    if(!gexData){
+      return(
+        <div className="gex-loading" style={{flexDirection:"column",gap:"8px"}}>
+          <span>GEX data not loaded</span>
+          <span style={{fontSize:"9px",color:"var(--text3)"}}>Click GEX tab to load (uses 1 of 5 daily API calls)</span>
+        </div>
+      );
+    }
+
+    const regime   = gexData.net_gex_label; // "positive" or "negative"
+    const isPos    = regime === "positive";
+    const flip     = gexData.gamma_flip;
+    const netGex   = gexData.net_gex;
+    const spot     = gexData.underlying_price;
+    const callWall = gexData.call_wall;
+    const putWall  = gexData.put_wall;
+    const strikes  = gexData.strikes || [];
+    const confluence = calcConfluence(sig, gexData);
+
+    // Build heatmap from strikes — show top 12 by absolute GEX
+    const topStrikes = [...strikes]
+      .sort((a,b)=>Math.abs(b.net_gex)-Math.abs(a.net_gex))
+      .slice(0,12)
+      .sort((a,b)=>b.strike-a.strike);
+    const maxAbs = Math.max(...topStrikes.map(s=>Math.abs(s.net_gex)),1);
+
+    return(
+      <>
+        {/* Regime card */}
+        <div className={`gex-regime ${isPos?"pos":"neg"}`}>
+          <div className="gex-regime-label">GAMMA REGIME</div>
+          <div className="gex-regime-title" style={{color:isPos?"var(--green)":"var(--red)"}}>
+            {isPos?"⊕ POSITIVE GAMMA":"⊖ NEGATIVE GAMMA"}
+          </div>
+          <div className="gex-regime-desc">
+            {isPos
+              ?"Dealers are LONG gamma — they sell rallies and buy dips. Moves are dampened. Mean-reversion favored."
+              :"Dealers are SHORT gamma — they buy rallies and sell dips. Moves are amplified. Momentum favored."}
+          </div>
+          <div style={{fontFamily:"var(--mono)",fontSize:"9px",color:"var(--text3)",marginTop:"6px"}}>
+            Net GEX: <span style={{color:isPos?"var(--green)":"var(--red)"}}>{fmtGex(netGex)}</span>
+            &nbsp;·&nbsp;Spot: <span style={{color:"var(--amber)"}}>${fmt(spot)}</span>
+          </div>
+        </div>
+
+        {/* Key levels */}
+        <div className="gex-levels">
+          <div className="gex-level-card">
+            <div className="gex-level-label">GAMMA FLIP</div>
+            <div className="gex-level-price" style={{color:"var(--amber)"}}>${fmt(flip)}</div>
+            <div className="gex-level-sub">
+              Price is {spot>flip?"ABOVE ↑":"BELOW ↓"} flip
+            </div>
+          </div>
+          <div className="gex-level-card">
+            <div className="gex-level-label">CALL WALL</div>
+            <div className="gex-level-price" style={{color:"var(--green)"}}>
+              {callWall?`$${fmt(callWall.strike)}`:"—"}
+            </div>
+            <div className="gex-level-sub">
+              {callWall?`GEX: ${fmtGex(callWall.gex)}`:"Dealer ceiling"}
+            </div>
+          </div>
+          <div className="gex-level-card">
+            <div className="gex-level-label">PUT WALL</div>
+            <div className="gex-level-price" style={{color:"var(--red)"}}>
+              {putWall?`$${fmt(putWall.strike)}`:"—"}
+            </div>
+            <div className="gex-level-sub">
+              {putWall?`GEX: ${fmtGex(putWall.gex)}`:"Dealer floor"}
+            </div>
+          </div>
+          <div className="gex-level-card">
+            <div className="gex-level-label">TRIGGER vs FLIP</div>
+            <div className="gex-level-price" style={{fontSize:"13px",color:"var(--text)"}}>
+              ${fmt(sig.pattern.includes("bull")?sig.motherHigh:sig.motherLow)}
+            </div>
+            <div className="gex-level-sub">Your 1D trigger</div>
+          </div>
+        </div>
+
+        {/* Confluence */}
+        <div className={`gex-confluence ${confluence.level}`}>
+          <div className="gex-confluence-label">PATTERN + GEX CONFLUENCE</div>
+          <div className="gex-confluence-title" style={{
+            color: confluence.level==="high"?"var(--green)":confluence.level==="med"?"var(--amber)":"var(--red)"
+          }}>
+            {confluence.level==="high"?"🎯":"confluence.level==='med'"?"⚡":"⚠"} {confluence.title}
+          </div>
+          <div className="gex-confluence-desc">{confluence.desc}</div>
+        </div>
+
+        {/* Heatmap */}
+        {topStrikes.length > 0 && (
+          <div className="gex-heatmap">
+            <div className="dc-title" style={{marginBottom:"10px"}}>GEX BY STRIKE — TOP 12</div>
+            {topStrikes.map((s,i)=>{
+              const pct = Math.abs(s.net_gex)/maxAbs*100;
+              const isCall = s.net_gex > 0;
+              const isSpot = Math.abs(s.strike - spot) < 0.5;
+              const isFlip = Math.abs(s.strike - flip) < 0.5;
+              return(
+                <div key={i} className="gex-bar-row">
+                  <div className="gex-bar-strike" style={{
+                    color: isSpot?"var(--amber)":isFlip?"var(--purple)":"var(--text3)"
+                  }}>
+                    ${fmt(s.strike,0)}{isSpot?" ◆":isFlip?" ⊘":""}
+                  </div>
+                  <div className="gex-bar-track">
+                    <div className="gex-bar-fill" style={{
+                      width:`${pct}%`,
+                      background: isCall?"var(--green)":"var(--red)",
+                      opacity: 0.7
+                    }}/>
+                  </div>
+                  <div className="gex-bar-val" style={{color:isCall?"var(--green)":"var(--red)"}}>
+                    {fmtGex(s.net_gex)}
+                  </div>
+                </div>
+              );
+            })}
+            <div style={{display:"flex",gap:"16px",marginTop:"8px",fontFamily:"var(--mono)",fontSize:"8px",color:"var(--text3)"}}>
+              <span><span style={{color:"var(--green)"}}>█</span> Call GEX (dealer long)</span>
+              <span><span style={{color:"var(--red)"}}>█</span> Put GEX (dealer short)</span>
+              <span><span style={{color:"var(--amber)"}}>◆</span> Spot</span>
+              <span><span style={{color:"var(--purple)"}}>⊘</span> Flip</span>
+            </div>
+          </div>
+        )}
+
+        {/* Notes */}
+        <div className="gex-note">
+          HOW TO USE: High confluence = GEX amplifies your bar pattern direction. Low confluence = GEX works against you, size down or skip.
+          Gamma flip (${ fmt(flip)}) is the key level — crosses below (bear) or above (bull) unlock amplified moves.
+          Free tier: 5 GEX calls/day. GEX loads only when you click this tab.
+        </div>
+      </>
+    );
+  }
+
+  // Signal list
   const SignalList=()=>(
     <>
       <div className="sig-count-label">
@@ -419,12 +678,26 @@ Answer:
     </>
   );
 
-  // Detail panel content
+  // Detail panel
   const DetailContent=()=>!sig?null:(
     <>
       <div className="main-tabs">
-        {[{k:"detail",l:"SETUP"},{k:"5min",l:"5-MIN"},{k:"options",l:"OPTIONS"},{k:"ai",l:"AI"},{k:"log",l:"LOG"}].map(t=>(
-          <button key={t.k} className={`mtab ${activeTab===t.k?"active":""}`} onClick={()=>setActiveTab(t.k)}>{t.l}</button>
+        {[
+          {k:"detail",  l:"SETUP"},
+          {k:"5min",    l:"5-MIN"},
+          {k:"options", l:"OPTIONS"},
+          {k:"ai",      l:"AI"},
+          {k:"gex",     l:"GEX"},
+          {k:"log",     l:"LOG"},
+        ].map(t=>(
+          <button key={t.k} className={`mtab ${activeTab===t.k?"active":""}`}
+            onClick={()=>{
+              setActiveTab(t.k);
+              // Load GEX on first click of GEX tab
+              if(t.k==="gex" && sig) loadGex(sig.ticker);
+            }}>
+            {t.l}
+          </button>
         ))}
       </div>
       <div className="main-content">
@@ -506,6 +779,9 @@ Answer:
             <div className="analysis-text">{analysis}{analyzing&&<span className="cursor"/>}</div>
           </div>
         )}
+        {activeTab==="gex"&&(
+          <GexTab sig={sig} gexData={gexData} gexLoading={gexLoading} gexError={gexError}/>
+        )}
         {activeTab==="log"&&(
           <div className="log-box">
             {logs.length===0&&<div style={{fontFamily:"var(--mono)",fontSize:"10px",color:"var(--text3)"}}>— awaiting scan —</div>}
@@ -521,15 +797,12 @@ Answer:
     <>
       <style>{STYLE}</style>
       <div className="app">
-        {/* Header */}
         <div className="hdr">
           <div className="hdr-logo"><div className="live-dot"/>BAR_SCANNER // S&P 500 · 1D</div>
           <span className={`mode-tag ${mode==="live"?"mode-live":"mode-mock"}`}>
             {mode==="live"?"● LIVE":"◌ MOCK"}
           </span>
         </div>
-
-        {/* Controls */}
         <div className="ctrl-panel">
           <div className="ctrl-row">
             <span className="ctrl-label">PATTERN</span>
@@ -540,9 +813,7 @@ Answer:
             </div>
           </div>
           <div className="ctrl-row">
-            <button
-              className={`toggle-btn ${useLowFilter?"on":""}`}
-              onClick={()=>setUseLowFilter(v=>!v)}>
+            <button className={`toggle-btn ${useLowFilter?"on":""}`} onClick={()=>setUseLowFilter(v=>!v)}>
               {useLowFilter?"52W LOW ON":"52W LOW OFF"}
             </button>
             {useLowFilter&&(
@@ -557,8 +828,6 @@ Answer:
             </button>
           </div>
         </div>
-
-        {/* Counts */}
         <div className="counts-bar">
           <div className="m-card"><div className="m-label">TOTAL</div><div className="m-val cw">{counts.total}</div></div>
           <div className="m-card"><div className="m-label">IB↑</div><div className="m-val cg">{counts.ib}</div></div>
@@ -566,26 +835,16 @@ Answer:
           <div className="m-card"><div className="m-label">OB↑</div><div className="m-val cb">{counts.ob}</div></div>
           <div className="m-card"><div className="m-label">OB↓</div><div className="m-val ca">{counts.obr}</div></div>
         </div>
-
-        {/* Main layout — responsive */}
         <div className="desktop-layout" style={{flex:1,overflow:"hidden"}}>
-
-          {/* Signal list — hidden on mobile when detail is showing */}
-          <div className="desktop-sidebar" style={{display: showDetail?"none":"flex",flexDirection:"column",overflow:"hidden"}}>
+          <div className="desktop-sidebar" style={{display:showDetail?"none":"flex",flexDirection:"column",overflow:"hidden"}}>
             <SignalList/>
           </div>
-
-          {/* Detail panel — full screen on mobile, right column on desktop */}
           {sig&&(
-            <div className="detail-panel" style={{display: !showDetail?"none":"flex",flexDirection:"column",overflow:"hidden",flex:1}}>
-              <button className="back-btn" onClick={()=>setShowDetail(false)}>
-                ← Back to signals
-              </button>
+            <div className="detail-panel" style={{display:!showDetail?"none":"flex",flexDirection:"column",overflow:"hidden",flex:1}}>
+              <button className="back-btn" onClick={()=>setShowDetail(false)}>← Back to signals</button>
               <DetailContent/>
             </div>
           )}
-
-          {/* Desktop: always show both columns */}
           <style>{`
             @media(min-width:769px){
               .desktop-sidebar{display:flex!important;width:340px;flex-shrink:0}
