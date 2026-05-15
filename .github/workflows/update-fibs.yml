@@ -1,9 +1,9 @@
-name: Update Fibs from Finnhub (Daily)
+name: Update Fibs from Finnhub
 
 on:
   schedule:
-    - cron: '0 10 * * 1-5'   # 10:00 UTC = 6:00 AM ET, Mon–Fri before market open
-  workflow_dispatch:           # Allow manual trigger from GitHub Actions tab
+    - cron: '0 10 * * 1-5'
+  workflow_dispatch:
 
 jobs:
   update-fibs:
@@ -15,82 +15,73 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Fetch 52-week Fib data from Finnhub and update fibs.json
+      - name: Fetch 52-week Fib data and update fibs.json
+        run: |
+          python3 << 'PYEOF'
+          import json, urllib.request, time
+          from datetime import date
+
+          import os
+          FINNHUB_KEY = os.environ["FINNHUB_KEY"]
+
+          SYMS = [
+            "PLTR","AVGO","AMZN","NVDA","META","GOOGL","MSFT","AAPL","AMD","TSLA",
+            "CRM","PANW","NET","DDOG","CRWD","MRVL","SNOW","ARM","SMCI","AMAT",
+            "ORCL","NOW","UBER","COIN","SHOP","SOFI","HOOD","MSTR","LYFT","IONQ",
+            "MU","APP","JPM","BAC","GS","V","LLY","UNH","ABBV","MRNA",
+            "XOM","CVX","OXY","WMT","COST","NFLX","PYPL","SQ","DELL","RKLB"
+          ]
+
+          try:
+            with open("fibs.json","r") as f:
+              data = json.load(f)
+            if "stocks" not in data:
+              data["stocks"] = {}
+          except Exception:
+            data = {"stocks":{}}
+
+          updated = 0
+          failed = []
+
+          for sym in SYMS:
+            try:
+              url = f"https://finnhub.io/api/v1/quote?symbol={sym}&token={FINNHUB_KEY}"
+              req = urllib.request.Request(url, headers={"User-Agent":"GoodCitizen/1.0"})
+              with urllib.request.urlopen(req, timeout=10) as resp:
+                d = json.loads(resp.read().decode())
+              w52h = d.get("52WeekHigh") or d.get("h")
+              w52l = d.get("52WeekLow") or d.get("l")
+              if w52h and w52l and float(w52h) > float(w52l) and float(w52l) > 0:
+                data["stocks"][sym] = {"low":round(float(w52l),2),"high":round(float(w52h),2)}
+                updated += 1
+                print(f"  {sym}: ${w52l:.2f} - ${w52h:.2f}")
+              else:
+                failed.append(sym)
+                print(f"  {sym}: skipped")
+              time.sleep(0.25)
+            except Exception as e:
+              failed.append(sym)
+              print(f"  {sym}: ERROR {e}")
+              time.sleep(1)
+
+          data["updated"] = str(date.today())
+          data["updated_count"] = updated
+          data["source"] = "finnhub-52week"
+
+          with open("fibs.json","w") as f:
+            json.dump(data, f, indent=2)
+
+          print(f"\nDone: {updated}/{len(SYMS)} updated")
+          if failed:
+            print(f"Failed: {', '.join(failed)}")
+          PYEOF
         env:
           FINNHUB_KEY: ${{ secrets.FINNHUB_KEY }}
-        run: |
-          python3 - <<'EOF'
-import json
-import urllib.request
-import time
-from datetime import date
-
-FINNHUB_KEY = "${{ secrets.FINNHUB_KEY }}"
-
-SYMS = [
-  "PLTR","AVGO","AMZN","NVDA","META","GOOGL","MSFT","AAPL","AMD","TSLA",
-  "CRM","PANW","NET","DDOG","CRWD","MRVL","SNOW","ARM","SMCI","AMAT",
-  "ORCL","NOW","UBER","COIN","SHOP","SOFI","HOOD","MSTR","LYFT","IONQ",
-  "MU","APP","JPM","BAC","GS","V","LLY","UNH","ABBV","MRNA",
-  "XOM","CVX","OXY","WMT","COST","NFLX","PYPL","SQ","DELL","RKLB"
-]
-
-# Load existing fibs.json or start fresh
-try:
-    with open("fibs.json", "r") as f:
-        data = json.load(f)
-    if "stocks" not in data:
-        data["stocks"] = {}
-except Exception:
-    data = {"stocks": {}}
-
-updated = 0
-failed = []
-
-for sym in SYMS:
-    try:
-        url = f"https://finnhub.io/api/v1/quote?symbol={sym}&token={FINNHUB_KEY}"
-        req = urllib.request.Request(url, headers={"User-Agent": "GoodCitizen/1.0"})
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            d = json.loads(resp.read().decode())
-
-        w52_high = d.get("52WeekHigh") or d.get("h")
-        w52_low  = d.get("52WeekLow")  or d.get("l")
-
-        if w52_high and w52_low and float(w52_high) > float(w52_low) and float(w52_low) > 0:
-            data["stocks"][sym] = {
-                "low":  round(float(w52_low),  2),
-                "high": round(float(w52_high), 2)
-            }
-            updated += 1
-            print(f"  {sym}: low=${w52_low:.2f}  high=${w52_high:.2f}")
-        else:
-            failed.append(sym)
-            print(f"  {sym}: skipped — invalid data ({d})")
-
-        time.sleep(0.25)   # stay well under Finnhub free tier (60 req/min)
-
-    except Exception as e:
-        failed.append(sym)
-        print(f"  {sym}: ERROR — {e}")
-        time.sleep(1)
-
-data["updated"] = str(date.today())
-data["updated_count"] = updated
-data["source"] = "finnhub-52week"
-
-with open("fibs.json", "w") as f:
-    json.dump(data, f, indent=2)
-
-print(f"\nDone: {updated}/{len(SYMS)} updated")
-if failed:
-    print(f"Failed: {', '.join(failed)}")
-EOF
 
       - name: Commit updated fibs.json
         run: |
           git config user.name "GoodCitizen Bot"
           git config user.email "bot@goodcitizen.dev"
           git add fibs.json
-          git diff --staged --quiet || git commit -m "Auto-update fibs.json — $(date '+%Y-%m-%d') — Finnhub 52-week data"
+          git diff --staged --quiet || git commit -m "Auto-update fibs.json $(date '+%Y-%m-%d')"
           git push
