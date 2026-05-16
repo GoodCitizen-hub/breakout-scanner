@@ -29,7 +29,10 @@ jobs:
             "CRM","PANW","NET","DDOG","CRWD","MRVL","SNOW","ARM","SMCI","AMAT",
             "ORCL","NOW","UBER","COIN","SHOP","SOFI","HOOD","MSTR","LYFT","IONQ",
             "MU","APP","JPM","BAC","GS","V","LLY","UNH","ABBV","MRNA",
-            "XOM","CVX","OXY","WMT","COST","NFLX","PYPL","SQ","DELL","RKLB"
+            "XOM","CVX","OXY","WMT","COST","NFLX","PYPL","SQ","DELL","RKLB",
+            "ACN","COHR","STX","WDC","ANET","AXP","CEG","AVAV","ADBE","TSM",
+            "SNDK","IREN","AEHR","AEIS","APLD","POET","ACHR","SOUN","CRMD","TKC",
+            "GTE","BBAI","NBIS"
           ]
 
           try:
