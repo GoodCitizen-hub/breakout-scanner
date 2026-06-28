@@ -1,4 +1,4 @@
-name: Update Fibs from Finnhub
+name: Update Fibs from Twelve Data
 
 on:
   schedule:
@@ -22,7 +22,7 @@ jobs:
           from datetime import date
 
           import os
-          FINNHUB_KEY = os.environ["FINNHUB_KEY"]
+          TDKEY = os.environ["TDKEY"]
 
           SYMS = [
             "PLTR","AVGO","AMZN","NVDA","META","GOOGL","MSFT","AAPL","AMD","TSLA",
@@ -35,6 +35,7 @@ jobs:
             "GTE","BBAI","NBIS"
           ]
 
+          # Preserve existing file so a partial failure doesn't wipe good data
           try:
             with open("fibs.json","r") as f:
               data = json.load(f)
@@ -46,30 +47,54 @@ jobs:
           updated = 0
           failed = []
 
+          def fetch_52w(sym):
+            """Pull 252 daily bars from Twelve Data and return (low52, high52, bars)."""
+            url = (
+              "https://api.twelvedata.com/time_series"
+              f"?symbol={sym}&interval=1day&outputsize=252"
+              f"&apikey={TDKEY}&format=JSON"
+            )
+            req = urllib.request.Request(url, headers={"User-Agent":"GoodCitizen/1.0"})
+            with urllib.request.urlopen(req, timeout=20) as resp:
+              d = json.loads(resp.read().decode())
+            if d.get("status") == "error":
+              raise RuntimeError(d.get("message","TD error"))
+            vals = d.get("values")
+            if not vals or not isinstance(vals, list):
+              raise RuntimeError("no values")
+            highs = [float(v["high"]) for v in vals if v.get("high") not in (None,"")]
+            lows  = [float(v["low"])  for v in vals if v.get("low")  not in (None,"")]
+            highs = [h for h in highs if h > 0]
+            lows  = [l for l in lows  if l > 0]
+            if not highs or not lows:
+              raise RuntimeError("no valid prices")
+            high52 = max(highs)
+            low52  = min(lows)
+            rng    = high52 - low52
+            # Sanity guards — reject obviously-wrong ranges
+            if low52 <= 0 or high52 <= low52:
+              raise RuntimeError(f"invalid range low={low52} high={high52}")
+            if rng < (low52 * 0.05):
+              raise RuntimeError(f"suspicious range low={low52} high={high52} rng={rng}")
+            if len(vals) < 150:
+              raise RuntimeError(f"insufficient bars {len(vals)}")
+            return low52, high52, len(vals)
+
           for sym in SYMS:
             try:
-              url = f"https://finnhub.io/api/v1/quote?symbol={sym}&token={FINNHUB_KEY}"
-              req = urllib.request.Request(url, headers={"User-Agent":"GoodCitizen/1.0"})
-              with urllib.request.urlopen(req, timeout=10) as resp:
-                d = json.loads(resp.read().decode())
-              w52h = d.get("52WeekHigh") or d.get("h")
-              w52l = d.get("52WeekLow") or d.get("l")
-              if w52h and w52l and float(w52h) > float(w52l) and float(w52l) > 0:
-                data["stocks"][sym] = {"low":round(float(w52l),2),"high":round(float(w52h),2)}
-                updated += 1
-                print(f"  {sym}: ${w52l:.2f} - ${w52h:.2f}")
-              else:
-                failed.append(sym)
-                print(f"  {sym}: skipped")
-              time.sleep(0.25)
+              low52, high52, bars = fetch_52w(sym)
+              data["stocks"][sym] = {"low": round(low52,2), "high": round(high52,2)}
+              updated += 1
+              print(f"  {sym}: ${low52:.2f} - ${high52:.2f}  ({bars} bars)")
             except Exception as e:
               failed.append(sym)
-              print(f"  {sym}: ERROR {e}")
-              time.sleep(1)
+              print(f"  {sym}: ERROR {e}  (kept previous value if any)")
+            # Twelve Data free tier = 8 calls/min. 8s spacing keeps us safely under.
+            time.sleep(8)
 
           data["updated"] = str(date.today())
           data["updated_count"] = updated
-          data["source"] = "finnhub-52week"
+          data["source"] = "twelvedata-52week"
 
           with open("fibs.json","w") as f:
             json.dump(data, f, indent=2)
@@ -79,7 +104,7 @@ jobs:
             print(f"Failed: {', '.join(failed)}")
           PYEOF
         env:
-          FINNHUB_KEY: ${{ secrets.FINNHUB_KEY }}
+          TDKEY: ${{ secrets.TDKEY }}
 
       - name: Commit updated fibs.json
         run: |
