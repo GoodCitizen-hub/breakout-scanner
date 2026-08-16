@@ -2,298 +2,736 @@
   "stocks": {
     "PLTR": {
       "low": 106.37,
-      "high": 207.52
+      "high": 207.52,
+      "swing": {
+        "high": 138.9,
+        "highDate": "2026-07-07",
+        "low": 117.89,
+        "lowDate": "2026-07-28"
+      }
     },
     "AVGO": {
       "low": 281.87,
-      "high": 495.0
+      "high": 495.0,
+      "swing": {
+        "high": 407.52,
+        "highDate": "2026-07-09",
+        "low": 356.43,
+        "lowDate": "2026-07-02"
+      }
     },
     "AMZN": {
       "low": 196.0,
-      "high": 287.2
+      "high": 287.2,
+      "swing": {
+        "high": 258.08,
+        "highDate": "2026-07-16",
+        "low": 226.16,
+        "lowDate": "2026-07-29"
+      }
     },
     "NVDA": {
       "low": 164.07,
-      "high": 236.54
+      "high": 236.54,
+      "swing": {
+        "high": 232.28,
+        "highDate": "2026-06-02",
+        "low": 190.01,
+        "lowDate": "2026-07-29"
+      }
     },
     "META": {
       "low": 520.26,
-      "high": 796.25
+      "high": 796.25,
+      "swing": {
+        "high": 686.08,
+        "highDate": "2026-07-15",
+        "low": 524.49,
+        "lowDate": "2026-07-30"
+      }
     },
     "GOOGL": {
       "low": 196.6,
-      "high": 408.61
+      "high": 408.61,
+      "swing": {
+        "high": 375.27,
+        "highDate": "2026-07-16",
+        "low": 314.9,
+        "lowDate": "2026-07-23"
+      }
     },
     "MSFT": {
       "low": 349.2,
-      "high": 553.72
+      "high": 553.72,
+      "swing": {
+        "high": 466.32,
+        "highDate": "2026-06-01",
+        "low": 349.2,
+        "lowDate": "2026-06-25"
+      }
     },
     "AAPL": {
       "low": 223.78,
-      "high": 344.57
+      "high": 344.57,
+      "swing": {
+        "high": 344.57,
+        "highDate": "2026-07-29",
+        "low": 300.0,
+        "lowDate": "2026-07-31"
+      }
     },
     "AMD": {
       "low": 149.22,
-      "high": 584.73
+      "high": 584.73,
+      "swing": {
+        "high": 584.73,
+        "highDate": "2026-06-30",
+        "low": 424.03,
+        "lowDate": "2026-07-29"
+      }
     },
     "TSLA": {
       "low": 297.38,
-      "high": 498.83
+      "high": 498.83,
+      "swing": {
+        "high": 432.86,
+        "highDate": "2026-07-01",
+        "low": 297.38,
+        "lowDate": "2026-07-29"
+      }
     },
     "CRM": {
       "low": 146.32,
-      "high": 269.11
+      "high": 269.11,
+      "swing": {
+        "high": 211.34,
+        "highDate": "2026-06-01",
+        "low": 155.15,
+        "lowDate": "2026-07-23"
+      }
     },
     "PANW": {
       "low": 139.57,
-      "high": 398.87
+      "high": 398.88,
+      "swing": {
+        "high": 368.8,
+        "highDate": "2026-07-17",
+        "low": 308.54,
+        "lowDate": "2026-07-28"
+      }
     },
     "NET": {
       "low": 158.83,
-      "high": 332.22
+      "high": 332.22,
+      "swing": {
+        "high": 291.0,
+        "highDate": "2026-07-15",
+        "low": 250.69,
+        "lowDate": "2026-07-28"
+      }
     },
     "DDOG": {
       "low": 98.01,
-      "high": 292.72
+      "high": 292.72,
+      "swing": {
+        "high": 276.7,
+        "highDate": "2026-07-15",
+        "low": 212.73,
+        "lowDate": "2026-06-25"
+      }
     },
     "CRWD": {
       "low": 85.68,
-      "high": 226.9
+      "high": 227.5,
+      "swing": {
+        "high": 217.5,
+        "highDate": "2026-07-15",
+        "low": 174.14,
+        "lowDate": "2026-07-28"
+      }
     },
     "MRVL": {
       "low": 61.44,
-      "high": 329.88
+      "high": 329.88,
+      "swing": {
+        "high": 329.88,
+        "highDate": "2026-06-18",
+        "low": 162.9,
+        "lowDate": "2026-07-29"
+      }
     },
     "SNOW": {
       "low": 118.3,
-      "high": 341.95
+      "high": 341.95,
+      "swing": {
+        "high": 284.99,
+        "highDate": "2026-06-01",
+        "low": 253.59,
+        "lowDate": "2026-07-28"
+      }
     },
     "ARM": {
       "low": 100.02,
-      "high": 452.7
+      "high": 452.7,
+      "swing": {
+        "high": 452.7,
+        "highDate": "2026-06-18",
+        "low": 298.38,
+        "lowDate": "2026-06-09"
+      }
     },
     "SMCI": {
       "low": 19.48,
-      "high": 58.78
+      "high": 58.78,
+      "swing": {
+        "high": 32.59,
+        "highDate": "2026-07-23",
+        "low": 23.38,
+        "lowDate": "2026-07-17"
+      }
     },
     "AMAT": {
       "low": 154.47,
-      "high": 739.67
+      "high": 739.67,
+      "swing": {
+        "high": 739.67,
+        "highDate": "2026-06-30",
+        "low": 436.33,
+        "lowDate": "2026-07-29"
+      }
     },
     "ORCL": {
       "low": 114.5,
-      "high": 345.72
+      "high": 345.72,
+      "swing": {
+        "high": 250.25,
+        "highDate": "2026-06-01",
+        "low": 114.5,
+        "lowDate": "2026-07-28"
+      }
     },
     "NOW": {
       "low": 81.24,
-      "high": 194.73
+      "high": 194.73,
+      "swing": {
+        "high": 113.79,
+        "highDate": "2026-07-07",
+        "low": 91.53,
+        "lowDate": "2026-07-23"
+      }
     },
     "UBER": {
       "low": 65.41,
-      "high": 101.99
+      "high": 101.99,
+      "swing": {
+        "high": 77.76,
+        "highDate": "2026-06-29",
+        "low": 65.41,
+        "lowDate": "2026-07-27"
+      }
     },
     "COIN": {
       "low": 139.11,
-      "high": 402.16
+      "high": 402.16,
+      "swing": {
+        "high": 181.49,
+        "highDate": "2026-07-21",
+        "low": 139.11,
+        "lowDate": "2026-07-31"
+      }
     },
     "SHOP": {
       "low": 94.0,
-      "high": 182.19
+      "high": 182.19,
+      "swing": {
+        "high": 130.75,
+        "highDate": "2026-07-10",
+        "low": 111.06,
+        "lowDate": "2026-07-23"
+      }
     },
     "SOFI": {
       "low": 14.88,
-      "high": 32.73
+      "high": 32.73,
+      "swing": {
+        "high": 19.74,
+        "highDate": "2026-07-10",
+        "low": 14.88,
+        "lowDate": "2026-07-29"
+      }
     },
     "HOOD": {
       "low": 63.52,
-      "high": 153.86
+      "high": 153.86,
+      "swing": {
+        "high": 120.05,
+        "highDate": "2026-07-02",
+        "low": 83.68,
+        "lowDate": "2026-07-31"
+      }
     },
     "MSTR": {
       "low": 81.81,
-      "high": 399.44
+      "high": 381.0,
+      "swing": {
+        "high": 104.6,
+        "highDate": "2026-07-21",
+        "low": 89.21,
+        "lowDate": "2026-07-31"
+      }
     },
     "LYFT": {
       "low": 12.46,
-      "high": 25.54
+      "high": 25.54,
+      "swing": {
+        "high": 16.52,
+        "highDate": "2026-07-16",
+        "low": 13.49,
+        "lowDate": "2026-07-23"
+      }
     },
     "IONQ": {
       "low": 25.89,
-      "high": 84.64
+      "high": 84.64,
+      "swing": {
+        "high": 73.65,
+        "highDate": "2026-06-03",
+        "low": 31.81,
+        "lowDate": "2026-07-29"
+      }
     },
     "MU": {
       "low": 113.46,
-      "high": 1255.0
+      "high": 1255.0,
+      "swing": {
+        "high": 1255.0,
+        "highDate": "2026-06-25",
+        "low": 737.88,
+        "lowDate": "2026-07-29"
+      }
     },
     "APP": {
       "low": 303.17,
-      "high": 745.61
+      "high": 745.61,
+      "swing": {
+        "high": 576.46,
+        "highDate": "2026-07-02",
+        "low": 418.46,
+        "lowDate": "2026-06-25"
+      }
     },
     "JPM": {
       "low": 279.1,
-      "high": 366.5
+      "high": 366.5,
+      "swing": {
+        "high": 343.45,
+        "highDate": "2026-06-25",
+        "low": 293.67,
+        "lowDate": "2026-05-20"
+      }
     },
     "BAC": {
       "low": 46.12,
-      "high": 65.2
+      "high": 65.2,
+      "swing": {
+        "high": 54.2,
+        "highDate": "2026-05-06",
+        "low": 49.3,
+        "lowDate": "2026-05-15"
+      }
     },
     "GS": {
       "low": 705.55,
-      "high": 1153.99
+      "high": 1153.99,
+      "swing": {
+        "high": 1153.99,
+        "highDate": "2026-07-15",
+        "low": 977.7,
+        "lowDate": "2026-07-29"
+      }
     },
     "V": {
       "low": 293.89,
-      "high": 373.97
+      "high": 373.97,
+      "swing": {
+        "high": 373.97,
+        "highDate": "2026-07-29",
+        "low": 309.0,
+        "lowDate": "2026-06-03"
+      }
     },
     "LLY": {
-      "low": 644.5,
-      "high": 1249.45
+      "low": 655.1,
+      "high": 1249.45,
+      "swing": {
+        "high": 1249.45,
+        "highDate": "2026-07-07",
+        "low": 1134.4,
+        "lowDate": "2026-07-15"
+      }
     },
     "UNH": {
       "low": 255.97,
-      "high": 461.62
+      "high": 461.62,
+      "swing": {
+        "high": 461.62,
+        "highDate": "2026-07-16",
+        "low": 374.72,
+        "lowDate": "2026-06-02"
+      }
     },
     "ABBV": {
       "low": 190.75,
-      "high": 267.47
+      "high": 267.47,
+      "swing": {
+        "high": 267.47,
+        "highDate": "2026-07-29",
+        "low": 243.07,
+        "lowDate": "2026-07-15"
+      }
     },
     "MRNA": {
       "low": 22.28,
-      "high": 85.6
+      "high": 85.6,
+      "swing": {
+        "high": 85.6,
+        "highDate": "2026-07-06",
+        "low": 43.9,
+        "lowDate": "2026-06-02"
+      }
     },
     "XOM": {
       "low": 105.67,
-      "high": 176.41
+      "high": 176.41,
+      "swing": {
+        "high": 163.68,
+        "highDate": "2026-05-20",
+        "low": 134.95,
+        "lowDate": "2026-06-25"
+      }
     },
     "CVX": {
       "low": 146.49,
-      "high": 214.71
+      "high": 214.71,
+      "swing": {
+        "high": 197.69,
+        "highDate": "2026-07-23",
+        "low": 164.78,
+        "lowDate": "2026-07-01"
+      }
     },
     "OXY": {
       "low": 38.8,
-      "high": 67.45
+      "high": 67.45,
+      "swing": {
+        "high": 58.99,
+        "highDate": "2026-07-23",
+        "low": 47.77,
+        "lowDate": "2026-07-01"
+      }
     },
     "WMT": {
       "low": 95.42,
-      "high": 135.16
+      "high": 135.16,
+      "swing": {
+        "high": 118.09,
+        "highDate": "2026-07-17",
+        "low": 106.79,
+        "lowDate": "2026-07-23"
+      }
     },
     "COST": {
       "low": 844.06,
-      "high": 1096.5
+      "high": 1096.5,
+      "swing": {
+        "high": 987.55,
+        "highDate": "2026-07-28",
+        "low": 907.21,
+        "lowDate": "2026-07-10"
+      }
     },
     "NFLX": {
       "low": 65.08,
-      "high": 126.71
+      "high": 126.71,
+      "swing": {
+        "high": 91.48,
+        "highDate": "2026-05-19",
+        "low": 65.08,
+        "lowDate": "2026-07-17"
+      }
     },
     "PYPL": {
       "low": 38.46,
-      "high": 79.22
+      "high": 79.22,
+      "swing": {
+        "high": 45.98,
+        "highDate": "2026-06-01",
+        "low": 40.2,
+        "lowDate": "2026-06-11"
+      }
     },
     "DELL": {
       "low": 110.22,
-      "high": 514.0
+      "high": 514.0,
+      "swing": {
+        "high": 463.48,
+        "highDate": "2026-07-14",
+        "low": 358.88,
+        "lowDate": "2026-07-28"
+      }
     },
     "RKLB": {
       "low": 37.57,
-      "high": 151.0
+      "high": 151.0,
+      "swing": {
+        "high": 151.0,
+        "highDate": "2026-05-27",
+        "low": 58.2,
+        "lowDate": "2026-07-29"
+      }
     },
     "ACN": {
       "low": 118.15,
-      "high": 291.09
+      "high": 291.09,
+      "swing": {
+        "high": 198.0,
+        "highDate": "2026-06-01",
+        "low": 118.15,
+        "lowDate": "2026-06-22"
+      }
     },
     "COHR": {
       "low": 84.35,
-      "high": 440.0
+      "high": 440.0,
+      "swing": {
+        "high": 439.68,
+        "highDate": "2026-06-22",
+        "low": 220.68,
+        "lowDate": "2026-07-29"
+      }
     },
     "STX": {
       "low": 152.05,
-      "high": 1145.0
+      "high": 1145.0,
+      "swing": {
+        "high": 1145.0,
+        "highDate": "2026-06-18",
+        "low": 698.99,
+        "lowDate": "2026-07-28"
+      }
     },
     "WDC": {
       "low": 73.14,
-      "high": 799.87
+      "high": 799.87,
+      "swing": {
+        "high": 580.0,
+        "highDate": "2026-07-31",
+        "low": 480.87,
+        "lowDate": "2026-06-09"
+      }
     },
     "ANET": {
       "low": 114.52,
-      "high": 214.89
+      "high": 214.89,
+      "swing": {
+        "high": 189.82,
+        "highDate": "2026-07-09",
+        "low": 156.84,
+        "lowDate": "2026-07-29"
+      }
     },
     "AXP": {
       "low": 290.97,
-      "high": 387.49
+      "high": 387.49,
+      "swing": {
+        "high": 363.14,
+        "highDate": "2026-07-16",
+        "low": 318.2,
+        "lowDate": "2026-07-24"
+      }
     },
     "CEG": {
       "low": 228.63,
-      "high": 412.7
+      "high": 412.7,
+      "swing": {
+        "high": 282.77,
+        "highDate": "2026-06-18",
+        "low": 228.63,
+        "lowDate": "2026-07-01"
+      }
     },
     "AVAV": {
       "low": 135.2,
-      "high": 417.86
+      "high": 417.86,
+      "swing": {
+        "high": 200.38,
+        "highDate": "2026-07-02",
+        "low": 139.1,
+        "lowDate": "2026-07-15"
+      }
     },
     "ADBE": {
       "low": 190.12,
-      "high": 370.86
+      "high": 370.86,
+      "swing": {
+        "high": 275.44,
+        "highDate": "2026-06-01",
+        "low": 210.88,
+        "lowDate": "2026-07-23"
+      }
     },
     "TSM": {
       "low": 223.7,
-      "high": 479.0
+      "high": 479.0,
+      "swing": {
+        "high": 479.0,
+        "highDate": "2026-06-30",
+        "low": 372.72,
+        "lowDate": "2026-07-29"
+      }
     },
     "SNDK": {
       "low": 42.82,
-      "high": 2354.39
+      "high": 2354.39,
+      "swing": {
+        "high": 2354.39,
+        "highDate": "2026-06-22",
+        "low": 998.19,
+        "lowDate": "2026-07-29"
+      }
     },
     "IREN": {
       "low": 17.22,
-      "high": 76.87
+      "high": 76.87,
+      "swing": {
+        "high": 70.71,
+        "highDate": "2026-06-03",
+        "low": 28.93,
+        "lowDate": "2026-07-29"
+      }
     },
     "AEHR": {
       "low": 16.38,
-      "high": 133.35
+      "high": 147.4,
+      "swing": {
+        "high": 110.2,
+        "highDate": "2026-07-15",
+        "low": 63.81,
+        "lowDate": "2026-07-29"
+      }
     },
     "AEIS": {
       "low": 143.38,
-      "high": 397.44
+      "high": 397.44,
+      "swing": {
+        "high": 389.79,
+        "highDate": "2026-06-22",
+        "low": 248.79,
+        "lowDate": "2026-07-29"
+      }
     },
     "APLD": {
       "low": 13.16,
-      "high": 50.73
+      "high": 50.73,
+      "swing": {
+        "high": 50.73,
+        "highDate": "2026-05-28",
+        "low": 22.93,
+        "lowDate": "2026-07-29"
+      }
     },
     "POET": {
       "low": 3.87,
-      "high": 20.81
+      "high": 20.81,
+      "swing": {
+        "high": 15.94,
+        "highDate": "2026-06-04",
+        "low": 6.28,
+        "lowDate": "2026-07-28"
+      }
     },
     "ACHR": {
       "low": 4.3,
-      "high": 14.62
+      "high": 14.62,
+      "swing": {
+        "high": 5.6,
+        "highDate": "2026-07-21",
+        "low": 4.3,
+        "lowDate": "2026-07-17"
+      }
     },
     "SOUN": {
       "low": 5.65,
-      "high": 22.17
+      "high": 22.17,
+      "swing": {
+        "high": 9.52,
+        "highDate": "2026-06-01",
+        "low": 5.65,
+        "lowDate": "2026-07-29"
+      }
     },
     "CRMD": {
       "low": 6.13,
-      "high": 14.96
+      "high": 14.96,
+      "swing": {
+        "high": 8.98,
+        "highDate": "2026-07-08",
+        "low": 7.5,
+        "lowDate": "2026-06-29"
+      }
     },
     "TKC": {
       "low": 5.29,
-      "high": 7.18
+      "high": 7.18,
+      "swing": {
+        "high": 6.01,
+        "highDate": "2026-07-16",
+        "low": 5.29,
+        "lowDate": "2026-07-31"
+      }
     },
     "GTE": {
       "low": 3.09,
-      "high": 11.52
+      "high": 11.52,
+      "swing": {
+        "high": 9.7,
+        "highDate": "2026-05-04",
+        "low": 5.65,
+        "lowDate": "2026-07-02"
+      }
     },
     "BBAI": {
       "low": 2.59,
-      "high": 9.39
+      "high": 9.39,
+      "swing": {
+        "high": 5.46,
+        "highDate": "2026-06-01",
+        "low": 2.59,
+        "lowDate": "2026-07-29"
+      }
     },
     "NBIS": {
       "low": 62.01,
-      "high": 299.86
+      "high": 299.86,
+      "swing": {
+        "high": 230.3,
+        "highDate": "2026-07-23",
+        "low": 145.8,
+        "lowDate": "2026-07-29"
+      }
     },
-    "SQ": {
+    "XYZ": {
       "low": 48.21,
-      "high": 86.75
+      "high": 86.75,
+      "swing": {
+        "high": 84.08,
+        "highDate": "2026-07-15",
+        "low": 65.46,
+        "lowDate": "2026-06-11"
+      }
     }
   },
-  "updated": "2026-08-14",
+  "updated": "2026-08-16",
   "updated_count": 73,
-  "source": "twelvedata-52week"
+  "source": "twelvedata-52week+swing"
 }
