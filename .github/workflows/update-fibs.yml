@@ -15,7 +15,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Fetch 52-week Fib data and update fibs.json
+      - name: Fetch 52-week Fib data + swing pivots and update fibs.json
         run: |
           python3 << 'PYEOF'
           import json, urllib.request, time
@@ -29,7 +29,7 @@ jobs:
             "CRM","PANW","NET","DDOG","CRWD","MRVL","SNOW","ARM","SMCI","AMAT",
             "ORCL","NOW","UBER","COIN","SHOP","SOFI","HOOD","MSTR","LYFT","IONQ",
             "MU","APP","JPM","BAC","GS","V","LLY","UNH","ABBV","MRNA",
-            "XOM","CVX","OXY","WMT","COST","NFLX","PYPL","SQ","DELL","RKLB",
+            "XOM","CVX","OXY","WMT","COST","NFLX","PYPL","XYZ","DELL","RKLB",
             "ACN","COHR","STX","WDC","ANET","AXP","CEG","AVAV","ADBE","TSM",
             "SNDK","IREN","AEHR","AEIS","APLD","POET","ACHR","SOUN","CRMD","TKC",
             "GTE","BBAI","NBIS"
@@ -44,11 +44,40 @@ jobs:
           except Exception:
             data = {"stocks":{}}
 
+          # Drop retired tickers so stale data can't linger
+          data["stocks"].pop("SQ", None)
+
           updated = 0
           failed = []
 
+          PIVOT_DEPTH = 10  # bars each side to confirm a swing pivot
+
+          def find_pivots(vals, depth=PIVOT_DEPTH):
+            """vals are newest-first from Twelve Data.
+            Return most recent CONFIRMED swing high and swing low:
+            a bar whose high (low) is the extreme within +/- depth bars.
+            Returns (swingHigh, swingHighDate, swingLow, swingLowDate) — any may be None."""
+            highs, lows, dates = [], [], []
+            for v in vals:
+              try:
+                highs.append(float(v["high"])); lows.append(float(v["low"]))
+                dates.append(v.get("datetime",""))
+              except Exception:
+                highs.append(0.0); lows.append(0.0); dates.append("")
+            n = len(vals)
+            sh = shd = sl = sld = None
+            for i in range(depth, n - depth):
+              if sh is None and highs[i] > 0 and highs[i] == max(highs[i-depth:i+depth+1]):
+                sh, shd = highs[i], dates[i]
+              if sl is None and lows[i] > 0 and lows[i] == min(lows[i-depth:i+depth+1]):
+                sl, sld = lows[i], dates[i]
+              if sh is not None and sl is not None:
+                break
+            return sh, shd, sl, sld
+
           def fetch_52w(sym):
-            """Pull 252 daily bars from Twelve Data and return (low52, high52, bars)."""
+            """Pull 252 daily bars from Twelve Data.
+            Return (low52, high52, bars, swing dict-or-None)."""
             url = (
               "https://api.twelvedata.com/time_series"
               f"?symbol={sym}&interval=1day&outputsize=252"
@@ -78,14 +107,30 @@ jobs:
               raise RuntimeError(f"suspicious range low={low52} high={high52} rng={rng}")
             if len(vals) < 150:
               raise RuntimeError(f"insufficient bars {len(vals)}")
-            return low52, high52, len(vals)
+
+            # Swing pivots from the SAME bars — zero extra API cost.
+            sh, shd, sl, sld = find_pivots(vals)
+            swing = None
+            if sh is not None and sl is not None and sh > 0 and sl > 0:
+              # Sanity: pivots must sit inside the 52w range (tolerance for rounding)
+              if sl >= low52 * 0.999 and sh <= high52 * 1.001:
+                swing = {
+                  "high": round(sh,2), "highDate": shd,
+                  "low":  round(sl,2), "lowDate": sld,
+                }
+            return low52, high52, len(vals), swing
 
           for sym in SYMS:
             try:
-              low52, high52, bars = fetch_52w(sym)
-              data["stocks"][sym] = {"low": round(low52,2), "high": round(high52,2)}
+              low52, high52, bars, swing = fetch_52w(sym)
+              entry = {"low": round(low52,2), "high": round(high52,2)}
+              if swing:
+                entry["swing"] = swing
+                print(f"  {sym}: ${low52:.2f} - ${high52:.2f}  ({bars} bars)  swing ${swing['low']:.2f} ({swing['lowDate'][:10]}) - ${swing['high']:.2f} ({swing['highDate'][:10]})")
+              else:
+                print(f"  {sym}: ${low52:.2f} - ${high52:.2f}  ({bars} bars)  swing: none confirmed")
+              data["stocks"][sym] = entry
               updated += 1
-              print(f"  {sym}: ${low52:.2f} - ${high52:.2f}  ({bars} bars)")
             except Exception as e:
               failed.append(sym)
               print(f"  {sym}: ERROR {e}  (kept previous value if any)")
@@ -94,7 +139,7 @@ jobs:
 
           data["updated"] = str(date.today())
           data["updated_count"] = updated
-          data["source"] = "twelvedata-52week"
+          data["source"] = "twelvedata-52week+swing"
 
           with open("fibs.json","w") as f:
             json.dump(data, f, indent=2)
