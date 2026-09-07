@@ -162,7 +162,7 @@
     },
     "SNOW": {
       "low": 118.3,
-      "high": 384.55,
+      "high": 384.56,
       "swing": {
         "high": 341.95,
         "highDate": "2026-08-12",
@@ -472,7 +472,7 @@
     },
     "DELL": {
       "low": 110.22,
-      "high": 534.75,
+      "high": 534.99,
       "swing": {
         "high": 514.0,
         "highDate": "2026-08-13",
@@ -731,7 +731,7 @@
       }
     }
   },
-  "updated": "2026-09-04",
-  "updated_count": 72,
+  "updated": "2026-09-07",
+  "updated_count": 73,
   "source": "twelvedata-52week+swing"
 }
