@@ -272,7 +272,7 @@
     },
     "MSTR": {
       "low": 81.81,
-      "high": 336.36,
+      "high": 328.99,
       "swing": {
         "high": 171.19,
         "highDate": "2026-09-22",
@@ -304,8 +304,8 @@
       "low": 179.61,
       "high": 1255.0,
       "swing": {
-        "high": 1036.13,
-        "highDate": "2026-08-17",
+        "high": 1108.72,
+        "highDate": "2026-09-25",
         "low": 902.6,
         "lowDate": "2026-09-14"
       }
@@ -382,7 +382,7 @@
     },
     "ABBV": {
       "low": 190.75,
-      "high": 274.94,
+      "high": 277.4,
       "swing": {
         "high": 266.97,
         "highDate": "2026-08-19",
@@ -392,7 +392,7 @@
     },
     "MRNA": {
       "low": 22.28,
-      "high": 212.22,
+      "high": 219.8,
       "swing": {
         "high": 176.66,
         "highDate": "2026-08-19",
@@ -446,8 +446,8 @@
       "swing": {
         "high": 978.7,
         "highDate": "2026-08-19",
-        "low": 907.21,
-        "lowDate": "2026-07-10"
+        "low": 883.1,
+        "lowDate": "2026-09-25"
       }
     },
     "NFLX": {
@@ -654,14 +654,14 @@
       "low": 4.3,
       "high": 14.62,
       "swing": {
-        "high": 7.29,
-        "highDate": "2026-08-14",
+        "high": 5.8,
+        "highDate": "2026-09-25",
         "low": 4.3,
         "lowDate": "2026-07-17"
       }
     },
     "SOUN": {
-      "low": 5.48,
+      "low": 5.4,
       "high": 22.17,
       "swing": {
         "high": 8.19,
@@ -731,7 +731,7 @@
       }
     }
   },
-  "updated": "2026-10-08",
-  "updated_count": 73,
+  "updated": "2026-10-09",
+  "updated_count": 72,
   "source": "twelvedata-52week+swing"
 }
